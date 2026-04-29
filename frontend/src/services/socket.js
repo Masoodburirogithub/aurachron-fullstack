@@ -1,0 +1,27 @@
+// src/services/socket.js
+import { io } from 'socket.io-client';
+
+let socket = null;
+
+export const initSocket = () => {
+  if (!socket) {
+    socket = io(import.meta.env.VITE_WS_URL || 'http://localhost:5000', {
+      transports: ['websocket'],
+    });
+    
+    const token = localStorage.getItem('token');
+    if (token) {
+      socket.emit('admin-auth', token);
+    }
+  }
+  return socket;
+};
+
+export const getSocket = () => socket;
+
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+};
