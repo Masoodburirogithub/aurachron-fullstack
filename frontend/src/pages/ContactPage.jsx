@@ -169,7 +169,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Phone</p>
-                    <p style={{ color: '#4b5563' }}>+92 333 39509075</p>
+                    <p style={{ color: '#4b5563' }}>+92 3112616192</p>
                     <p style={{ fontSize: '12px', color: '#6b7280' }}>Mon-Fri, 9am-6pm</p>
                   </div>
                 </div>
