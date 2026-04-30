@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play, TrendingUp, Clock, Award, Sparkles } from 'lucide-react';
-import background from '../../assets/main-background.mp4';
+import background from '../../../src/assets/main-background.mp4';
 
 const HeroSection = () => {
   const videoRef = useRef(null);
