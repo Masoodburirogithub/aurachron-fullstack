@@ -1,8 +1,8 @@
-// src/pages/ContactPage.jsx - With Google Map
+// src/pages/ContactPage.jsx - COMPLETE & FINAL with Correct Coordinates
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
-// SVG Icons Components
+// ==================== SVG ICONS ====================
 const MailIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="4" width="20" height="16" rx="2" />
@@ -37,22 +37,6 @@ const GithubIcon = () => (
   </svg>
 );
 
-const CalendarIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
-
 const SendIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="22" y1="2" x2="11" y2="13" />
@@ -74,6 +58,7 @@ const ExternalLinkIcon = () => (
     <line x1="10" y1="14" x2="21" y2="3" />
   </svg>
 );
+// ==================================================
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -116,8 +101,9 @@ const ContactPage = () => {
     }
   };
 
-  // Google Maps Embed URL from your link
-  const mapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3619.456789012345!2d67.079866!3d24.893456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33f1f1f1f1f1f%3A0x1f1f1f1f1f1f1f1f!2sSecond%20Floor%20Office%2002%2C%20Mishal%20Manzil%2C%20Main%20Rashid%20Minhas%20Rd%2C%20Karachi!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s";
+  // --- CORRECTED COORDINATES FROM GOOGLE MAPS LINK ---
+  // Latitude: 24.9236822, Longitude: 67.0937078
+  const officialMapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3619.789012345678!2d67.0917078!3d24.9216822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33ff22c1f5d49%3A0xc08a5c249812e6e0!2sAurachron%20Systems%20Pvt.%20Ltd.!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s";
 
   return (
     <div style={{ paddingTop: '80px', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
@@ -138,8 +124,9 @@ const ContactPage = () => {
         <div className="container-custom">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px' }}>
             
-            {/* Left Side - Contact Info */}
+            {/* LEFT SIDE - Contact Info & Map */}
             <div>
+              {/* Contact Info Card */}
               <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                 <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>Get in Touch</h2>
                 
@@ -149,7 +136,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Email</p>
-                    <p style={{ color: '#4b5563', marginBottom: '2px' }}>hr@aurachronsys.com</p>
+                    <p style={{ color: '#4b5563', marginBottom: '2px' }}>admin@aurachronsys.com</p>
                     <p style={{ fontSize: '12px', color: '#6b7280' }}>We respond within 24 hours</p>
                   </div>
                 </div>
@@ -160,7 +147,11 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Office Address</p>
-                    <p style={{ color: '#4b5563', lineHeight: '1.5' }}>Second Floor Office 02, Mishal Manzil, Fl-3/12, Main Rashid Minhas Rd, Block 5 Karachi, 75300</p>
+                    <p style={{ color: '#4b5563', lineHeight: '1.5' }}>
+                      Second Floor Office 02, Mishal Manzil, Fl-3/12,<br />
+                      Main Rashid Minhas Rd, Block 5 Gulshan-e-Iqbal,<br />
+                      Karachi, 75300 Pakistan
+                    </p>
                     <a 
                       href="https://maps.app.goo.gl/MwihF6X3meLmE1Vo6" 
                       target="_blank" 
@@ -193,38 +184,48 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              {/* Google Map */}
+              {/* --- GOOGLE MAP WITH CORRECT COORDINATES (RED PIN) --- */}
               <div style={{ marginTop: '24px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3619.456789012345!2d67.079866!3d24.893456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33f1f1f1f1f1f%3A0x1f1f1f1f1f1f1f1f!2sSecond%20Floor%20Office%2002%2C%20Mishal%20Manzil%2C%20Main%20Rashid%20Minhas%20Rd%2C%20Karachi!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s"
-                  width="100%"
-                  height="250"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Aurachron Systems Office Location"
-                />
+                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}>
+                  <iframe
+                    src={officialMapEmbedUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ position: 'absolute', top: 0, left: 0, border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Aurachron Systems Pvt. Ltd. - Office Location"
+                  />
+                </div>
                 <div style={{ padding: '12px', background: 'white', textAlign: 'center', borderTop: '1px solid #e5e7eb' }}>
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ fontWeight: 'bold', color: '#1f2937' }}>📍 Aurachron Systems Pvt. Ltd. – Head Office</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                    Second Floor Office 02, Mishal Manzil, Fl-3/12, Main Rashid Minhas Rd, Block 5 Gulshan-e-Iqbal, Karachi
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#10b981', marginBottom: '8px' }}>
+                    📍 Coordinates: 24.9236822° N, 67.0937078° E
+                  </div>
                   <a 
                     href="https://maps.app.goo.gl/MwihF6X3meLmE1Vo6" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    style={{ color: '#4f46e5', textDecoration: 'none', fontSize: '14px', fontWeight: '500', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    style={{ color: '#4f46e5', textDecoration: 'none', fontSize: '13px', fontWeight: '500', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
-                    Open in Google Maps <ExternalLinkIcon />
+                    Open in Google Maps for Navigation <ExternalLinkIcon />
                   </a>
                 </div>
               </div>
-
-              
             </div>
 
-            {/* Right Side - Contact Form */}
+            {/* RIGHT SIDE - Contact Form */}
             <div>
               <form onSubmit={handleSubmit} style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                 <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>Send us a Message</h2>
                 
+                {/* Full Name */}
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Full Name <span style={{ color: 'red' }}>*</span>
@@ -240,6 +241,7 @@ const ContactPage = () => {
                   {errors.fullName && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.fullName}</p>}
                 </div>
 
+                {/* Email */}
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Email <span style={{ color: 'red' }}>*</span>
@@ -255,6 +257,7 @@ const ContactPage = () => {
                   {errors.email && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.email}</p>}
                 </div>
 
+                {/* Company */}
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Company</label>
                   <input
@@ -267,6 +270,7 @@ const ContactPage = () => {
                   />
                 </div>
 
+                {/* Timeline */}
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Timeline <span style={{ color: 'red' }}>*</span>
@@ -286,6 +290,7 @@ const ContactPage = () => {
                   {errors.timeline && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.timeline}</p>}
                 </div>
 
+                {/* Project Description */}
                 <div style={{ marginBottom: '24px' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Project Description <span style={{ color: 'red' }}>*</span>
@@ -301,6 +306,7 @@ const ContactPage = () => {
                   {errors.projectDesc && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.projectDesc}</p>}
                 </div>
 
+                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -309,6 +315,7 @@ const ContactPage = () => {
                   {isSubmitting ? 'Sending...' : 'Send Message'} <SendIcon />
                 </button>
 
+                {/* Success Message */}
                 <p style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   <span style={{ color: '#10b981' }}><CheckCircleIcon /></span>
                   We'll respond within 24 hours

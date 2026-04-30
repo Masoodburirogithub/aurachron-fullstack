@@ -13,7 +13,7 @@ const TrustBar = () => {
     <div className="bg-gray-50 dark:bg-gray-900 py-12 border-y border-gray-200 dark:border-gray-800 overflow-hidden">
       <div className="container-custom">
         <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
-          Trusted by emerging enterprises in Pakistan, UAE & KSA
+          Trusted by emerging enterprises in USA, UAE & KSA
         </p>
       </div>
       

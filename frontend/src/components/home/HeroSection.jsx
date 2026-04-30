@@ -1,6 +1,6 @@
 // src/components/home/HeroSection.jsx
 import React, { useRef, useEffect, useState } from 'react';
-import background from '../../assets/main-background.mp4'
+import background from '../../../src/assets/main-background.mp4'
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play, TrendingUp, Clock, Award, Sparkles } from 'lucide-react';
@@ -76,7 +76,7 @@ const HeroSection = () => {
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6 border border-white/20 hover:border-indigo-400 transition-all duration-300"
             >
               <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
-              <span className="text-white/90 text-sm">Pakistan's Leading AI-Augmented Engineering Firm • 2026</span>
+              <span className="text-white/90 text-sm">Aurachron Systems Leading AI-Augmented Engineering Firm • 2026</span>
             </motion.div>
 
             <motion.h1 
@@ -151,9 +151,9 @@ const HeroSection = () => {
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 cursor-pointer"
         whileHover={{ scale: 1.2 }}
       >
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+        {/* <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
           <div className="w-1 h-2 bg-white rounded-full mt-2 animate-blink" />
-        </div>
+        </div> */}
       </motion.div>
     </section>
   );

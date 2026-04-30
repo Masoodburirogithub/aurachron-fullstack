@@ -55,14 +55,14 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-3 text-gray-400">
                 <MdEmail size={18} />
-                <a href="mailto:hr@aurachronsys.com" className="hover:text-indigo-400">hr@aurachronsys.com</a>
+                <a href="mailto:admin@aurachronsys.com" className="hover:text-indigo-400">admin@aurachronsys.com</a>
               </div>
             </div>
           </div>
         </div>
         
         <div className="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
-          <p>© 2026 Aurachron Systems. Built with ❤️ in Karachi for the planet.</p>
+          <p>© 2026 Aurachron Systems.</p>
         </div>
       </div>
     </footer>
