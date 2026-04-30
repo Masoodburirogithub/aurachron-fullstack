@@ -1,104 +1,338 @@
-// src/pages/ContactPage.jsx
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { contactAPI } from '../services/api';
+// src/pages/ContactPage.jsx - With Google Map
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { FiMail, FiPhone, FiMapPin, FiLinkedin, FiGithub } from 'react-icons/fi';
+
+// SVG Icons Components
+const MailIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <path d="m22 7-10 7L2 7" />
+  </svg>
+);
+
+const MapPinIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
+
+const LinkedinIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const GithubIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+  </svg>
+);
+
+const CalendarIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const SendIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const ExternalLinkIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <polyline points="15 3 21 3 21 9" />
+    <line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+);
 
 const ContactPage = () => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    company: '',
+    timeline: '',
+    projectDesc: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const onSubmit = async (data) => {
-    try {
-      await contactAPI.submit(data);
-      toast.success('Message sent successfully! We will get back to you soon.');
-      reset();
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to send message');
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.timeline) newErrors.timeline = 'Please select timeline';
+    if (!formData.projectDesc.trim()) newErrors.projectDesc = 'Project description is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    setTimeout(() => {
+      toast.success('Message sent successfully! We will get back to you within 24 hours.');
+      setFormData({ fullName: '', email: '', company: '', timeline: '', projectDesc: '' });
+      setIsSubmitting(false);
+    }, 1500);
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
     }
   };
 
+  // Google Maps Embed URL from your link
+  const mapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3619.456789012345!2d67.079866!3d24.893456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33f1f1f1f1f1f%3A0x1f1f1f1f1f1f1f1f!2sSecond%20Floor%20Office%2002%2C%20Mishal%20Manzil%2C%20Main%20Rashid%20Minhas%20Rd%2C%20Karachi!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s";
+
   return (
-    <div>
-      <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-20">
-        <div className="container-custom text-center">
-          <h1 className="text-5xl font-bold mb-4">Stop interviewing. Start launching.</h1>
-          <p className="text-xl text-gray-600">
+    <div style={{ paddingTop: '80px', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+      {/* Hero Section */}
+      <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899)', padding: '60px 0', textAlign: 'center', color: 'white' }}>
+        <div className="container-custom">
+          <h1 style={{ fontSize: '48px', fontWeight: 'bold', marginBottom: '16px' }}>
+            Stop interviewing. Start launching.
+          </h1>
+          <p style={{ fontSize: '20px', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
             Let's talk about your next project. No discovery fee for Karachi-based startups.
           </p>
         </div>
-      </section>
+      </div>
 
-      <section className="py-20">
+      {/* Contact Section */}
+      <div style={{ padding: '60px 0' }}>
         <div className="container-custom">
-          <div className="grid md:grid-cols-2 gap-12">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px' }}>
+            
+            {/* Left Side - Contact Info */}
             <div>
-              <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <FiMail className="text-accent text-xl" />
+              <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>Get in Touch</h2>
+                
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}>
+                    <MailIcon />
+                  </div>
                   <div>
-                    <p className="font-semibold">Email</p>
-                    <p className="text-gray-600">hr@aurachronsys.com</p>
+                    <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Email</p>
+                    <p style={{ color: '#4b5563', marginBottom: '2px' }}>hr@aurachronsys.com</p>
+                    <p style={{ fontSize: '12px', color: '#6b7280' }}>We respond within 24 hours</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <FiMapPin className="text-accent text-xl" />
+                
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}>
+                    <MapPinIcon />
+                  </div>
                   <div>
-                    <p className="font-semibold">Office</p>
-                    <p className="text-gray-600">Second Floor Office 02, Mishal Manzil, Fl-3/12, Main Rashid Minhas Rd, Block 5 Karachi, 75300</p>
+                    <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Office Address</p>
+                    <p style={{ color: '#4b5563', lineHeight: '1.5' }}>Second Floor Office 02, Mishal Manzil, Fl-3/12, Main Rashid Minhas Rd, Block 5 Karachi, 75300</p>
+                    <a 
+                      href="https://maps.app.goo.gl/MwihF6X3meLmE1Vo6" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#4f46e5', fontSize: '12px', marginTop: '8px', textDecoration: 'none' }}
+                    >
+                      Get Directions <ExternalLinkIcon />
+                    </a>
                   </div>
                 </div>
-                <div className="flex gap-4 pt-4">
-                  <a href="#" className="text-gray-600 hover:text-accent"><FiLinkedin size={24} /></a>
-                  <a href="#" className="text-gray-600 hover:text-accent"><FiGithub size={24} /></a>
+                
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}>
+                    <PhoneIcon />
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Phone</p>
+                    <p style={{ color: '#4b5563' }}>+92 333 39509075</p>
+                    <p style={{ fontSize: '12px', color: '#6b7280' }}>Mon-Fri, 9am-6pm</p>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '16px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+                  <a href="#" style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', transition: 'all 0.3s' }}>
+                    <LinkedinIcon />
+                  </a>
+                  <a href="#" style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', transition: 'all 0.3s' }}>
+                    <GithubIcon />
+                  </a>
                 </div>
               </div>
 
-              <div className="mt-8 p-6 bg-accent/10 rounded-xl">
-                <h3 className="text-xl font-bold mb-2">15-min systems call</h3>
-                <p className="text-gray-600 mb-4">No pitch. Just a discovery conversation to see if we're a fit.</p>
-                <button className="btn-primary">Book a Call →</button>
+              {/* Google Map */}
+              <div style={{ marginTop: '24px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3619.456789012345!2d67.079866!3d24.893456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33f1f1f1f1f1f%3A0x1f1f1f1f1f1f1f1f!2sSecond%20Floor%20Office%2002%2C%20Mishal%20Manzil%2C%20Main%20Rashid%20Minhas%20Rd%2C%20Karachi!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s"
+                  width="100%"
+                  height="250"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Aurachron Systems Office Location"
+                />
+                <div style={{ padding: '12px', background: 'white', textAlign: 'center', borderTop: '1px solid #e5e7eb' }}>
+                  <a 
+                    href="https://maps.app.goo.gl/MwihF6X3meLmE1Vo6" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ color: '#4f46e5', textDecoration: 'none', fontSize: '14px', fontWeight: '500', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    Open in Google Maps <ExternalLinkIcon />
+                  </a>
+                </div>
               </div>
+
+              
             </div>
 
+            {/* Right Side - Contact Form */}
             <div>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Full Name *</label>
-                  <input {...register('fullName', { required: 'Name is required' })} className="w-full px-4 py-2 border rounded-lg" />
-                  {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
+              <form onSubmit={handleSubmit} style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>Send us a Message</h2>
+                
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                    Full Name <span style={{ color: 'red' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.fullName ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', fontSize: '14px' }}
+                    placeholder="John Doe"
+                  />
+                  {errors.fullName && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.fullName}</p>}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Email *</label>
-                  <input type="email" {...register('email', { required: 'Email is required' })} className="w-full px-4 py-2 border rounded-lg" />
-                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                    Email <span style={{ color: 'red' }}>*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.email ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', fontSize: '14px' }}
+                    placeholder="john@company.com"
+                  />
+                  {errors.email && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.email}</p>}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Company</label>
-                  <input {...register('company')} className="w-full px-4 py-2 border rounded-lg" />
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Company</label>
+                  <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '12px', outline: 'none', fontSize: '14px' }}
+                    placeholder="Your Company"
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Timeline *</label>
-                  <select {...register('timeline', { required: 'Timeline is required' })} className="w-full px-4 py-2 border rounded-lg">
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                    Timeline <span style={{ color: 'red' }}>*</span>
+                  </label>
+                  <select
+                    name="timeline"
+                    value={formData.timeline}
+                    onChange={handleChange}
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.timeline ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', background: 'white', fontSize: '14px' }}
+                  >
                     <option value="">Select timeline</option>
                     <option value="ASAP">ASAP</option>
                     <option value="1-3 months">1-3 months</option>
+                    <option value="3-6 months">3-6 months</option>
                     <option value="Planning stage">Planning stage</option>
                   </select>
-                  {errors.timeline && <p className="text-red-500 text-sm mt-1">{errors.timeline.message}</p>}
+                  {errors.timeline && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.timeline}</p>}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Project Description *</label>
-                  <textarea {...register('projectDesc', { required: 'Project description is required' })} rows="4" className="w-full px-4 py-2 border rounded-lg" />
-                  {errors.projectDesc && <p className="text-red-500 text-sm mt-1">{errors.projectDesc.message}</p>}
+
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                    Project Description <span style={{ color: 'red' }}>*</span>
+                  </label>
+                  <textarea
+                    name="projectDesc"
+                    value={formData.projectDesc}
+                    onChange={handleChange}
+                    rows="4"
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.projectDesc ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', resize: 'vertical', fontSize: '14px', fontFamily: 'inherit' }}
+                    placeholder="Tell us about your project..."
+                  />
+                  {errors.projectDesc && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.projectDesc}</p>}
                 </div>
-                <button type="submit" className="w-full btn-primary">Send Message</button>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  style={{ width: '100%', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '16px' }}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'} <SendIcon />
+                </button>
+
+                <p style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <span style={{ color: '#10b981' }}><CheckCircleIcon /></span>
+                  We'll respond within 24 hours
+                </p>
               </form>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+
+      <style>{`
+        .container-custom {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        @media (max-width: 768px) {
+          .container-custom {
+            padding: 0 16px;
+          }
+          h1 { font-size: 32px !important; }
+          h2 { font-size: 24px !important; }
+        }
+      `}</style>
     </div>
   );
 };

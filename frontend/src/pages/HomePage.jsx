@@ -1,40 +1,24 @@
-// src/pages/HomePage.jsx
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import Hero from '../components/common/Hero';
+import React, { useEffect } from 'react';
+import HeroSection from '../components/home/HeroSection';
 import TrustBar from '../components/common/TrustBar';
 import ServicesSection from '../components/home/ServicesSection';
 import CaseStudiesSection from '../components/home/CaseStudiesSection';
 import TestimonialsSection from '../components/home/TestimonialsSection';
-import ProcessSteps from '../components/common/ProcessSteps';
-import PricingSection from '../components/home/PricingSection';
-import { caseStudiesAPI } from '../services/api';
 
 const HomePage = () => {
-  const [caseStudies, setCaseStudies] = useState([]);
-
   useEffect(() => {
-    const fetchCaseStudies = async () => {
-      try {
-        const response = await caseStudiesAPI.getAll();
-        setCaseStudies(response.data.data);
-      } catch (error) {
-        console.error('Error fetching case studies:', error);
-      }
-    };
-    fetchCaseStudies();
+    window.scrollTo(0, 0);
+    document.title = "Aurachron Systems - AI-Augmented Engineering | Pakistan's Leading Tech Firm";
   }, []);
 
   return (
-    <div>
-      <Hero />
+    <>
+      <HeroSection />
       <TrustBar />
       <ServicesSection />
-      <CaseStudiesSection caseStudies={caseStudies} />
+      <CaseStudiesSection />
       <TestimonialsSection />
-      <ProcessSteps />
-      <PricingSection />
-    </div>
+    </>
   );
 };
 
