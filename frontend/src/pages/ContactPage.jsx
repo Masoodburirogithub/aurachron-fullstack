@@ -1,6 +1,7 @@
-// src/pages/ContactPage.jsx - COMPLETE & FINAL with Correct Coordinates
+// src/pages/ContactPage.jsx - UPDATED with API Integration
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { contactAPI } from '../services/api';
 
 // ==================== SVG ICONS ====================
 const MailIcon = () => (
@@ -82,16 +83,34 @@ const ContactPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // UPDATED: Submit to backend API
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     
     setIsSubmitting(true);
-    setTimeout(() => {
+    
+    try {
+      const response = await contactAPI.submit(formData);
+      console.log('Form submitted successfully:', response.data);
+      
       toast.success('Message sent successfully! We will get back to you within 24 hours.');
-      setFormData({ fullName: '', email: '', company: '', timeline: '', projectDesc: '' });
+      
+      // Reset form
+      setFormData({ 
+        fullName: '', 
+        email: '', 
+        company: '', 
+        timeline: '', 
+        projectDesc: '' 
+      });
+      
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast.error(error.response?.data?.error || 'Failed to send message. Please try again.');
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   const handleChange = (e) => {

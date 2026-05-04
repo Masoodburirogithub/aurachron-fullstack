@@ -37,17 +37,40 @@ api.interceptors.response.use(
   }
 );
 
+// Auth API
+export const authAPI = {
+  login: (email, password) => api.post('/auth/login', { email, password }),
+  register: (email, password, role) => api.post('/auth/register', { email, password, role }),
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+  getCurrentUser: () => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  },
+  isAuthenticated: () => !!localStorage.getItem('token'),
+  isAdmin: () => {
+    const user = authAPI.getCurrentUser();
+    return user?.role === 'admin';
+  },
+};
+
 // Contact API
 export const contactAPI = {
   submit: (data) => api.post('/contact/submit', data),
   getAll: () => api.get('/contact/submissions'),
+  updateStatus: (id, status) => api.put(`/contact/submissions/${id}/status`, { status }),
 };
 
 // Careers API
 export const careersAPI = {
   getPositions: () => api.get('/careers/positions'),
+  getPositionById: (id) => api.get(`/careers/positions/${id}`),
   apply: (data) => api.post('/careers/apply', data),
   createPosition: (data) => api.post('/careers/positions', data),
+  updatePosition: (id, data) => api.put(`/careers/positions/${id}`, data),
+  deletePosition: (id) => api.delete(`/careers/positions/${id}`),
 };
 
 // Case Studies API
@@ -55,21 +78,14 @@ export const caseStudiesAPI = {
   getAll: () => api.get('/case-studies'),
   getById: (id) => api.get(`/case-studies/${id}`),
   create: (data) => api.post('/case-studies', data),
-  update: (id, data) => api.put(`/admin/case-studies/${id}`, data),
-  delete: (id) => api.delete(`/admin/case-studies/${id}`),
+  update: (id, data) => api.put(`/case-studies/${id}`, data),
+  delete: (id) => api.delete(`/case-studies/${id}`),
 };
 
 // Admin API
 export const adminAPI = {
-  // Case Studies
-  createCaseStudy: (data) => api.post('/admin/case-studies', data),
-  updateCaseStudy: (id, data) => api.put(`/admin/case-studies/${id}`, data),
-  deleteCaseStudy: (id) => api.delete(`/admin/case-studies/${id}`),
-  
-  // Positions
-  createPosition: (data) => api.post('/admin/positions', data),
-  updatePosition: (id, data) => api.put(`/admin/positions/${id}`, data),
-  deletePosition: (id) => api.delete(`/admin/positions/${id}`),
+  // Dashboard
+  getDashboardStats: () => api.get('/admin/dashboard/stats'),
   
   // Contacts
   getContacts: () => api.get('/admin/contacts'),
@@ -79,8 +95,15 @@ export const adminAPI = {
   getApplications: () => api.get('/admin/applications'),
   updateApplicationStatus: (id, status) => api.put(`/admin/applications/${id}/status`, { status }),
   
-  // Dashboard Stats
-  getDashboardStats: () => api.get('/admin/dashboard/stats'),
+  // Case Studies (Admin)
+  createCaseStudy: (data) => api.post('/admin/case-studies', data),
+  updateCaseStudy: (id, data) => api.put(`/admin/case-studies/${id}`, data),
+  deleteCaseStudy: (id) => api.delete(`/admin/case-studies/${id}`),
+  
+  // Positions (Admin)
+  createPosition: (data) => api.post('/admin/positions', data),
+  updatePosition: (id, data) => api.put(`/admin/positions/${id}`, data),
+  deletePosition: (id) => api.delete(`/admin/positions/${id}`),
 };
 
 // Chatbot API

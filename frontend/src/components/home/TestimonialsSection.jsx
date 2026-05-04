@@ -12,25 +12,25 @@ import 'swiper/css/effect-flip';
 
 const testimonials = [
   {
-    text: "A reliable technology partner that consistently delivers high-quality, professional software solutions. Their AI expertise transformed our operations and saved us countless hours.",
+    text: "Aurachron Systems delivered our AI project on time and within budget. Their team understood our requirements perfectly and implemented a solution that exceeded our expectations. We've seen a 40% increase in operational efficiency since launch.",
     author: "Jeremy Khattar",
     title: "CEO, Ronin Global LLC",
     rating: 5,
     image: "https://randomuser.me/api/portraits/men/32.jpg"
   },
   {
-    text: "A scalable, enthusiastic team that integrates seamlessly and adapts quickly to evolving project needs. They're like an extension of our own team. Highly recommended!",
+    text: "Working with Aurachron was seamless. They built our mobile app from scratch in just 6 weeks. The quality of code and user experience is outstanding. Our app now has 10,000+ active users.",
     author: "Greg Lind",
     title: "CEO, Buildly, Inc.",
     rating: 5,
     image: "https://randomuser.me/api/portraits/men/45.jpg"
   },
   {
-    text: "Delivered an intuitive database with exceptional UX and flexible support for last-minute design changes. Truly outstanding partnership that exceeded our expectations.",
-    author: "Aditi Das",
-    title: "Head of Alliance & India Office, MPP",
+    text: "We interviewed multiple agencies before choosing Aurachron. Their technical depth and commitment to quality stood out. They delivered our SaaS platform 2 weeks ahead of schedule.",
+    author: "Michael Chen",
+    title: "Product Manager at DataViz Inc. (UAE)",
     rating: 5,
-    image: "https://randomuser.me/api/portraits/women/68.jpg"
+    image: "https://www.nuclera.com/wp-content/uploads/bb-plugin/cache/michaelchen-2-circle.jpg"
   }
 ];
 
@@ -71,7 +71,7 @@ const TestimonialsSection = () => {
         >
           {testimonials.map((testimonial, idx) => (
             <SwiperSlide key={idx}>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl max-w-3xl mx-auto">
+              <div className="bg-white dark:bg-gray-800 rounded-md p-8 shadow-2xl max-w-3xl mx-auto">
                 <Quote className="w-12 h-12 text-indigo-200 dark:text-indigo-800 mb-4" />
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (

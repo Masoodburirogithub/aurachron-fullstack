@@ -1,107 +1,82 @@
 // src/components/home/CaseStudiesSection.jsx
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectCreative } from 'swiper/modules';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ExternalLink, TrendingUp, Award, Users, Sparkles } from 'lucide-react';
+import { ArrowRight, ExternalLink, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { caseStudiesAPI } from '../../services/api';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/css/effect-creative';
-
-const caseStudies = [
-  {
-    id: 1,
-    title: "Gulf Oil — Eliminated 85% of Safety Incident Reporting Time",
-    industry: "Oil & Gas",
-    metric: "85% Reduction",
-    result: "4 hours → 30 minutes",
-    description: "AI-powered safety reporting system across 500+ sites",
-    tags: ["AI Agents", "RAG Pipeline"],
-    image: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800",
-    stats: [
-      { value: "500+", label: "Sites Connected" },
-      { value: "85%", label: "Time Reduction" },
-      { value: "100%", label: "Compliance" }
-    ]
-  },
-  {
-    id: 2,
-    title: "Real Estate AI — From Minutes to Seconds",
-    industry: "PropTech",
-    metric: "70% Faster",
-    result: "45 minutes → 15 seconds",
-    description: "LLM-powered proposal generation system",
-    tags: ["LLM Integration", "RAG"],
-    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800",
-    stats: [
-      { value: "70%", label: "Faster Proposals" },
-      { value: "90%", label: "Satisfaction" },
-      { value: "50+", label: "Proposals/Week" }
-    ]
-  },
-  {
-    id: 3,
-    title: "Agentic Automation — 150+ Platform Integration",
-    industry: "Automation",
-    metric: "150+ Platforms",
-    result: "95% Bug Reduction",
-    description: "Unified agentic automation SDK",
-    tags: ["Automation SDK", "Agentic AI"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800",
-    stats: [
-      { value: "150+", label: "Platforms Connected" },
-      { value: "95%", label: "Bug Reduction" },
-      { value: "50+", label: "Enterprise Clients" }
-    ]
-  }
-];
 
 const CaseStudyCard = ({ study, index }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const tags = study.technology ? study.technology.split(',').map(t => t.trim()) : [];
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="group bg-white dark:bg-gray-800 rounded-sm shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 mx-2"
+      style={{
+        backgroundColor: 'white',
+        borderRadius: '4px',
+        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+        transition: 'all 0.3s ease',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '480px'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-5px)';
+        e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+      }}
     >
-      <div className="relative h-48 overflow-hidden">
-        <img src={study.image} alt={study.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        <div className="absolute bottom-3 left-3 flex gap-2">
-          {study.tags.map((tag, i) => (
-            <span key={i} className="text-xs bg-white/20 backdrop-blur-sm text-white px-2 py-1 rounded-full animate-pulse-glow">{tag}</span>
+      {/* Image Section - Larger height */}
+      <div style={{ position: 'relative', height: '280px', overflow: 'hidden', backgroundColor: '#f3f4f6' }}>
+        {study.imageUrl ? (
+          <img 
+            src={study.imageUrl} 
+            alt={study.title} 
+            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
+            <ImageIcon size={64} style={{ color: '#818cf8' }} />
+          </div>
+        )}
+        <div style={{ position: 'absolute', bottom: '12px', left: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {tags.slice(0, 2).map((tag, i) => (
+            <span key={i} style={{ fontSize: '11px', backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', color: 'white', padding: '5px 12px', borderRadius: '9999px' }}>
+              {tag}
+            </span>
           ))}
         </div>
       </div>
       
-      <div className="p-6">
-        <div className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold mb-2">{study.industry}</div>
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
-          {study.title}
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{study.description}</p>
-        
-        <div className="grid grid-cols-3 gap-3 mb-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-          {study.stats.map((stat, i) => (
-            <div key={i} className="text-center">
-              <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{stat.value}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</div>
-            </div>
-          ))}
-        </div>
+      {/* Content Section - Increased padding and text size */}
+      <div style={{ padding: '28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ fontSize: '13px', fontWeight: '600', color: '#4f46e5', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{study.industry}</div>
+        <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '14px', lineHeight: '1.4' }}>{study.title}</h3>
+        <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '24px', lineHeight: '1.6', flex: 1 }}>{study.challenge?.substring(0, 150)}...</p>
         
         <Link 
           to={`/case-studies/${study.id}`} 
-          className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm group-hover:gap-3 transition-all"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#4f46e5', fontWeight: '600', fontSize: '15px', textDecoration: 'none', marginTop: '8px' }}
         >
-          Read Full Story <ExternalLink className="w-4 h-4" />
+          Read Full Story <ExternalLink size={16} />
         </Link>
       </div>
     </motion.div>
@@ -111,60 +86,190 @@ const CaseStudyCard = ({ study, index }) => {
 const CaseStudiesSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [caseStudies, setCaseStudies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCaseStudies();
+  }, []);
+
+  const fetchCaseStudies = async () => {
+    try {
+      setLoading(true);
+      const response = await caseStudiesAPI.getAll();
+      console.log('Case Studies Section Data:', response.data);
+      
+      let data = [];
+      if (response.data?.success) {
+        data = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        data = response.data;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        data = response.data.data;
+      }
+      
+      const activeStudies = data.filter(study => study.isActive !== false);
+      setCaseStudies(activeStudies);
+    } catch (error) {
+      console.error('Error fetching case studies:', error);
+      setCaseStudies([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ padding: '80px 20px', backgroundColor: '#f9fafb' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <div style={{ display: 'inline-block', height: '30px', width: '150px', backgroundColor: '#e5e7eb', borderRadius: '9999px', marginBottom: '16px' }}></div>
+            <div style={{ height: '48px', width: '300px', backgroundColor: '#e5e7eb', borderRadius: '8px', margin: '0 auto 16px' }}></div>
+            <div style={{ height: '24px', width: '350px', backgroundColor: '#e5e7eb', borderRadius: '8px', margin: '0 auto' }}></div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ height: '520px', backgroundColor: '#e5e7eb', borderRadius: '16px', animation: 'pulse 1.5s ease-in-out infinite' }}></div>
+            ))}
+          </div>
+        </div>
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  const displayStudies = caseStudies.filter(study => study.isActive !== false);
 
   return (
-    <section ref={ref} className="section-padding overflow-hidden">
-      <div className="container-custom">
-        <div className="text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="inline-flex items-center gap-2 bg-indigo-100 dark:bg-indigo-950 rounded-full px-4 py-1 mb-4">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
-              <span className="text-indigo-600 text-sm font-medium">Success Stories</span>
+    <div ref={ref} style={{ padding: '80px 20px', backgroundColor: '#f9fafb' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+        {/* HEADER SECTION */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.3 }}
+          style={{ textAlign: 'center', marginBottom: '60px' }}
+        >
+          <div style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            backgroundColor: '#e0e7ff', 
+            padding: '8px 24px', 
+            borderRadius: '9999px', 
+            marginBottom: '20px' 
+          }}>
+            <Sparkles size={18} style={{ color: '#4f46e5' }} />
+            <span style={{ color: '#4f46e5', fontSize: '15px', fontWeight: '500' }}>Success Stories</span>
+          </div>
+          
+          <h2 style={{ 
+            fontSize: 'clamp(36px, 6vw, 52px)', 
+            fontWeight: 'bold', 
+            color: '#111827', 
+            marginBottom: '20px',
+            padding: '0 20px',
+            lineHeight: '1.2'
+          }}>
+            Our Prime <span style={{ color: '#4f46e5' }}>Projects & Case Studies</span>
+          </h2>
+          
+          <p style={{ 
+            fontSize: 'clamp(18px, 4vw, 22px)', 
+            color: '#6b7280', 
+            maxWidth: '800px', 
+            margin: '0 auto', 
+            lineHeight: '1.5',
+            padding: '0 20px'
+          }}>
+            We are building bigger ideas together with leaders across varied domains
+          </p>
+        </motion.div>
+
+        {/* Case Studies Grid - Responsive with larger cards */}
+        {displayStudies.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: 'white', borderRadius: '16px' }}>
+            <div style={{ width: '100px', height: '100px', backgroundColor: '#f3f4f6', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+              <Sparkles size={50} style={{ color: '#9ca3af' }} />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mt-2 mb-4">
-              Our Prime <span className="gradient-text">Projects & Case Studies</span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              We are building bigger ideas together with leaders across varied domains
-            </p>
-          </motion.div>
-        </div>
+            <h3 style={{ fontSize: '28px', fontWeight: '600', color: '#111827', marginBottom: '12px' }}>No Case Studies Yet</h3>
+            <p style={{ color: '#6b7280', fontSize: '18px' }}>Check back soon for our success stories.</p>
+          </div>
+        ) : (
+          <>
+            {/* Responsive Grid with larger cards */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', 
+              gap: '35px',
+              marginBottom: '60px'
+            }}>
+              {displayStudies.slice(0, 3).map((study, idx) => (
+                <CaseStudyCard key={study.id} study={study} index={idx} />
+              ))}
+            </div>
 
-        {/* Desktop Grid View (no slider issues) */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-8">
-          {caseStudies.map((study, idx) => (
-            <CaseStudyCard key={idx} study={study} index={idx} />
-          ))}
-        </div>
-
-        {/* Mobile/Tablet Swiper View with proper spacing */}
-        <div className="lg:hidden">
-          <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
-            spaceBetween={16}
-            slidesPerView={1}
-            pagination={{ clickable: true, dynamicBullets: true }}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
-            breakpoints={{
-              640: { slidesPerView: 1, spaceBetween: 16 },
-              768: { slidesPerView: 2, spaceBetween: 20 },
-            }}
-            className="pb-12 px-1"
-          >
-            {caseStudies.map((study, idx) => (
-              <SwiperSlide key={idx}>
-                <CaseStudyCard study={study} index={idx} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+            {/* View All Button - Larger */}
+            {displayStudies.length > 3 && (
+              <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                <Link 
+                  to="/case-studies" 
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '12px', 
+                    backgroundColor: '#4f46e5', 
+                    color: 'white', 
+                    padding: '16px 48px', 
+                    borderRadius: '12px', 
+                    fontWeight: '600', 
+                    fontSize: '16px',
+                    textDecoration: 'none', 
+                    transition: 'all 0.3s ease' 
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#4338ca';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#4f46e5';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  View All Case Studies 
+                  <ArrowRight size={20} />
+                </Link>
+              </div>
+            )}
+          </>
+        )}
       </div>
-    </section>
+
+      {/* Mobile Responsive Styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .case-study-card {
+            min-height: 520px;
+          }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .case-study-card {
+            min-height: 500px;
+          }
+        }
+        @media (min-width: 1025px) {
+          .case-study-card {
+            min-height: 480px;
+          }
+        }
+      `}</style>
+    </div>
   );
 };
 
