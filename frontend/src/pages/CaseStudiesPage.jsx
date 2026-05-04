@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Image as ImageIcon } from 'lucide-react';
-import { caseStudiesAPI } from '../services/api';
+// import { caseStudiesAPI } from '../services/api';
+import { caseStudiesAPI, getImageUrl } from '../services/api';
 
 const CaseStudiesPage = () => {
   const [caseStudies, setCaseStudies] = useState([]);
@@ -124,19 +125,22 @@ const CaseStudiesPage = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
                   {/* Image Column */}
                   <div style={{ height: '400px', overflow: 'hidden', backgroundColor: '#f3f4f6' }}>
-                    {study.imageUrl ? (
-                      <img 
-                        src={study.imageUrl} 
-                        alt={study.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                      />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
-                        <ImageIcon size={80} style={{ color: '#818cf8' }} />
-                      </div>
-                    )}
+             {study.imageUrl ? (
+  <img 
+    src={getImageUrl(study.imageUrl)}
+    alt={study.title}
+    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+    onError={(e) => {
+      console.error('Image failed to load:', getImageUrl(study.imageUrl));
+      e.target.onerror = null;
+      e.target.src = 'https://placehold.co/800x600/e2e8f0/64748b?text=Image+Not+Found';
+    }}
+  />
+) : (
+  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
+    <ImageIcon size={80} style={{ color: '#818cf8' }} />
+  </div>
+)}
                   </div>
                   
                   {/* Content Column */}

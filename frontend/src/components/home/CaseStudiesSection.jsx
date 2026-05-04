@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ExternalLink, Sparkles, Image as ImageIcon } from 'lucide-react';
-import { caseStudiesAPI } from '../../services/api';
+import { caseStudiesAPI, getImageUrl } from '../../services/api';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -15,6 +15,10 @@ const CaseStudyCard = ({ study, index }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const tags = study.technology ? study.technology.split(',').map(t => t.trim()) : [];
+
+  // Debug log to check image URL
+  // console.log('Study image URL:', study.imageUrl);
+  // console.log('Full image URL:', getImageUrl(study.imageUrl));
 
   return (
     <motion.div
@@ -42,15 +46,20 @@ const CaseStudyCard = ({ study, index }) => {
         e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
       }}
     >
-      {/* Image Section - Larger height */}
+      {/* Image Section - Fixed with getImageUrl */}
       <div style={{ position: 'relative', height: '280px', overflow: 'hidden', backgroundColor: '#f3f4f6' }}>
         {study.imageUrl ? (
           <img 
-            src={study.imageUrl} 
+            src={getImageUrl(study.imageUrl)}
             alt={study.title} 
             style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            onError={(e) => {
+              console.error('Image failed to load:', getImageUrl(study.imageUrl));
+              e.target.onerror = null;
+              e.target.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Found';
+            }}
           />
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
@@ -66,7 +75,7 @@ const CaseStudyCard = ({ study, index }) => {
         </div>
       </div>
       
-      {/* Content Section - Increased padding and text size */}
+      {/* Content Section */}
       <div style={{ padding: '28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontSize: '13px', fontWeight: '600', color: '#4f46e5', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{study.industry}</div>
         <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '14px', lineHeight: '1.4' }}>{study.title}</h3>
@@ -107,6 +116,9 @@ const CaseStudiesSection = () => {
       } else if (response.data?.data && Array.isArray(response.data.data)) {
         data = response.data.data;
       }
+      
+      // Debug: Check image URLs from API
+      console.log('Case studies with images:', data.map(s => ({ title: s.title, imageUrl: s.imageUrl })));
       
       const activeStudies = data.filter(study => study.isActive !== false);
       setCaseStudies(activeStudies);
@@ -192,7 +204,7 @@ const CaseStudiesSection = () => {
           </p>
         </motion.div>
 
-        {/* Case Studies Grid - Responsive with larger cards */}
+        {/* Case Studies Grid */}
         {displayStudies.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: 'white', borderRadius: '16px' }}>
             <div style={{ width: '100px', height: '100px', backgroundColor: '#f3f4f6', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
@@ -203,7 +215,6 @@ const CaseStudiesSection = () => {
           </div>
         ) : (
           <>
-            {/* Responsive Grid with larger cards */}
             <div style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', 
@@ -215,7 +226,6 @@ const CaseStudiesSection = () => {
               ))}
             </div>
 
-            {/* View All Button - Larger */}
             {displayStudies.length > 3 && (
               <div style={{ textAlign: 'center', marginTop: '30px' }}>
                 <Link 
@@ -250,25 +260,6 @@ const CaseStudiesSection = () => {
           </>
         )}
       </div>
-
-      {/* Mobile Responsive Styles */}
-      <style>{`
-        @media (max-width: 768px) {
-          .case-study-card {
-            min-height: 520px;
-          }
-        }
-        @media (min-width: 769px) and (max-width: 1024px) {
-          .case-study-card {
-            min-height: 500px;
-          }
-        }
-        @media (min-width: 1025px) {
-          .case-study-card {
-            min-height: 480px;
-          }
-        }
-      `}</style>
     </div>
   );
 };

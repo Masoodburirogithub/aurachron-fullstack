@@ -1,0 +1,201 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url=env("DATABASE_URL")
+}
+
+// Contact Form Submissions
+model ContactSubmission {
+  id            String   @id @default(cuid())
+  fullName      String
+  email         String
+  company       String?
+  timeline      String
+  projectDesc   String   @map("project_description")
+  status        String   @default("pending")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("contact_submissions")
+}
+
+// Career Applications
+model CareerApplication {
+  id            String   @id @default(cuid())
+  fullName      String   @map("full_name")
+  email         String
+  position      String
+  resumeUrl     String?  @map("resume_url")
+  portfolioLink String?  @map("portfolio_link")
+  systemIdea    String   @map("system_idea")
+  status        String   @default("pending")
+  experience    Int?
+  coverLetter   String?  @map("cover_letter")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("career_applications")
+}
+
+// Career Positions (Job Openings)
+model CareerPosition {
+  id            String   @id @default(cuid())
+  title         String
+  department    String
+  location      String
+  type          String
+  experience    String
+  description   String   @db.Text
+  requirements  String[]
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("career_positions")
+}
+
+// Case Studies
+model CaseStudy {
+  id            String   @id @default(cuid())
+  title         String
+  subtitle      String?
+  industry      String
+  technology    String
+  challenge     String   @db.Text
+  solution      String   @db.Text
+  result        String   @db.Text
+  metrics       Json?
+  imageUrl      String?  @map("image_url")
+  isActive      Boolean  @default(true)
+  displayOrder  Int      @default(0) @map("display_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("case_studies")
+}
+
+// Chat Conversations
+model Conversation {
+  id            String        @id @default(cuid())
+  sessionId     String        @unique
+  userEmail     String?
+  userName      String?
+  userPhone     String?
+  status        String        @default("active") // active, waiting_for_admin, resolved, closed
+  startedAt     DateTime      @default(now())
+  endedAt       DateTime?
+  updatedAt     DateTime      @updatedAt
+
+  messages      ChatMessage[]
+  adminRequests AdminRequest[]
+
+  @@map("conversations")
+}
+
+// Chat Messages
+model ChatMessage {
+  id            String       @id @default(cuid())
+  conversationId String
+  message       String       @db.Text
+  role          String       // user, assistant, admin
+  senderName    String?
+  senderId      String?
+  isRead        Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
+// Admin Request for Human Support
+model AdminRequest {
+  id            String       @id @default(cuid())
+  conversationId String
+  sessionId     String
+  userEmail     String?
+  userName      String?
+  userPhone     String?
+  requestMessage String?     @db.Text
+  status        String       @default("pending") // pending, accepted, rejected, completed
+  requestedAt   DateTime     @default(now())
+  respondedAt   DateTime?
+  adminId       String?
+  adminName     String?
+  resolvedAt    DateTime?
+
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([status])
+  @@map("admin_requests")
+}
+
+// Newsletter Subscribers
+model NewsletterSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("newsletter_subscribers")
+}
+
+// Users (Admin and Regular Users)
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  role          String   @default("user") // admin, user
+  name          String?
+  avatar        String?
+  isActive      Boolean  @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// Notifications for Admin
+model Notification {
+  id            String   @id @default(cuid())
+  title         String
+  message       String   @db.Text
+  type          String   // info, warning, success, error
+  isRead        Boolean  @default(false)
+  userId        String?  // target user (null = broadcast)
+  relatedId     String?  // related record ID (case study, contact, etc.)
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// Activity Logs for Admin Audit
+model ActivityLog {
+  id            String   @id @default(cuid())
+  userId        String
+  userEmail     String
+  action        String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT
+  entity        String   // case_study, career_position, contact, user, etc.
+  entityId      String?
+  oldData       Json?
+  newData       Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}

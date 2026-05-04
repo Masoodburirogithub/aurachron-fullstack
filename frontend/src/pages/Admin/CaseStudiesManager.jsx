@@ -1,8 +1,10 @@
 // src/pages/Admin/CaseStudiesManager.jsx
 import React, { useState, useEffect } from 'react';
 import { FiPlus, FiEdit2, FiTrash2, FiX, FiLoader, FiEye, FiEyeOff, FiUpload, FiImage } from 'react-icons/fi';
-import { caseStudiesAPI } from '../../services/api';
+// import { caseStudiesAPI } from '../../services/api';
 import toast from 'react-hot-toast';
+import { caseStudiesAPI, adminAPI, getImageUrl } from '../../services/api';
+// import { getImageUrl } from '../../services/api';
 
 const CaseStudiesManager = () => {
   const [caseStudies, setCaseStudies] = useState([]);
@@ -55,30 +57,60 @@ const CaseStudiesManager = () => {
   };
 
   // Handle image upload
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size must be less than 5MB');
-        return;
+  // Handle image upload with compression
+const handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  // Check file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    toast.error('Image size must be less than 5MB');
+    return;
+  }
+  
+  // Check file type
+  if (!file.type.startsWith('image/')) {
+    toast.error('Please upload an image file');
+    return;
+  }
+  
+  // Compress image before upload
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      // Compress image
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      // Max dimensions
+      const maxWidth = 1200;
+      const maxHeight = 800;
+      
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      if (height > maxHeight) {
+        width = (width * maxHeight) / height;
+        height = maxHeight;
       }
       
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please upload an image file');
-        return;
-      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
       
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setFormData({ ...formData, imageUrl: reader.result });
-      };
-      reader.readAsDataURL(file);
-    }
+      // Compress to JPEG with 0.8 quality
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      setImagePreview(compressedDataUrl);
+      setFormData({ ...formData, imageUrl: compressedDataUrl });
+    };
+    img.src = event.target.result;
   };
+  reader.readAsDataURL(file);
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -248,14 +280,23 @@ const CaseStudiesManager = () => {
                 caseStudies.map((study) => (
                   <tr key={study.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
-                      {study.imageUrl ? (
-                        <img src={study.imageUrl} alt={study.title} className="w-12 h-12 object-cover rounded" />
-                      ) : (
-                        <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                          <FiImage className="text-gray-400" />
-                        </div>
-                      )}
-                    </td>
+  {study.imageUrl ? (
+    <img 
+      src={getImageUrl(study.imageUrl)}
+      alt={study.title} 
+      className="w-12 h-12 object-cover rounded"
+      onError={(e) => {
+        console.error('Image failed to load:', getImageUrl(study.imageUrl));
+        e.target.onerror = null;
+        e.target.src = 'https://placehold.co/400x300/e2e8f0/64748b?text=No+Image';
+      }}
+    />
+  ) : (
+    <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+      <FiImage className="text-gray-400" />
+    </div>
+  )}
+</td>
                     <td className="px-6 py-4">
                       <div className="font-medium text-gray-900 max-w-xs truncate">{study.title}</div>
                       {study.subtitle && (
