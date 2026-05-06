@@ -96,7 +96,6 @@ model Conversation {
   @@map("conversations")
 }
 
-// Chat Messages
 model ChatMessage {
   id            String       @id @default(cuid())
   conversationId String
@@ -114,7 +113,6 @@ model ChatMessage {
   @@map("chat_messages")
 }
 
-// Admin Request for Human Support
 model AdminRequest {
   id            String       @id @default(cuid())
   conversationId String
@@ -136,7 +134,6 @@ model AdminRequest {
   @@index([status])
   @@map("admin_requests")
 }
-
 // Newsletter Subscribers
 model NewsletterSubscriber {
   id            String   @id @default(cuid())

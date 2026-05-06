@@ -26,8 +26,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/case-studies', express.static(path.join(__dirname, 'uploads/case-studies')));
 
 // Log uploads path for debugging
-console.log('Uploads directory:', path.join(__dirname, 'uploads'));
-console.log('Static files served from: /uploads');
+// console.log('Uploads directory:', path.join(__dirname, 'uploads'));
+// console.log('Static files served from: /uploads');
 
 // Make io accessible to routes
 app.set('io', io);
@@ -67,5 +67,5 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📁 Uploads served at: http://localhost:${PORT}/uploads`);
+  // console.log(`📁 Uploads served at: http://localhost:${PORT}/uploads`);
 });

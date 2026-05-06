@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const userData = JSON.parse(storedUser);
         setUser(userData);
-        console.log('Restored user session:', userData);
+        // console.log('Restored user session:', userData);
       } catch (error) {
         console.error('Error restoring user:', error);
         localStorage.removeItem('token');

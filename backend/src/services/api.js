@@ -127,8 +127,10 @@ export const authAPI = {
 };
 
 // Chatbot API
+// Chatbot API
 export const chatbotAPI = {
-  sendMessage: (sessionId, message) => api.post('/chatbot/message', { sessionId, message }),
+  sendMessage: (sessionId, message, userEmail, userName, userPhone) => 
+    api.post('/chatbot/message', { sessionId, message, userEmail, userName, userPhone }),
   getHistory: (sessionId) => api.get(`/chatbot/history/${sessionId}`),
   clearHistory: (sessionId) => api.delete(`/chatbot/history/${sessionId}`),
 };

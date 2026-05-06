@@ -137,7 +137,7 @@ const ServicesSection = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style >{`
         .centered-slider {
           padding: 20px 0 40px 0;
           overflow: visible !important;

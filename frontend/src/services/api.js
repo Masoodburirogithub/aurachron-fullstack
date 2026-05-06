@@ -4,8 +4,8 @@ import toast from 'react-hot-toast';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
 
-console.log('API Base URL:', API_BASE_URL);
-console.log('Image Base URL:', IMAGE_BASE_URL);
+// console.log('API Base URL:', API_BASE_URL);
+// console.log('Image Base URL:', IMAGE_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -121,5 +121,4 @@ export const chatbotAPI = {
   getHistory: (sessionId) => api.get(`/chatbot/history/${sessionId}`),
   clearHistory: (sessionId) => api.delete(`/chatbot/history/${sessionId}`),
 };
-
 export default api;

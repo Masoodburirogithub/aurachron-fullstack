@@ -56,7 +56,7 @@ const CaseStudyCard = ({ study, index }) => {
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             onError={(e) => {
-              console.error('Image failed to load:', getImageUrl(study.imageUrl));
+              // console.error('Image failed to load:', getImageUrl(study.imageUrl));
               e.target.onerror = null;
               e.target.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Found';
             }}
@@ -106,7 +106,7 @@ const CaseStudiesSection = () => {
     try {
       setLoading(true);
       const response = await caseStudiesAPI.getAll();
-      console.log('Case Studies Section Data:', response.data);
+      // console.log('Case Studies Section Data:', response.data);
       
       let data = [];
       if (response.data?.success) {
@@ -118,7 +118,7 @@ const CaseStudiesSection = () => {
       }
       
       // Debug: Check image URLs from API
-      console.log('Case studies with images:', data.map(s => ({ title: s.title, imageUrl: s.imageUrl })));
+      // console.log('Case studies with images:', data.map(s => ({ title: s.title, imageUrl: s.imageUrl })));
       
       const activeStudies = data.filter(study => study.isActive !== false);
       setCaseStudies(activeStudies);

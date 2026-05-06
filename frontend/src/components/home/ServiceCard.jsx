@@ -215,7 +215,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
         </motion.div>
       )}
 
-      <style jsx>{`
+      <style>{`
         /* X SHAPE - CORNER TO OPPOSITE CORNER FLASH ANIMATIONS */
         
         /* Line 1: Top-Left to Bottom-Right (Diagonal \ direction) */

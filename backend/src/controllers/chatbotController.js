@@ -1,18 +1,16 @@
 // backend/src/controllers/chatbotController.js
 const { PrismaClient } = require('@prisma/client');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { sendAdminNotification, sendUserConfirmation } = require('../services/emailService');
 
 const prisma = new PrismaClient();
-
-// Initialize Google AI
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 // Get or create conversation
-const getOrCreateConversation = async (sessionId, userEmail = null, userName = null) => {
+const getOrCreateConversation = async (sessionId, userEmail = null, userName = null, userPhone = null) => {
   let conversation = await prisma.conversation.findUnique({
-    where: { sessionId },
-    include: { messages: { orderBy: { createdAt: 'asc' } } }
+    where: { sessionId }
   });
 
   if (!conversation) {
@@ -21,6 +19,7 @@ const getOrCreateConversation = async (sessionId, userEmail = null, userName = n
         sessionId,
         userEmail,
         userName,
+        userPhone,
         status: 'active'
       }
     });
@@ -29,52 +28,44 @@ const getOrCreateConversation = async (sessionId, userEmail = null, userName = n
   return conversation;
 };
 
-// Send message and get AI response
+// Send message with Google AI
 const sendMessage = async (req, res) => {
   try {
-    const { sessionId, message, userEmail, userName } = req.body;
+    const { sessionId, message, userEmail, userName, userPhone } = req.body;
     const io = req.app.get('io');
 
     // Get or create conversation
-    const conversation = await getOrCreateConversation(sessionId, userEmail, userName);
+    let conversation = await getOrCreateConversation(sessionId, userEmail, userName, userPhone);
 
     // Save user message
-    const userMessage = await prisma.chatMessage.create({
+    await prisma.chatMessage.create({
       data: {
         conversationId: conversation.id,
         message,
-        role: 'user',
-        senderName: userName || 'User'
+        role: 'user'
       }
     });
 
-    // Emit to admin if conversation is waiting for admin
-    if (conversation.status === 'waiting_for_admin') {
-      io.to('admin-room').emit('new-user-message', {
-        conversationId: conversation.id,
-        message: userMessage,
-        sessionId
-      });
-    }
-
-    // Get AI response from Google Gemini
+    // Get chat history for context
     const chatHistory = await prisma.chatMessage.findMany({
       where: { conversationId: conversation.id },
       orderBy: { createdAt: 'asc' },
-      take: 10 // Last 10 messages for context
+      take: 10
     });
 
+    // Build conversation for Gemini
     const history = chatHistory.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: [{ text: msg.message }]
     }));
 
+    // Get AI response from Google Gemini
     const chat = model.startChat({ history });
     const result = await chat.sendMessage(message);
     const aiResponse = result.response.text();
 
     // Save AI response
-    const assistantMessage = await prisma.chatMessage.create({
+    await prisma.chatMessage.create({
       data: {
         conversationId: conversation.id,
         message: aiResponse,
@@ -82,42 +73,54 @@ const sendMessage = async (req, res) => {
       }
     });
 
-    // Check if user wants to talk to admin
-    const wantsAdmin = /(talk to admin|human|real person|speak to agent|contact support|call me|representative)/i.test(message);
+    // Check if user wants to talk to a real person
+    const wantsHuman = /(talk to (admin|human|real person|agent|representative)|speak to (someone|human)|call me|contact support|need help from real person|human support)/i.test(message);
     
-    if (wantsAdmin && conversation.status === 'active') {
-      // Create admin request
-      const adminRequest = await prisma.adminRequest.create({
-        data: {
-          conversationId: conversation.id,
-          sessionId,
-          userEmail: userEmail || null,
-          userName: userName || null,
-          status: 'pending'
-        }
-      });
-
+    if (wantsHuman && conversation.status !== 'waiting_for_admin') {
       // Update conversation status
       await prisma.conversation.update({
         where: { id: conversation.id },
         data: { status: 'waiting_for_admin' }
       });
 
-      // Notify admin
+      // Get conversation summary (last 5 messages)
+      const lastMessages = await prisma.chatMessage.findMany({
+        where: { conversationId: conversation.id },
+        orderBy: { createdAt: 'desc' },
+        take: 5
+      });
+      
+      const conversationSummary = lastMessages.reverse().map(m => `${m.role}: ${m.message.substring(0, 100)}`).join('\n');
+
+      // Send email notification to admin
+      await sendAdminNotification(
+        userName || 'Anonymous',
+        userEmail || 'Not provided',
+        userPhone || 'Not provided',
+        conversationSummary,
+        message
+      );
+
+      // Send confirmation email to user if email provided
+      if (userEmail) {
+        await sendUserConfirmation(userEmail, userName, process.env.ADMIN_PHONE);
+      }
+
+      // Notify admin via socket
       io.to('admin-room').emit('admin-request', {
-        requestId: adminRequest.id,
         conversationId: conversation.id,
         sessionId,
-        userName: userName || 'Anonymous User',
+        userName: userName || 'Anonymous',
         userEmail: userEmail || 'Not provided',
-        message: `User wants to talk to a real person. Last message: "${message}"`
+        userPhone: userPhone || 'Not provided',
+        message: message
       });
 
-      // Send acknowledgment to user
-      const ackMessage = await prisma.chatMessage.create({
+      // Add special response for user
+      const closureMessage = await prisma.chatMessage.create({
         data: {
           conversationId: conversation.id,
-          message: "Thank you for your request. An admin has been notified and will join the conversation shortly. Please wait...",
+          message: `Thank you for your request! I've notified our support team. They will contact you within 24 hours. You can also reach us directly at:\n\n📞 Phone: ${process.env.ADMIN_PHONE}\n📧 Email: ${process.env.ADMIN_EMAIL}\n\nIs there anything else I can help you with while you wait?`,
           role: 'assistant'
         }
       });
@@ -125,13 +128,17 @@ const sendMessage = async (req, res) => {
       return res.json({
         success: true,
         message: aiResponse,
-        adminRequested: true,
-        adminMessage: ackMessage.message
+        adminNotified: true,
+        contactInfo: {
+          phone: process.env.ADMIN_PHONE,
+          email: process.env.ADMIN_EMAIL
+        },
+        closureMessage: closureMessage.message
       });
     }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: aiResponse,
       conversationId: conversation.id
     });
@@ -151,8 +158,8 @@ const getHistory = async (req, res) => {
       include: { messages: { orderBy: { createdAt: 'asc' } } }
     });
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       data: conversation?.messages || [],
       conversationId: conversation?.id,
       status: conversation?.status || 'active'
@@ -178,85 +185,7 @@ const clearHistory = async (req, res) => {
   }
 };
 
-// Admin: Get all pending admin requests
-const getPendingRequests = async (req, res) => {
-  try {
-    const requests = await prisma.adminRequest.findMany({
-      where: { status: 'pending' },
-      include: { conversation: { include: { messages: { orderBy: { createdAt: 'asc' }, take: 5 } } } },
-      orderBy: { requestedAt: 'desc' }
-    });
-    res.json({ success: true, data: requests });
-  } catch (error) {
-    console.error('Get pending requests error:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Admin: Accept admin request and start chat
-const acceptRequest = async (req, res) => {
-  try {
-    const { requestId } = req.params;
-    const adminId = req.user.id;
-    const adminName = req.user.email;
-
-    const adminRequest = await prisma.adminRequest.update({
-      where: { id: requestId },
-      data: { status: 'accepted', respondedAt: new Date(), adminId }
-    });
-
-    await prisma.conversation.update({
-      where: { id: adminRequest.conversationId },
-      data: { status: 'active' }
-    });
-
-    const io = req.app.get('io');
-    io.to(adminRequest.sessionId).emit('admin-joined', {
-      message: "An admin has joined the conversation. You can now chat directly.",
-      adminName
-    });
-
-    res.json({ success: true, message: 'Request accepted', conversationId: adminRequest.conversationId });
-  } catch (error) {
-    console.error('Accept request error:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Admin: Send message to user
-const adminSendMessage = async (req, res) => {
-  try {
-    const { conversationId, message } = req.body;
-    const adminName = req.user.email;
-
-    const adminMessage = await prisma.chatMessage.create({
-      data: {
-        conversationId,
-        message,
-        role: 'admin',
-        senderName: adminName,
-        isRead: false
-      }
-    });
-
-    const conversation = await prisma.conversation.findUnique({
-      where: { id: conversationId }
-    });
-
-    const io = req.app.get('io');
-    io.to(conversation.sessionId).emit('admin-message', {
-      message: adminMessage,
-      adminName
-    });
-
-    res.json({ success: true, data: adminMessage });
-  } catch (error) {
-    console.error('Admin send message error:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get all conversations for admin
+// Admin: Get all conversations
 const getAllConversations = async (req, res) => {
   try {
     const conversations = await prisma.conversation.findMany({
@@ -277,8 +206,5 @@ module.exports = {
   sendMessage,
   getHistory,
   clearHistory,
-  getPendingRequests,
-  acceptRequest,
-  adminSendMessage,
   getAllConversations
 };
