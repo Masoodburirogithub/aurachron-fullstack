@@ -19,6 +19,23 @@ async function main() {
   });
   console.log('✅ Admin user created');
 
+
+
+  const defaultMenus = [
+  { name: 'Work', path: '/case-studies', order: 1, isActive: true, isDropdown: false },
+  { name: 'Services', path: '#', order: 2, isActive: true, isDropdown: true, dropdownItems: [
+    { name: 'AI Development', path: '/services/ai-development' },
+    { name: 'Enterprise SaaS', path: '/services/saas' },
+    { name: 'Web & Mobile Apps', path: '/services/web-mobile' }
+  ]},
+  { name: 'About', path: '/about', order: 3, isActive: true, isDropdown: false },
+  { name: 'Careers', path: '/careers', order: 4, isActive: true, isDropdown: false },
+  { name: 'Contact', path: '/contact', order: 5, isActive: true, isDropdown: false }
+];
+
+
+
+
   // Create sample case studies
   const caseStudies = [
     {
@@ -53,6 +70,41 @@ async function main() {
     });
   }
   console.log('✅ Sample case studies created');
+
+
+  // backend/prisma/seed.js - Add default services
+const defaultServices = [
+  {
+    title: "AI Development & Agents",
+    description: "Custom AI agents, LLM integrations, RAG pipelines, and AI enablement — from strategy to production",
+    icon: "Brain",
+    features: ["Agentic AI Solutions", "LLM Integration & RAG", "AI Enablement Consulting", "Intelligent Document Processing"],
+    gradient: "from-blue-500 to-indigo-500",
+    color: "blue",
+    displayOrder: 1,
+    isActive: true
+  },
+  {
+    title: "Enterprise SaaS",
+    description: "Multi-tenant architecture, subscription management, SOC2-ready logging that scales from 10 to 100k users",
+    icon: "Cloud",
+    features: ["Multi-tenant Architecture", "Subscription Management", "SOC2 Ready", "Scalable Infrastructure"],
+    gradient: "from-cyan-500 to-blue-500",
+    color: "cyan",
+    displayOrder: 2,
+    isActive: true
+  },
+  // Add more services...
+];
+
+// Add to seed function
+for (const service of defaultServices) {
+  await prisma.service.upsert({
+    where: { id: service.title },
+    update: {},
+    create: service
+  });
+}
 
   // Create sample career positions
   const positions = [

@@ -5,6 +5,11 @@ const dotenv = require('dotenv');
 const http = require('http');
 const path = require('path');
 const { initializeSocket } = require('./src/sockets/socketManager');
+const serviceRoutes = require('./src/routes/serviceRoutes');
+const pageSettingRoutes = require('./src/routes/pageSettingRoutes');
+const navigationRoutes = require('./src/routes/navigationRoutes');
+const dynamicServiceRoutes = require('./src/routes/dynamicServiceRoutes');
+const heroRoutes = require('./src/routes/heroRoutes');
 
 dotenv.config();
 
@@ -24,6 +29,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // This makes images accessible at http://localhost:5000/uploads/...
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/case-studies', express.static(path.join(__dirname, 'uploads/case-studies')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Log uploads path for debugging
 // console.log('Uploads directory:', path.join(__dirname, 'uploads'));
@@ -47,6 +54,11 @@ app.use('/api/careers', careerRoutes);
 app.use('/api/case-studies', caseStudyRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/page-settings', pageSettingRoutes);
+app.use('/api/navigation', navigationRoutes);
+app.use('/api/dynamic-services', dynamicServiceRoutes);
+app.use('/api/hero', heroRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

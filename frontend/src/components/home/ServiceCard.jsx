@@ -1,11 +1,15 @@
-// src/components/home/ServiceCard.jsx
+// src/components/home/ServiceCard.jsx - Dynamic with Original Effects
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import * as Icons from 'lucide-react';
 
 const ServiceCard = ({ service, index, isActive = false }) => {
   const [isHovered, setIsHovered] = React.useState(false);
+  
+  // Dynamically get the icon component based on the icon name from database
+  const IconComponent = Icons[service.icon] || Icons.Brain;
 
   return (
     <motion.div
@@ -102,7 +106,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
             : '0 10px 15px -3px rgba(0,0,0,0.1)',
         }}
       >
-        {/* Top Gradient Bar - Glowing with Cyan/Purple */}
+        {/* Top Gradient Bar - Glowing with service gradient */}
         <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${service.gradient} transform origin-left transition-transform duration-500 ${
           (isHovered || isActive) ? 'scale-x-100' : 'scale-x-0'
         }`} 
@@ -115,7 +119,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
         <div className={`relative z-30 transition-all duration-500 ${
           isActive ? 'p-4 sm:p-6 md:p-8 lg:p-10' : 'p-4 sm:p-5 md:p-6'
         }`}>
-          {/* Icon with Glow */}
+          {/* Icon with Glow - Dynamically loaded */}
           <motion.div 
             className={`mb-3 md:mb-5 transition-all duration-300 ${(isHovered || isActive) ? 'scale-110' : ''}`}
             animate={{
@@ -129,11 +133,11 @@ const ServiceCard = ({ service, index, isActive = false }) => {
                 : 'w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14'
             }`} style={{ borderRadius: 0 }}>
               <div className="w-full h-full bg-white dark:bg-gray-800 flex items-center justify-center" style={{ borderRadius: 0 }}>
-                <service.icon className={`${
+                <IconComponent className={`${
                   isActive 
                     ? 'w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12' 
                     : 'w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7'
-                } text-indigo-600`} />
+                } text-${service.color || 'indigo'}-600`} />
               </div>
             </div>
           </motion.div>
@@ -161,7 +165,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
           
           {/* Features */}
           <div className={`space-y-1.5 md:space-y-2 mb-4 md:mb-6 transition-all duration-300 ${isActive ? 'mb-6 md:mb-8' : ''}`}>
-            {service.features.slice(0, 3).map((feature, i) => (
+            {service.features?.slice(0, 3).map((feature, i) => (
               <motion.div 
                 key={i} 
                 className={`flex items-center gap-1.5 md:gap-2 ${
@@ -218,7 +222,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
       <style>{`
         /* X SHAPE - CORNER TO OPPOSITE CORNER FLASH ANIMATIONS */
         
-        /* Line 1: Top-Left to Bottom-Right (Diagonal \ direction) */
+        /* Line 1: Top-Left to Bottom-Right (Diagonal \\ direction) */
         @keyframes flash-tl-br {
           0% { 
             transform: translate(-100%, -100%);
@@ -281,7 +285,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
           }
         }
         
-        /* Line 4: Bottom-Right to Top-Left (Diagonal \ direction reverse) */
+        /* Line 4: Bottom-Right to Top-Left (Diagonal \\ direction reverse) */
         @keyframes flash-br-tl {
           0% { 
             transform: translate(100%, 100%);

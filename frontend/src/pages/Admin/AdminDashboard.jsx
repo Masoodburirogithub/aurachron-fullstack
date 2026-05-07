@@ -11,6 +11,12 @@ import DashboardHome from './DashboardHome';
 import { adminAPI } from '../../services/api';
 import { initSocket, disconnectSocket } from '../../services/socket';
 import toast from 'react-hot-toast';
+import ServicesManager from './ServicesManager';
+import PageSettingsManager from './PageSettingsManager';
+import NavigationManager from './NavigationManager';
+import DynamicServicesManager from './DynamicServicesManager';
+import HeroSettingsManager from './HeroSettingsManager';
+
 
 const AdminDashboard = () => {
   const { logout } = useAuth();
@@ -62,6 +68,13 @@ const AdminDashboard = () => {
             <Route path="/careers" element={<CareersManager />} />
             <Route path="/contacts" element={<ContactsManager />} />
             <Route path="/applications" element={<ApplicationsManager />} />
+            <Route path="/services" element={<ServicesManager />} />
+            <Route path="/page-settings" element={<PageSettingsManager />} />
+            <Route path="/navigation" element={<NavigationManager />} />
+            <Route path="/header-services" element={<DynamicServicesManager />} />
+            <Route path="/hero" element={<HeroSettingsManager />} />
+
+
           </Routes>
         </div>
       </div>

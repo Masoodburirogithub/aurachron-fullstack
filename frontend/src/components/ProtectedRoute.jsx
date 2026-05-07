@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
-  console.log('ProtectedRoute check:', { isAuthenticated, isAdmin, loading }); // Debug log
+  // console.log('ProtectedRoute check:', { isAuthenticated, isAdmin, loading });
 
   if (loading) {
     return (

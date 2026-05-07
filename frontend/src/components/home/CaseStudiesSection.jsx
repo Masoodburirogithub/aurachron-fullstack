@@ -81,12 +81,13 @@ const CaseStudyCard = ({ study, index }) => {
         <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '14px', lineHeight: '1.4' }}>{study.title}</h3>
         <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '24px', lineHeight: '1.6', flex: 1 }}>{study.challenge?.substring(0, 150)}...</p>
         
-        <Link 
-          to={`/case-studies/${study.id}`} 
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#4f46e5', fontWeight: '600', fontSize: '15px', textDecoration: 'none', marginTop: '8px' }}
-        >
-          Read Full Story <ExternalLink size={16} />
-        </Link>
+       
+<Link 
+  to={`/case-studies/${study.id}`} 
+  className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm group-hover:gap-3 transition-all"
+>
+  Read Full Story <ExternalLink className="w-3.5 h-3.5" />
+</Link>
       </div>
     </motion.div>
   );

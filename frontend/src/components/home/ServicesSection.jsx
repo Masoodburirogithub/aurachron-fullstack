@@ -1,33 +1,99 @@
-// src/components/home/ServicesSection.jsx - Fixed auto slider
+// src/components/home/ServicesSection.jsx - With Dynamic Header
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import { Brain, Cloud, Smartphone, RefreshCw, Shield, TrendingUp, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { servicesAPI, pageSettingsAPI } from '../../services/api';
 import ServiceCard from './ServiceCard';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-const services = [
-  { id: 'ai-development', icon: Brain, title: 'AI Development & Agents', description: 'Custom AI agents, LLM integrations, RAG pipelines', features: ['Agentic AI Solutions', 'LLM Integration & RAG', 'AI Enablement Consulting', 'Intelligent Document Processing'], gradient: 'from-blue-500 to-indigo-500' },
-  { id: 'saas', icon: Cloud, title: 'Enterprise SaaS', description: 'Multi-tenant architecture, subscription management', features: ['Multi-tenant Architecture', 'Subscription Management', 'SOC2 Ready', 'Scalable Infrastructure'], gradient: 'from-cyan-500 to-blue-500' },
-  { id: 'web-mobile', icon: Smartphone, title: 'Web & Mobile Apps', description: 'Modern applications with Next.js 15, Flutter', features: ['Cross-Platform', 'Offline-First', 'Biometric Auth', 'Real-time Sync'], gradient: 'from-green-500 to-teal-500' },
-  { id: 'legacy', icon: RefreshCw, title: 'Legacy Modernization', description: 'Zero downtime, side-by-side migration', features: ['Zero Downtime', 'Modern Stack', 'Cloud Native', 'API First'], gradient: 'from-orange-500 to-red-500' },
-  { id: 'security', icon: Shield, title: 'Cybersecurity', description: 'PDPA/GDPR readiness, monthly pentests', features: ['GDPR Compliant', 'Monthly Pentests', '24/7 Monitoring', 'Incident Response'], gradient: 'from-purple-500 to-pink-500' },
-  { id: 'ai-consulting', icon: TrendingUp, title: 'AI Consulting', description: 'Strategy + rapid prototyping', features: ['AI Strategy', 'Rapid Prototyping', 'Workflow Automation', 'ROI Analysis'], gradient: 'from-yellow-500 to-orange-500' },
-];
-
 const ServicesSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [pageSettings, setPageSettings] = useState({
+    title: 'Services We Offer',
+    subtitle: 'Explore our full range of AI-augmented services designed to accelerate your digital transformation',
+    badgeText: 'What We Do'
+  });
   const swiperRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
 
+  useEffect(() => {
+    fetchServices();
+    fetchPageSettings();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const response = await servicesAPI.getAll();
+      console.log('Services data:', response.data);
+      
+      if (response.data?.success) {
+        setServices(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        setServices(response.data);
+      } else {
+        setServices([]);
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPageSettings = async () => {
+    try {
+      const response = await pageSettingsAPI.getSettings('home', 'services');
+      if (response.data?.success && response.data.data) {
+        setPageSettings({
+          title: response.data.data.title || 'Services We Offer',
+          subtitle: response.data.data.subtitle || 'Explore our full range of AI-augmented services designed to accelerate your digital transformation',
+          badgeText: response.data.data.metadata?.badgeText || 'What We Do'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching page settings:', error);
+    }
+  };
+
+  const displayServices = services.filter(s => s.isActive !== false);
+
+  if (loading) {
+    return (
+      <section className="min-h-screen py-12 md:py-20 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden relative">
+        <div className="container-custom">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="inline-flex items-center gap-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-full px-3 md:px-4 py-1 mb-4">
+              <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+              <span className="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 font-medium">Loading...</span>
+            </div>
+            <div className="h-10 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg mx-auto mb-3 animate-pulse"></div>
+            <div className="h-6 w-96 bg-gray-200 dark:bg-gray-700 rounded-lg mx-auto animate-pulse"></div>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="bg-gray-200 dark:bg-gray-700 rounded-xl h-80 animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section ref={ref} className="min-h-screen py-12 md:py-20 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden relative"
+    <section 
+      ref={ref} 
+      className="min-h-screen py-12 md:py-20 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden relative"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -39,27 +105,27 @@ const ServicesSection = () => {
       </div>
 
       <div className="container-custom relative z-10">
-        {/* Header */}
+        {/* Dynamic Header */}
         <div className="text-center mb-8 md:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             <div className="inline-flex items-center gap-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-full px-3 md:px-4 py-1 mb-4">
               <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
-              <span className="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 font-medium">What We Do</span>
+              <span className="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 font-medium">{pageSettings.badgeText}</span>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-              Services <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">We Offer</span>
+              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{pageSettings.title}</span>
             </h2>
             <p className="text-base md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4">
-              Explore our full range of AI-augmented services designed to accelerate your digital transformation
+              {pageSettings.subtitle}
             </p>
           </motion.div>
         </div>
 
-        {/* Centered Carousel - Auto Slider Working */}
+        {/* Rest of your carousel code remains the same */}
         <div className="relative px-2 md:px-4 lg:px-16 py-8 md:py-12">
           <Swiper
             grabCursor={true}
@@ -89,8 +155,8 @@ const ServicesSection = () => {
               1536: { slidesPerView: 2.5, spaceBetween: 40, centeredSlides: true },
             }}
           >
-            {services.map((service, idx) => (
-              <SwiperSlide key={idx}>
+            {displayServices.map((service, idx) => (
+              <SwiperSlide key={service.id || idx}>
                 <div className={`flex justify-center transition-all duration-500 ${
                   activeIndex === idx 
                     ? 'scale-100 opacity-100' 
@@ -123,7 +189,7 @@ const ServicesSection = () => {
 
         {/* Slide Indicators */}
         <div className="flex justify-center gap-2 md:gap-3 mt-6 md:mt-8">
-          {services.map((_, idx) => (
+          {displayServices.map((_, idx) => (
             <button
               key={idx}
               onClick={() => swiperRef.current?.slideTo(idx)}
@@ -137,7 +203,7 @@ const ServicesSection = () => {
         </div>
       </div>
 
-      <style >{`
+      <style>{`
         .centered-slider {
           padding: 20px 0 40px 0;
           overflow: visible !important;
@@ -176,6 +242,17 @@ const ServicesSection = () => {
         }
         @media (min-width: 1024px) {
           .swiper-pagination-bullet-active { width: 32px !important; }
+        }
+        .scale-85 {
+          transform: scale(0.85);
+        }
+        .scale-90 {
+          transform: scale(0.9);
+        }
+        @media (max-width: 768px) {
+          .scale-90 {
+            transform: scale(0.9);
+          }
         }
       `}</style>
     </section>

@@ -1,9 +1,8 @@
 // backend/src/controllers/caseStudyController.js
 const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const fs = require('fs');
 const path = require('path');
-
-const prisma = new PrismaClient();
 
 // Ensure upload directory exists
 const ensureUploadDir = () => {
@@ -18,7 +17,7 @@ const ensureUploadDir = () => {
 const saveImage = (base64String, id) => {
   try {
     if (!base64String || !base64String.startsWith('data:image')) {
-      return base64String; // Return as is if it's already a URL
+      return base64String;
     }
     
     // Extract image type and data
@@ -44,9 +43,9 @@ const saveImage = (base64String, id) => {
     const filepath = path.join(uploadDir, filename);
     
     fs.writeFileSync(filepath, buffer);
-    // console.log('Image saved:', filepath);
+    console.log('Image saved:', filepath);
     
-    // Return the URL to access the image
+    // Return the URL path (without domain)
     return `/uploads/case-studies/${filename}`;
   } catch (error) {
     console.error('Error saving image:', error);
@@ -62,7 +61,11 @@ const getCaseStudies = async (req, res) => {
       orderBy: { displayOrder: 'asc' }
     });
     
-    res.json({ success: true, data: caseStudies, count: caseStudies.length });
+    res.json({
+      success: true,
+      data: caseStudies,
+      count: caseStudies.length
+    });
   } catch (error) {
     console.error('Get case studies error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -73,7 +76,9 @@ const getCaseStudies = async (req, res) => {
 const getCaseStudyById = async (req, res) => {
   try {
     const { id } = req.params;
-    const caseStudy = await prisma.caseStudy.findUnique({ where: { id } });
+    const caseStudy = await prisma.caseStudy.findUnique({
+      where: { id }
+    });
     
     if (!caseStudy) {
       return res.status(404).json({ success: false, error: 'Case study not found' });
@@ -86,10 +91,12 @@ const getCaseStudyById = async (req, res) => {
   }
 };
 
-// Create case study with image upload
+// Create case study
 const createCaseStudy = async (req, res) => {
   try {
     const { title, subtitle, industry, technology, challenge, solution, result, imageUrl, displayOrder } = req.body;
+    
+    console.log('Creating case study with image:', imageUrl ? 'Has image' : 'No image');
     
     // Validate required fields
     if (!title || !industry || !technology || !challenge || !solution || !result) {
@@ -102,14 +109,14 @@ const createCaseStudy = async (req, res) => {
     let savedImageUrl = null;
     
     // Handle image upload
-    if (imageUrl) {
-      if (imageUrl.startsWith('data:image')) {
-        // Generate temporary ID for image saving
-        const tempId = Date.now().toString();
-        savedImageUrl = saveImage(imageUrl, tempId);
-      } else if (imageUrl.startsWith('http')) {
-        savedImageUrl = imageUrl; // Keep external URL
-      }
+    if (imageUrl && imageUrl.startsWith('data:image')) {
+      const tempId = Date.now().toString();
+      savedImageUrl = saveImage(imageUrl, tempId);
+      console.log('Saved image URL:', savedImageUrl);
+    } else if (imageUrl && imageUrl.startsWith('http')) {
+      savedImageUrl = imageUrl;
+    } else if (imageUrl) {
+      savedImageUrl = imageUrl;
     }
     
     const caseStudy = await prisma.caseStudy.create({
@@ -127,14 +134,10 @@ const createCaseStudy = async (req, res) => {
       }
     });
     
-    // Emit socket event
-    const io = req.app.get('io');
-    if (io) io.emit('case-study-created', caseStudy);
-    
-    res.status(201).json({ 
-      success: true, 
-      data: caseStudy, 
-      message: 'Case study created successfully' 
+    res.status(201).json({
+      success: true,
+      data: caseStudy,
+      message: 'Case study created successfully'
     });
   } catch (error) {
     console.error('Create case study error:', error);
@@ -142,11 +145,13 @@ const createCaseStudy = async (req, res) => {
   }
 };
 
-// Update case study with image upload
+// Update case study
 const updateCaseStudy = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, subtitle, industry, technology, challenge, solution, result, imageUrl, displayOrder, isActive } = req.body;
+    
+    console.log('Updating case study:', id, 'Image URL:', imageUrl ? 'Has image' : 'No image');
     
     // Get existing case study
     const existingCaseStudy = await prisma.caseStudy.findUnique({ where: { id } });
@@ -154,15 +159,19 @@ const updateCaseStudy = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Case study not found' });
     }
     
-    let savedImageUrl = imageUrl;
+    let savedImageUrl = existingCaseStudy.imageUrl;
     
     // Handle new image upload
     if (imageUrl && imageUrl.startsWith('data:image')) {
       savedImageUrl = saveImage(imageUrl, id);
+      console.log('New image saved URL:', savedImageUrl);
     } else if (imageUrl === '') {
-      savedImageUrl = null; // Remove image
+      savedImageUrl = null;
+    } else if (imageUrl && imageUrl.startsWith('http')) {
+      savedImageUrl = imageUrl;
+    } else if (imageUrl) {
+      savedImageUrl = imageUrl;
     }
-    // else keep existing URL
     
     const caseStudy = await prisma.caseStudy.update({
       where: { id },
@@ -180,14 +189,10 @@ const updateCaseStudy = async (req, res) => {
       }
     });
     
-    // Emit socket event
-    const io = req.app.get('io');
-    if (io) io.emit('case-study-updated', caseStudy);
-    
-    res.json({ 
-      success: true, 
-      data: caseStudy, 
-      message: 'Case study updated successfully' 
+    res.json({
+      success: true,
+      data: caseStudy,
+      message: 'Case study updated successfully'
     });
   } catch (error) {
     console.error('Update case study error:', error);
@@ -208,15 +213,11 @@ const deleteCaseStudy = async (req, res) => {
       const imagePath = path.join(__dirname, '../../', caseStudy.imageUrl);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
-        // console.log('Deleted image:', imagePath);
+        console.log('Deleted image:', imagePath);
       }
     }
     
     await prisma.caseStudy.delete({ where: { id } });
-    
-    // Emit socket event
-    const io = req.app.get('io');
-    if (io) io.emit('case-study-deleted', id);
     
     res.json({ success: true, message: 'Case study deleted successfully' });
   } catch (error) {

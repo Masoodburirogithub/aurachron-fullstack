@@ -2,10 +2,12 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+
 // Make sure this points to your backend
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-console.log('API Base URL:', API_BASE_URL); // Debug log
+console.log('API Base URL:', API_BASE_URL); 
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,6 +15,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+
 
 // Request interceptor to add token
 api.interceptors.request.use(
@@ -59,6 +63,16 @@ export const contactAPI = {
   },
   updateStatus: (id, status) => api.put(`/contact/submissions/${id}/status`, { status }),
 };
+
+
+// src/services/api.js - Add dynamic service API
+export const dynamicServiceAPI = {
+  getAll: () => api.get('/dynamic-services'),
+  create: (data) => api.post('/dynamic-services', data),
+  update: (id, data) => api.put(`/dynamic-services/${id}`, data),
+  delete: (id) => api.delete(`/dynamic-services/${id}`),
+};
+
 
 // Careers API
 export const careersAPI = {
@@ -133,6 +147,23 @@ export const chatbotAPI = {
     api.post('/chatbot/message', { sessionId, message, userEmail, userName, userPhone }),
   getHistory: (sessionId) => api.get(`/chatbot/history/${sessionId}`),
   clearHistory: (sessionId) => api.delete(`/chatbot/history/${sessionId}`),
+};
+
+// src/services/api.js - Add navigation API
+export const navigationAPI = {
+  getAll: () => api.get('/navigation'),
+  create: (data) => api.post('/navigation', data),
+  update: (id, data) => api.put(`/navigation/${id}`, data),
+  delete: (id) => api.delete(`/navigation/${id}`),
+};
+
+// src/services/api.js - Add hero API
+export const heroAPI = {
+  getSettings: () => api.get('/hero'),
+  updateSettings: (data) => api.put('/hero', data),
+  uploadVideo: (formData) => api.post('/hero/upload-video', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 };
 
 export default api;

@@ -1,21 +1,52 @@
+// src/components/layout/Header.jsx - Full Width Dropdown with Icons
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Sparkles, ArrowRight, Brain, Cloud, Smartphone, Shield, TrendingUp, RefreshCw } from 'lucide-react';
+import { Menu, X, ChevronDown, Sparkles, ArrowRight } from 'lucide-react';
+import { servicesAPI } from '../../services/api';
 import logoimg from '../../../src/assets/logoimg.jpeg';
+import * as Icons from 'lucide-react';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const isHomePage = location.pathname === '/';
-  const mobileMenuRef = useRef(null);
+  const dropdownTimeoutRef = useRef(null);
   const headerRef = useRef(null);
   const scrollTimeout = useRef(null);
 
-  // Optimized scroll handler with debounce
+  // Fetch services from your existing Services table
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const response = await servicesAPI.getAll();
+      console.log('Services for dropdown:', response.data);
+      
+      if (response.data?.success) {
+        setServices(response.data.data.filter(s => s.isActive !== false));
+      } else if (Array.isArray(response.data)) {
+        setServices(response.data.filter(s => s.isActive !== false));
+      } else {
+        setServices([]);
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Optimized scroll handler
   useEffect(() => {
     const handleScroll = () => {
       if (scrollTimeout.current) {
@@ -60,7 +91,6 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   }, []);
 
-  // Handle logo click - simple navigation to home
   const handleLogoClick = useCallback(() => {
     if (location.pathname === '/') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -70,27 +100,23 @@ const Header = () => {
     closeMobileMenu();
   }, [location.pathname, navigate, closeMobileMenu]);
 
-  const services = [
-    { icon: Brain, name: 'AI Development', path: '/services/ai-development', desc: 'Custom AI agents & LLM integration', popular: true, color: 'from-blue-500 to-indigo-500' },
-    { icon: Cloud, name: 'Enterprise SaaS', path: '/services/saas', desc: 'Multi-tenant scalable platforms', popular: false, color: 'from-cyan-500 to-blue-500' },
-    { icon: Smartphone, name: 'Web & Mobile Apps', path: '/services/web-mobile', desc: 'Cross-platform applications', popular: false, color: 'from-green-500 to-teal-500' },
-    { icon: RefreshCw, name: 'Legacy Modernization', path: '/services/legacy', desc: 'Zero-downtime migration', popular: false, color: 'from-orange-500 to-red-500' },
-    { icon: Shield, name: 'Cybersecurity', path: '/services/security', desc: 'Enterprise-grade protection', popular: true, color: 'from-purple-500 to-pink-500' },
-    { icon: TrendingUp, name: 'AI Consulting', path: '/services/ai-consulting', desc: 'Strategy & rapid prototyping', popular: false, color: 'from-yellow-500 to-orange-500' },
-  ];
+  const handleMouseEnter = () => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    setActiveDropdown('services');
+  };
 
-  const navItems = [
-    { name: 'Work', path: '/case-studies', icon: '📁' },
-    { name: 'About', path: '/about', icon: '👥' },
-    { name: 'Careers', path: '/careers', icon: '💼' },
-    { name: 'Contact', path: '/contact', icon: '📞' },
-  ];
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 200);
+  };
 
-  // Get header background based on state
   const getHeaderBg = useCallback(() => {
-    if (isMobileMenuOpen) return 'bg-white dark:bg-dark shadow-xl';
-    if (isScrolled) return 'bg-white/95 dark:bg-dark/95 backdrop-blur-xl shadow-2xl';
-    if (!isHomePage) return 'bg-white dark:bg-dark shadow-md';
+    if (isMobileMenuOpen) return 'bg-white dark:bg-gray-900 shadow-xl';
+    if (isScrolled) return 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl';
+    if (!isHomePage) return 'bg-white dark:bg-gray-900 shadow-md';
     return 'bg-transparent';
   }, [isMobileMenuOpen, isScrolled, isHomePage]);
 
@@ -104,11 +130,25 @@ const Header = () => {
   const headerBg = getHeaderBg();
   const textColor = getTextColor();
 
+  // Static navigation items
+  const staticNavItems = [
+    { id: 'work', name: 'Work', path: '/case-studies' },
+    { id: 'about', name: 'About', path: '/about' },
+    { id: 'careers', name: 'Careers', path: '/careers' },
+    { id: 'contact', name: 'Contact', path: '/contact' }
+  ];
+
+  // Dynamically get icon component
+  const getIconComponent = (iconName) => {
+    if (!iconName) return Icons.Brain;
+    return Icons[iconName] || Icons.Brain;
+  };
+
+  // Sort services by display order
+  const sortedServices = [...services].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
   return (
-    <header 
-      ref={headerRef}
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${headerBg}`}
-    >
+    <header ref={headerRef} className={`fixed top-0 w-full z-50 transition-all duration-300 ${headerBg}`}>
       <div className="container-custom">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -117,16 +157,15 @@ const Header = () => {
             className="flex items-center gap-3 z-30 cursor-pointer transition-all duration-200 hover:opacity-80"
             aria-label="Go to homepage"
           >
-            <div className=" relative flex-shrink-0">
+            <div className="relative flex-shrink-0">
               <img 
                 src={logoimg} 
-                alt="Aurachron Systems Logo" 
-                className="w-6 rounded-full h-6 md:w-12 md:h-12 object-contain"
+                alt="Logo" 
+                className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-full"
                 onError={(e) => {
                   e.target.style.display = 'none';
-                  if (e.target.parentElement) {
-                    const fallback = e.target.parentElement.querySelector('.fallback-logo');
-                    if (fallback) fallback.style.display = 'flex';
+                  if (e.target.nextSibling) {
+                    e.target.nextSibling.style.display = 'flex';
                   }
                 }}
               />
@@ -135,26 +174,33 @@ const Header = () => {
               </div>
             </div>
             <div className="flex flex-col">
-              <span className={`text-lg md:text-2xl font-bold leading-tight ${textColor}`}>
-                AURACHRON<span className="text-indigo-600 dark:text-indigo-400"></span>
+              <span className={`text-lg md:text-3xl font-bold leading-tight ${textColor}`}>
+                Aurachron<span className="text-indigo-600 dark:text-indigo-400"></span>
               </span>
-              <span className="text-[8px] md:text-[10px] text-gray-500 dark:text-gray-400 -mt-0.5 hidden sm:block">
-               SYSTEMS PVT LTD
+              <span className="text-[10px] md:text-[11px] text-gray-500 dark:text-gray-400 -mt-0.5 hidden sm:block">
+                SYSTEMS PVT LTD
               </span>
             </div>
           </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
-            {/* <Link to="/case-studies" className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${textColor} hover:bg-white/10 hover:scale-105`}>
-              Work
-            </Link> */}
-            
-            {/* Services Dropdown - FULL WIDTH AT DESKTOP */}
+            {/* Static nav items */}
+            {staticNavItems.map((item) => (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${textColor} hover:bg-white/10 hover:scale-105`}
+              >
+                {item.name}
+              </Link>
+            ))}
+
+            {/* Services Dropdown - FULL WIDTH */}
             <div
               className="relative"
-              onMouseEnter={() => setActiveDropdown('services')}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
               <button className={`flex items-center gap-1 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${textColor} hover:bg-white/10 hover:scale-105`}>
                 Services
@@ -168,45 +214,46 @@ const Header = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="fixed left-0 right-0 top-16 md:top-20 bg-white dark:bg-dark shadow-2xl border-t border-gray-100 dark:border-gray-800 z-50"
+                    className="fixed left-0 right-0 top-16 md:top-20 bg-white dark:bg-gray-800 shadow-2xl border-t border-gray-100 dark:border-gray-700 z-50"
                     style={{ width: '100vw' }}
                   >
-                    <div className="w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {services.map((service, idx) => (
-                          <Link
-                            key={idx}
-                            to={service.path}
-                            className="group relative p-5 rounded-2xl bg-white dark:bg-dark/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-800"
-                            onClick={() => setActiveDropdown(null)}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.color} p-0.5 flex-shrink-0`}>
-                                <div className="w-full h-full bg-white dark:bg-dark rounded-xl flex items-center justify-center">
-                                  <service.icon className="w-5 h-5 text-indigo-600" />
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {sortedServices.map((service) => {
+                          const IconComponent = getIconComponent(service.icon);
+                          return (
+                            <Link
+                              key={service.id}
+                              to={`/services/${service.id}`}
+                              className="group relative p-5 rounded-xl bg-white dark:bg-gray-800/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-800"
+                              onClick={() => setActiveDropdown(null)}
+                            >
+                              <div className="flex items-start gap-4">
+                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5 flex-shrink-0`}>
+                                  <div className="w-full h-full bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center">
+                                    <IconComponent className="w-5 h-5 text-indigo-600" />
+                                  </div>
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                                      {service.title}
+                                    </h3>
+                                  </div>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                    {service.description}
+                                  </p>
+                                  <div className="flex items-center gap-1 text-indigo-600 text-sm font-medium mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Learn More <ArrowRight className="w-3 h-3" />
+                                  </div>
                                 </div>
                               </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">
-                                    {service.name}
-                                  </h3>
-                                  {service.popular && (
-                                    <span className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">
-                                      Popular
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{service.desc}</p>
-                                <div className="flex items-center gap-1 text-indigo-600 text-sm font-medium mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  Learn More <ArrowRight className="w-3 h-3" />
-                                </div>
-                              </div>
-                            </div>
-                          </Link>
-                        ))}
+                            </Link>
+                          );
+                        })}
                       </div>
                       
+                      {/* Custom Solution Banner */}
                       <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
                         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-4 flex items-center justify-between flex-wrap gap-4">
                           <div className="flex items-center gap-3">
@@ -226,23 +273,11 @@ const Header = () => {
                 )}
               </AnimatePresence>
             </div>
-            
-            {/* Other Nav Items */}
-            {navItems.map((item) => (
-              <Link 
-                key={item.name}
-                to={item.path} 
-                className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${textColor} hover:bg-white/10 hover:scale-105`}
-                onClick={closeMobileMenu}
-              >
-                {item.name}
-              </Link>
-            ))}
-            
+
+            {/* Start a Project Button */}
             <Link 
               to="/contact" 
-              className="ml-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-xl font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300"
-              onClick={closeMobileMenu}
+              className="ml-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-md font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300"
             >
               Start a Project
             </Link>
@@ -270,66 +305,51 @@ const Header = () => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
-              ref={mobileMenuRef}
               initial={{ opacity: 0, x: '100%' }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '100%' }}
-              transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="fixed inset-0 top-16 md:top-20 bg-white dark:bg-dark shadow-2xl overflow-y-auto"
-              style={{ zIndex: 9998 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 top-16 md:top-20 bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto z-40"
             >
               <div className="container-custom py-4 pb-24">
-                {/* Services Section */}
-                <div className="mb-4">
-                  <div className="px-4 py-3 font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/50 flex items-center gap-2 rounded-xl">
-                    <Sparkles className="w-4 h-4 text-indigo-600" />
-                    <span>Services</span>
-                  </div>
-                  <div className="mt-2 space-y-1">
-                    {services.map((service, idx) => (
-                      <Link
-                        key={idx}
-                        to={service.path}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 rounded-xl"
-                        onClick={closeMobileMenu}
-                      >
-                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${service.color} p-0.5 flex-shrink-0`}>
-                          <div className="w-full h-full bg-white dark:bg-dark rounded-lg flex items-center justify-center">
-                            <service.icon className="w-4 h-4 text-indigo-600" />
-                          </div>
-                        </div>
-                        <span className="flex-1 text-sm">{service.name}</span>
-                        {service.popular && (
-                          <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">
-                            Popular
-                          </span>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Other Nav Items */}
-                {navItems.map((item) => (
-                  <Link 
-                    key={item.name}
-                    to={item.path} 
-                    className="flex items-center gap-3 px-4 py-4 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200"
+                {staticNavItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    className="block px-4 py-3 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800"
                     onClick={closeMobileMenu}
                   >
-                    <span className="text-lg">{item.icon}</span>
-                    <span className="font-medium">{item.name}</span>
+                    {item.name}
                   </Link>
                 ))}
                 
-                {/* CTA Button */}
-                <div className="p-4 mt-6">
+                {/* Services Section in Mobile */}
+                <div className="border-b border-gray-100 dark:border-gray-800">
+                  <div className="px-4 py-3 font-semibold text-gray-900 dark:text-white">Services</div>
+                  {sortedServices.map((service) => (
+                    <Link
+                      key={service.id}
+                      to={`/services/${service.id}`}
+                      className="flex items-center gap-3 px-8 py-2 text-gray-600 dark:text-gray-400 hover:text-indigo-600"
+                      onClick={closeMobileMenu}
+                    >
+                      <div className={`w-6 h-6 rounded-lg bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5`}>
+                        <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                          {service.icon === 'Brain' ? '🧠' : service.icon === 'Cloud' ? '☁️' : service.icon === 'Smartphone' ? '📱' : '⚙️'}
+                        </div>
+                      </div>
+                      <span>{service.title}</span>
+                    </Link>
+                  ))}
+                </div>
+                
+                <div className="p-4 mt-4">
                   <Link
                     to="/contact"
-                    className="block text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    className="block text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold"
                     onClick={closeMobileMenu}
                   >
-                    Start a Project →
+                    Start a Project
                   </Link>
                 </div>
               </div>

@@ -8,6 +8,88 @@ datasource db {
   url=env("DATABASE_URL")
 }
 
+
+// prisma/schema.prisma - Add HeroSettings model
+model HeroSettings {
+  id            String   @id @default(cuid())
+  title         String   @default("Ship Production-Ready Systems at AI Speed")
+  subtitle      String   @default("We combine deep systems engineering with AI-native delivery to build scalable, secure applications in half the time. Zero technical debt. Full IP ownership.")
+  badgeText     String   @default("Aurachron Systems Leading AI-Augmented Engineering Firm • 2026")
+  buttonText    String   @default("Launch Your Project")
+  buttonLink    String   @default("/contact")
+  demoButtonText String  @default("Watch Demo")
+  videoUrl      String?  @default("")
+  videoFile     String?  @default("")
+  stats         Json?    // Store stats as JSON array
+  isActive      Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+
+  @@map("hero_settings")
+}
+
+
+// prisma/schema.prisma - Add NavigationMenu model
+model NavigationMenu {
+  id          String   @id @default(cuid())
+  name        String   // Services, About, Careers, etc.
+  path        String   // /services, /about, /careers, etc.
+  icon        String?  // Optional icon name
+  parentId    String?  // For dropdown menus
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  isDropdown  Boolean  @default(false)
+  dropdownItems Json?   // Array of dropdown items
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("navigation_menus")
+}
+
+// prisma/schema.prisma - Only for dynamic services sub-items
+model DynamicService {
+  id          String   @id @default(cuid())
+  name        String   // AI Development, Enterprise SaaS, etc.
+  path        String   // /services/ai-development, /services/saas, etc.
+  description String?  @db.Text
+  icon        String?  // Brain, Cloud, etc.
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("dynamic_services")
+}
+
+model PageSetting {
+  id          String   @id @default(cuid())
+  page        String   @unique  // home, services, about, contact
+  section     String   // hero, services, testimonials, etc.
+  title       String?
+  subtitle    String?
+  description String?  @db.Text
+  metadata    Json?
+  updatedAt   DateTime @updatedAt
+
+  @@map("page_settings")
+}
+
+// prisma/schema.prisma - Add Service model
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  icon        String   // Icon name (Brain, Cloud, Smartphone, etc.)
+  features    String[] // Array of features
+  gradient    String   // Gradient colors (from-blue-500 to-indigo-500)
+  color       String   // Color for icon (blue, cyan, green, etc.)
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
 // Contact Form Submissions
 model ContactSubmission {
   id            String   @id @default(cuid())
@@ -149,11 +231,7 @@ model User {
   id            String   @id @default(cuid())
   email         String   @unique
   password      String
-  role          String   @default("user") // admin, user
-  name          String?
-  avatar        String?
-  isActive      Boolean  @default(true)
-  lastLogin     DateTime?
+  role          String   @default("user")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 

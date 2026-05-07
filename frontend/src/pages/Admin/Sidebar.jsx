@@ -2,9 +2,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
-  FiHome, FiBriefcase, FiUsers, FiMail, FiFileText, 
-  FiLogOut, FiCpu 
+  FiHome, FiBriefcase, FiUsers, FiMail, FiFileText, FiMenu, 
+  FiLogOut, FiCpu, FiGrid
 } from 'react-icons/fi';
+import { FiSettings } from 'react-icons/fi';
 
 const Sidebar = ({ onLogout }) => {
   const menuItems = [
@@ -13,6 +14,12 @@ const Sidebar = ({ onLogout }) => {
     { path: '/admin/careers', icon: FiBriefcase, label: 'Careers' },
     { path: '/admin/contacts', icon: FiMail, label: 'Contacts' },
     { path: '/admin/applications', icon: FiUsers, label: 'Applications' },
+    { path: '/admin/services', icon: FiGrid, label: 'Services' },
+    { path: '/admin/hero', icon: FiHome, label: 'Hero Section' },
+    // { path: '/admin/page-settings', icon: FiSettings, label: 'Page Settings' },
+    // { path: '/admin/navigation', icon: FiMenu, label: 'Navigation' },
+    // { path: '/admin/page-settings', icon: FiSettings, label: 'Page Settings' },
+    // { path: '/admin/header-services', icon: FiGrid, label: 'Header Services' },
   ];
 
   return (

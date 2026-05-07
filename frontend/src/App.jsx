@@ -6,6 +6,8 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import LoadingScreen from './components/ui/LoadingScreen';
 import ProtectedRoute from './components/ProtectedRoute';
+// import CaseStudyDetailPage from './pages/CaseStudyDetailPage';
+
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -49,7 +51,7 @@ function App() {
             <Route path="/case-studies/:id" element={<Layout><CaseStudyDetailPage /></Layout>} />
             <Route path="/careers" element={<Layout><CareersPage /></Layout>} />
             <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
-            
+            {/* <Route path="/case-studies/:id" element={<Layout><CaseStudyDetailPage /></Layout>} /> */}
             {/* Admin Routes - No Layout wrapper */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route 
