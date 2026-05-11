@@ -20,6 +20,8 @@ const Sidebar = ({ onLogout, isMobile, closeMobileMenu }) => {
     { path: '/admin/hero', icon: FiHome, label: 'Hero Section' },
     { path: '/admin/rag', icon: FiDatabase, label: 'RAG Knowledge Base' },
     { path: '/admin/rag-users', icon: FiMessageCircle, label: 'RAG Conversations' },
+    { path: '/admin/visitors', icon: FiUsers, label: 'Website Visitors' },
+
   ];
 
   const handleNavClick = () => {

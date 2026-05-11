@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const http = require('http');
 const path = require('path');
+const cookieParser = require('cookie-parser'); // Move this import up
 const { initializeSocket } = require('./src/sockets/socketManager');
 const serviceRoutes = require('./src/routes/serviceRoutes');
 const pageSettingRoutes = require('./src/routes/pageSettingRoutes');
@@ -11,7 +12,7 @@ const navigationRoutes = require('./src/routes/navigationRoutes');
 const dynamicServiceRoutes = require('./src/routes/dynamicServiceRoutes');
 const heroRoutes = require('./src/routes/heroRoutes');
 const ragRoutes = require('./src/routes/ragRoutes');
-
+const { trackVisitor } = require('./src/middleware/visitorTracking');
 
 dotenv.config();
 
@@ -19,24 +20,32 @@ const app = express();
 const server = http.createServer(app);
 const io = initializeSocket(server);
 
-// Middleware
+// Middleware - ORDER MATTERS!
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// IMPORTANT: Serve static files from uploads directory
-// This makes images accessible at http://localhost:5000/uploads/...
+// IMPORTANT: cookieParser MUST come BEFORE trackVisitor
+app.use(cookieParser());  // ✅ First - parse cookies
+
+// Visitor tracking - depends on cookies
+app.use(trackVisitor);    // ✅ Second - track visitors
+
+app.use((req, res, next) => {
+  // Skip tracking for static files
+  if (req.path.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    return next();
+  }
+  return trackVisitor(req, res, next);
+});
+
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/case-studies', express.static(path.join(__dirname, 'uploads/case-studies')));
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
-// Log uploads path for debugging
-// console.log('Uploads directory:', path.join(__dirname, 'uploads'));
-// console.log('Static files served from: /uploads');
 
 // Make io accessible to routes
 app.set('io', io);
@@ -63,7 +72,6 @@ app.use('/api/dynamic-services', dynamicServiceRoutes);
 app.use('/api/hero', heroRoutes);
 app.use('/api/rag', ragRoutes);
 
-
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -83,5 +91,4 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  // console.log(`📁 Uploads served at: http://localhost:${PORT}/uploads`);
 });

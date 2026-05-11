@@ -8,6 +8,101 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+// Add after your existing models (before the last closing brace)
+
+// Website Visitor Tracking
+model Visitor {
+  id            String    @id @default(cuid())
+  sessionId     String    @unique
+  ipAddress     String?
+  userAgent     String?
+  deviceType    String?   // mobile, tablet, desktop
+  browser       String?
+  browserVersion String?
+  os            String?
+  osVersion     String?
+  language      String?
+  country       String?
+  city          String?
+  region        String?
+  latitude      Float?
+  longitude     Float?
+  timezone      String?
+  referrer      String?
+  landingPage   String?
+  isNewVisitor  Boolean   @default(true)
+  visitCount    Int       @default(1)
+  firstVisit    DateTime  @default(now())
+  lastVisit     DateTime  @default(now())
+  totalTimeSpent Int      @default(0) // in seconds
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  pageViews     VisitorPageView[]
+  events        VisitorEvent[]
+
+  @@index([sessionId])
+  @@index([country])
+  @@index([deviceType])
+  @@index([firstVisit])
+  @@map("visitors")
+}
+
+// Page View Tracking
+model VisitorPageView {
+  id          String    @id @default(cuid())
+  sessionId   String
+  visitorId   String?
+  pageUrl     String
+  pageTitle   String?
+  referrer    String?
+  timeSpent   Int       @default(0) // seconds spent on page
+  createdAt   DateTime  @default(now())
+
+  visitor     Visitor?  @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId])
+  @@index([visitorId])
+  @@index([createdAt])
+  @@index([pageUrl])
+  @@map("visitor_page_views")
+}
+
+// Visitor Events (clicks, scrolls, etc.)
+model VisitorEvent {
+  id          String    @id @default(cuid())
+  sessionId   String
+  visitorId   String?
+  eventType   String    // click, scroll, form_submit, exit_intent
+  elementId   String?
+  elementClass String?
+  eventData   Json?
+  createdAt   DateTime  @default(now())
+
+  visitor     Visitor?  @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId])
+  @@index([visitorId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("visitor_events")
+}
+
+// Visitor Daily Stats (for charts)
+model VisitorDailyStat {
+  id          String    @id @default(cuid())
+  date        DateTime  @unique
+  totalVisitors Int     @default(0)
+  uniqueVisitors Int    @default(0)
+  pageViews    Int      @default(0)
+  avgTimeSpent Int      @default(0) // seconds
+  bounceRate   Float    @default(0) // percentage
+  createdAt    DateTime  @default(now())
+
+  @@index([date])
+  @@map("visitor_daily_stats")
+}
 // RAG Document Model
 model RagDocument {
   id          String   @id @default(cuid())

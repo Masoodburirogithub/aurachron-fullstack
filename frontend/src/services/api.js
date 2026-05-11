@@ -170,21 +170,7 @@ export const adminAPI = {
   deleteService: (id) => api.delete(`/admin/services/${id}`),
 };
 
-// ==================== CHATBOT API ====================
-// export const chatbotAPI = {
-//   sendMessage: (sessionId, message, userEmail, userName, userPhone) => 
-//     api.post('/chatbot/message', { sessionId, message, userEmail, userName, userPhone }),
-//   getHistory: (sessionId) => api.get(`/chatbot/history/${sessionId}`),
-//   clearHistory: (sessionId) => api.delete(`/chatbot/history/${sessionId}`),
-//   // Admin endpoints
-//   getAllChatUsers: () => api.get('/chatbot/admin/users'),
-//   getUserConversation: (userId) => api.get(`/chatbot/admin/users/${userId}/conversation`),
-//   updateUserStatus: (userId, status) => api.put(`/chatbot/admin/users/${userId}/status`, { status }),
-// };
 
-// src/services/api.js - Add RAG API
-// src/services/api.js - Add RAG user endpoints
-// src/services/api.js - Add to existing ragAPI
 export const ragAPI = {
   saveUserInfo: (sessionId, name, email, phone) => 
     api.post('/rag/save-user', { sessionId, name, email, phone }),
@@ -204,6 +190,16 @@ export const ragAPI = {
   // ADD THIS MISSING METHOD
   getUserConversation: (userId) => api.get(`/rag/users/${userId}/conversation`),
   getConversationsByUserId: (userId) => api.get(`/rag/conversations/user/${userId}`),
+};
+
+
+// ==================== VISITOR API ====================
+export const visitorAPI = {
+  getAllVisitors: (page = 1, limit = 20, search = '') => 
+    api.get(`/admin/visitors?page=${page}&limit=${limit}&search=${search}`),
+  getVisitorById: (id) => api.get(`/admin/visitors/${id}`),
+  getVisitorStats: () => api.get('/admin/visitors/stats'),
+  getPageViewsAnalytics: (days = 30) => api.get(`/admin/visitors/analytics/page-views?days=${days}`),
 };
 
 export default api;

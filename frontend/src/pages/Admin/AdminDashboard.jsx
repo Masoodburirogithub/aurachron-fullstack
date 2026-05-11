@@ -19,6 +19,7 @@ import HeroSettingsManager from './HeroSettingsManager';
 import RagDocumentsManager from './RagDocumentsManager';
 import RagUsersManager from './RagUsersManager';
 import AdminNotification from './AdminNotification';
+import VisitorsManager from './VisitorsManager';
 
 const AdminDashboard = () => {
   const { logout } = useAuth();
@@ -129,6 +130,7 @@ const AdminDashboard = () => {
         {/* Main Content - Responsive padding */}
         <div className="p-3 sm:p-4 md:p-6 lg:p-8">
           <Routes>
+            <Route path="/visitors" element={<VisitorsManager />} />
             <Route path="/" element={<DashboardHome stats={stats} />} />
             <Route path="/case-studies" element={<CaseStudiesManager />} />
             <Route path="/careers" element={<CareersManager />} />
@@ -141,6 +143,7 @@ const AdminDashboard = () => {
             <Route path="/hero" element={<HeroSettingsManager />} />
             <Route path="/rag" element={<RagDocumentsManager />} />
             <Route path="/rag-users" element={<RagUsersManager />} />
+            
           </Routes>
         </div>
       </div>

@@ -18,6 +18,23 @@ const {
   deletePosition 
 } = require('../controllers/careersController');
 const { authenticate, authorizeAdmin } = require('../middleware/authMiddleware');
+
+// Import visitor tracking functions
+const { 
+  trackPageViewDuration, 
+  trackEvent, 
+  getSession 
+} = require('../middleware/visitorTracking');
+
+// Import visitor controllers
+const {
+  getAllVisitors,
+  getVisitorById,
+  getVisitorStats,
+  getPageViewsAnalytics,
+  exportVisitorsCSV
+} = require('../controllers/visitorController');
+
 const router = express.Router();
 
 // Dashboard
@@ -40,5 +57,18 @@ router.delete('/case-studies/:id', authenticate, authorizeAdmin, deleteCaseStudy
 router.post('/positions', authenticate, authorizeAdmin, createPosition);
 router.put('/positions/:id', authenticate, authorizeAdmin, updatePosition);
 router.delete('/positions/:id', authenticate, authorizeAdmin, deletePosition);
+
+// ==================== VISITOR TRACKING ROUTES ====================
+// Public routes (no authentication required for tracking)
+router.get('/visitor/session', getSession);
+router.post('/visitor/track-duration', trackPageViewDuration);
+router.post('/visitor/track-event', trackEvent);
+
+// Admin routes (require authentication)
+router.get('/visitors', authenticate, authorizeAdmin, getAllVisitors);
+router.get('/visitors/stats', authenticate, authorizeAdmin, getVisitorStats);
+router.get('/visitors/:id', authenticate, authorizeAdmin, getVisitorById);
+router.get('/visitors/analytics/page-views', authenticate, authorizeAdmin, getPageViewsAnalytics);
+router.get('/visitors/export/csv', authenticate, authorizeAdmin, exportVisitorsCSV);
 
 module.exports = router;
