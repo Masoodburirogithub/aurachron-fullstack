@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const LoadingScreen = () => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#1E3A8A] to-[#1E40AF] ">
       <div className="text-center">
         <motion.div
           animate={{ rotate: 360 }}

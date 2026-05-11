@@ -19,7 +19,7 @@ const testimonials = [
     image: "https://randomuser.me/api/portraits/men/32.jpg"
   },
   {
-    text: "Working with Aurachron was seamless. They built our mobile app from scratch in just 6 weeks. The quality of code and user experience is outstanding. Our app now has 10,000+ active users.",
+    text: "Collaborating with Aurachron was effortless. They built our mobile app from scratch in just 6 weeks. The quality of code and user experience is outstanding. Our app now has 10,000+ active users.",
     author: "Greg Lind",
     title: "CEO, Buildly, Inc.",
     rating: 5,
@@ -39,7 +39,7 @@ const TestimonialsSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="section-padding bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 overflow-hidden">
+    <section ref={ref} className="section-padding bg-gradient-to-r from-[#1E3A8A] via-[#1E40AF] to-[#2563EB]">
       <div className="container-custom">
         <div className="text-center mb-12">
           <motion.div
@@ -48,8 +48,8 @@ const TestimonialsSection = () => {
             transition={{ duration: 0.6 }}
           >
             <span className="text-indigo-200 font-semibold text-sm uppercase tracking-wider">Testimonials</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mt-2 mb-4">
-              What our <span className="text-indigo-200">clients</span> are saying
+            <h2 className="text-4xl md:text-5xl font-bold text-[#F59E0B] dark:text-[#F59E0B] mt-2 mb-4">
+              What our <span className="text-white">clients</span> are saying
             </h2>
             <p className="text-xl text-indigo-100 max-w-3xl mx-auto">
               Don't just take our word for it — hear from our satisfied clients

@@ -21,7 +21,7 @@ const ServiceDetailPage = () => {
     try {
       setLoading(true);
       const response = await servicesAPI.getById(serviceId);
-      console.log('Service details:', response.data);
+      // console.log('Service details:', response.data);
       
       if (response.data?.success) {
         setService(response.data.data);

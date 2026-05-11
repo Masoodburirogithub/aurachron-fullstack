@@ -40,6 +40,7 @@ function App() {
           }}
         />
         <Suspense fallback={<LoadingScreen />}>
+        
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Layout><HomePage /></Layout>} />

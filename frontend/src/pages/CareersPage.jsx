@@ -19,7 +19,7 @@ const CareersPage = () => {
     try {
       setLoading(true);
       const response = await careersAPI.getPositions();
-      console.log('Fetched positions:', response.data);
+      // console.log('Fetched positions:', response.data);
       
       if (response.data.success) {
         setPositions(response.data.data);
@@ -95,9 +95,9 @@ const CareersPage = () => {
   return (
     <div className="pt-20">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white py-20">
+      <section className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white py-20">
         <div className="container-custom text-center">
-          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-5xl font-bold mb-4">
+          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-6xl font-bold mb-4">
             Build the future with us
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl text-indigo-100 max-w-3xl mx-auto">
@@ -120,7 +120,7 @@ const CareersPage = () => {
                 viewport={{ once: true }}
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all"
               >
-                <benefit.icon className="w-10 h-10 text-indigo-600 mb-3" />
+                <benefit.icon className="w-10 h-10 text-[#F59E0B] dark:text-[#F59E0B] mb-3" />
                 <h3 className="font-semibold text-lg mb-1">{benefit.label}</h3>
                 <p className="text-gray-600 dark:text-gray-400">{benefit.value}</p>
               </motion.div>
@@ -152,7 +152,7 @@ const CareersPage = () => {
                   </div>
                   <div className="mt-2 text-indigo-600 font-semibold text-sm">{pos.salary}</div>
                 </div>
-                <button onClick={() => handleApply(pos.title)} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-all">
+                <button onClick={() => handleApply(pos.title)} className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-all">
                   Apply Now →
                 </button>
               </motion.div>

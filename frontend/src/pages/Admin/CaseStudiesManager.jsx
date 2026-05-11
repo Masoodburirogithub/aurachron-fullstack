@@ -35,7 +35,7 @@ const CaseStudiesManager = () => {
     setLoading(true);
     try {
       const response = await caseStudiesAPI.getAll();
-      console.log('Fetched case studies:', response.data);
+      // console.log('Fetched case studies:', response.data);
       
       if (response.data.success) {
         setCaseStudies(response.data.data);
@@ -123,12 +123,12 @@ const handleImageUpload = (e) => {
       if (editingStudy) {
         // UPDATE
         const response = await caseStudiesAPI.update(editingStudy.id, submitData);
-        console.log('Update response:', response.data);
+        // console.log('Update response:', response.data);
         toast.success('Case study updated successfully');
       } else {
         // CREATE
         const response = await caseStudiesAPI.create(submitData);
-        console.log('Create response:', response.data);
+        // console.log('Create response:', response.data);
         toast.success('Case study created successfully');
       }
       

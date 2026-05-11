@@ -34,7 +34,7 @@ const ServicesSection = () => {
     try {
       setLoading(true);
       const response = await servicesAPI.getAll();
-      console.log('Services data:', response.data);
+      // console.log('Services data:', response.data);
       
       if (response.data?.success) {
         setServices(response.data.data);

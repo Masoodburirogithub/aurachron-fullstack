@@ -1,4 +1,4 @@
-// src/components/layout/Header.jsx - Full Width Dropdown with Icons
+// src/components/layout/Header.jsx - Reduced Width Dropdown with Icons
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,7 @@ import { Menu, X, ChevronDown, Sparkles, ArrowRight } from 'lucide-react';
 import { servicesAPI } from '../../services/api';
 import logoimg from '../../../src/assets/logoimg.jpeg';
 import * as Icons from 'lucide-react';
+
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,7 +30,7 @@ const Header = () => {
     try {
       setLoading(true);
       const response = await servicesAPI.getAll();
-      console.log('Services for dropdown:', response.data);
+      // console.log('Services for dropdown:', response.data);
       
       if (response.data?.success) {
         setServices(response.data.data.filter(s => s.isActive !== false));
@@ -177,8 +178,8 @@ const Header = () => {
               <span className={`text-lg md:text-3xl font-bold leading-tight ${textColor}`}>
                 Aurachron<span className="text-indigo-600 dark:text-indigo-400"></span>
               </span>
-              <span className="text-[10px] md:text-[11px] text-gray-500 dark:text-gray-400 -mt-0.5 hidden sm:block">
-                SYSTEMS PVT LTD
+              <span className=" text-[10px] md:text-[11px] text-gold-400 dark:text-gold-400 -mt-0.5 hidden sm:block">
+                - SYSTEMS PVT LTD -
               </span>
             </div>
           </button>
@@ -196,7 +197,7 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* Services Dropdown - FULL WIDTH */}
+            {/* Services Dropdown - REDUCED WIDTH (40% of screen) */}
             <div
               className="relative"
               onMouseEnter={handleMouseEnter}
@@ -214,58 +215,63 @@ const Header = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="fixed left-0 right-0 top-16 md:top-20 bg-white dark:bg-gray-800 shadow-2xl border-t border-gray-100 dark:border-gray-700 z-50"
-                    style={{ width: '100vw' }}
+                    className="fixed left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 shadow-2xl border-t border-gray-100 dark:border-gray-700 z-50 rounded-md overflow-hidden"
+                    style={{ 
+                      width: 'min(90vw, 800px, 40%)',
+                      top: '64px'
+                    }}
                   >
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {sortedServices.map((service) => {
-                          const IconComponent = getIconComponent(service.icon);
-                          return (
-                            <Link
-                              key={service.id}
-                              to={`/services/${service.id}`}
-                              className="group relative p-5 rounded-xl bg-white dark:bg-gray-800/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-800"
-                              onClick={() => setActiveDropdown(null)}
-                            >
-                              <div className="flex items-start gap-4">
-                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5 flex-shrink-0`}>
-                                  <div className="w-full h-full bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                                    <IconComponent className="w-5 h-5 text-indigo-600" />
+                    <div className="max-h-[80vh] overflow-y-auto">
+                      <div className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          {sortedServices.map((service) => {
+                            const IconComponent = getIconComponent(service.icon);
+                            return (
+                              <Link
+                                key={service.id}
+                                to={`/services/${service.id}`}
+                                className="group relative p-4 rounded-xl bg-white dark:bg-gray-800/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-800"
+                                onClick={() => setActiveDropdown(null)}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5 flex-shrink-0`}>
+                                    <div className="w-full h-full bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center">
+                                      <IconComponent className="w-4 h-4 text-indigo-600" />
+                                    </div>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-[#F59E0B] transition-colors text-sm">
+                                        {service.title}
+                                      </h3>
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                      {service.description}
+                                    </p>
+                                    <div className="flex items-center gap-1 text-[#F59E0B] text-xs font-medium mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      Learn More <ArrowRight className="w-3 h-3" />
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">
-                                      {service.title}
-                                    </h3>
-                                  </div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                    {service.description}
-                                  </p>
-                                  <div className="flex items-center gap-1 text-indigo-600 text-sm font-medium mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Learn More <ArrowRight className="w-3 h-3" />
-                                  </div>
-                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                        
+                        {/* Custom Solution Banner */}
+                        <div className="mt-5 pt-5 border-t border-gray-100 dark:border-gray-800">
+                          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-4 flex items-center justify-between flex-wrap gap-3">
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                              <div>
+                                <p className="font-semibold text-gray-900 dark:text-white text-sm">Need a Custom Solution?</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">Get a tailored package for your business</p>
                               </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                      
-                      {/* Custom Solution Banner */}
-                      <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
-                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-4 flex items-center justify-between flex-wrap gap-4">
-                          <div className="flex items-center gap-3">
-                            <Sparkles className="w-5 h-5 text-indigo-600" />
-                            <div>
-                              <p className="font-semibold text-gray-900 dark:text-white">Need a Custom Solution?</p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">Get a tailored package for your business needs</p>
                             </div>
+                            <Link to="/contact" className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
+                              Contact Us
+                            </Link>
                           </div>
-                          <Link to="/contact" className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
-                            Contact Us
-                          </Link>
                         </div>
                       </div>
                     </div>
@@ -277,7 +283,7 @@ const Header = () => {
             {/* Start a Project Button */}
             <Link 
               to="/contact" 
-              className="ml-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-md font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300"
+              className="ml-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-6 py-2 rounded-md font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300"
             >
               Start a Project
             </Link>

@@ -83,6 +83,7 @@ export const careersAPI = {
   deletePosition: (id) => api.delete(`/careers/positions/${id}`),
 };
 
+
 // Case Studies API
 export const caseStudiesAPI = {
   getAll: () => {

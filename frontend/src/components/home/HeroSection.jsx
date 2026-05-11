@@ -32,7 +32,7 @@ const HeroSection = () => {
     try {
       setLoading(true);
       const response = await heroAPI.getSettings();
-      console.log('Hero settings:', response.data);
+      // console.log('Hero settings:', response.data);
       
       if (response.data?.success && response.data.data) {
         setHeroSettings(response.data.data);
@@ -74,9 +74,7 @@ const HeroSection = () => {
 
   if (loading) {
     return (
-      <section className="relative min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-      </section>
+      null
     );
   }
 
@@ -162,7 +160,7 @@ const HeroSection = () => {
             >
               <Link 
                 to={heroSettings.buttonLink || "/contact"} 
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300 inline-flex items-center gap-2 group text-lg"
+                className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300 inline-flex items-center gap-2 group text-lg"
               >
                 {heroSettings.buttonText}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

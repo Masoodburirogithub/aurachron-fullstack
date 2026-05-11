@@ -4,12 +4,21 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
-      colors: {
-        primary: '#4f46e5',
-        secondary: '#7c3aed',
-        accent: '#06b6d4',
-        dark: '#0f172a',
-      },
+     colors: {
+  primary: {
+    900: '#0F172A',
+    800: '#1E3A8A',
+    700: '#1E40AF',
+    600: '#2563EB',
+  },
+  gold: {
+    700: '#B45309',
+    600: '#F59E0B',
+    500: '#FBBF24',
+    400: '#FCD34D',
+    100: '#FEF3C7',
+  },
+},
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['"Space Grotesk"', 'sans-serif'],
@@ -35,5 +44,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    
+  ],
 };

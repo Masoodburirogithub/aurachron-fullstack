@@ -21,7 +21,7 @@ const CaseStudyDetailPage = () => {
     try {
       setLoading(true);
       const response = await caseStudiesAPI.getById(id);
-      console.log('Case study detail:', response.data);
+      // console.log('Case study detail:', response.data);
       
       if (response.data?.success) {
         setCaseStudy(response.data.data);
@@ -71,25 +71,7 @@ const CaseStudyDetailPage = () => {
     );
   }
 
-  if (error || !caseStudy) {
-    return (
-      <div className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-3xl">⚠️</span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Case Study Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || 'The case study you are looking for does not exist.'}</p>
-          <button
-            onClick={() => navigate('/case-studies')}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
-          >
-            Back to Case Studies
-          </button>
-        </div>
-      </div>
-    );
-  }
+
 
   const metrics = extractMetrics(caseStudy.result);
   const imageUrl = getImageUrl(caseStudy.imageUrl);

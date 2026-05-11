@@ -1,9 +1,11 @@
 // frontend/src/context/AuthContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { authAPI } from '../services/auth';
 
+// Export the context separately for Fast Refresh compatibility
 export const AuthContext = createContext();
 
+// Export the provider as a named export
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,4 +63,13 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Add a custom hook for better usage (optional but recommended)
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

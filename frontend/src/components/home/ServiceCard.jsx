@@ -107,7 +107,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
         }}
       >
         {/* Top Gradient Bar - Glowing with service gradient */}
-        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${service.gradient} transform origin-left transition-transform duration-500 ${
+        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-[#F59E0B]  ${service.gradient} transform origin-left transition-transform duration-500 ${
           (isHovered || isActive) ? 'scale-x-100' : 'scale-x-0'
         }`} 
         style={{
@@ -187,7 +187,7 @@ const ServiceCard = ({ service, index, isActive = false }) => {
           {/* Learn More Button */}
           <motion.div
             whileHover={{ x: 8, scale: 1.02 }}
-            className="inline-flex items-center gap-1.5 md:gap-2 text-indigo-600 dark:text-indigo-400 font-semibold"
+            className="inline-flex items-center gap-1.5 md:gap-2 text-[#F59E0B] dark:text-[#F59E0B] font-semibold"
           >
             <Link to={`/services/${service.id}`} className={`inline-flex items-center gap-1.5 md:gap-2 ${isActive ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
               Learn More <ArrowRight className={`${isActive ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4' : 'w-2.5 h-2.5 sm:w-3 sm:h-3'} transition-transform`} />

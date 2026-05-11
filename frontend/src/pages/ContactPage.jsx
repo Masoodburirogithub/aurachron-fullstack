@@ -127,9 +127,9 @@ const ContactPage = () => {
   return (
     <div style={{ paddingTop: '80px', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       {/* Hero Section */}
-      <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899)', padding: '60px 0', textAlign: 'center', color: 'white' }}>
+      <div style={{ background:  'linear-gradient(135deg, #1E3A8A, #1E40AF, #2563EB)' , padding: '60px 0', textAlign: 'center', color: 'white' }}>
         <div className="container-custom">
-          <h1 style={{ fontSize: '48px', fontWeight: 'bold', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '56px', fontWeight: 'bold', marginBottom: '16px' }}>
             Stop interviewing. Start launching.
           </h1>
           <p style={{ fontSize: '20px', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
@@ -329,7 +329,7 @@ const ContactPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ width: '100%', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '16px' }}
+                  style={{ width: '100%', background: 'linear-gradient(135deg, #F59E0B, #FBBF24)', color: '#1E3A8A', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '16px' }}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'} <SendIcon />
                 </button>

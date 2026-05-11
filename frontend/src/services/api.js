@@ -171,15 +171,39 @@ export const adminAPI = {
 };
 
 // ==================== CHATBOT API ====================
-export const chatbotAPI = {
-  sendMessage: (sessionId, message, userEmail, userName, userPhone) => 
-    api.post('/chatbot/message', { sessionId, message, userEmail, userName, userPhone }),
-  getHistory: (sessionId) => api.get(`/chatbot/history/${sessionId}`),
-  clearHistory: (sessionId) => api.delete(`/chatbot/history/${sessionId}`),
-  // Admin endpoints
-  getAllChatUsers: () => api.get('/chatbot/admin/users'),
-  getUserConversation: (userId) => api.get(`/chatbot/admin/users/${userId}/conversation`),
-  updateUserStatus: (userId, status) => api.put(`/chatbot/admin/users/${userId}/status`, { status }),
+// export const chatbotAPI = {
+//   sendMessage: (sessionId, message, userEmail, userName, userPhone) => 
+//     api.post('/chatbot/message', { sessionId, message, userEmail, userName, userPhone }),
+//   getHistory: (sessionId) => api.get(`/chatbot/history/${sessionId}`),
+//   clearHistory: (sessionId) => api.delete(`/chatbot/history/${sessionId}`),
+//   // Admin endpoints
+//   getAllChatUsers: () => api.get('/chatbot/admin/users'),
+//   getUserConversation: (userId) => api.get(`/chatbot/admin/users/${userId}/conversation`),
+//   updateUserStatus: (userId, status) => api.put(`/chatbot/admin/users/${userId}/status`, { status }),
+// };
+
+// src/services/api.js - Add RAG API
+// src/services/api.js - Add RAG user endpoints
+// src/services/api.js - Add to existing ragAPI
+export const ragAPI = {
+  saveUserInfo: (sessionId, name, email, phone) => 
+    api.post('/rag/save-user', { sessionId, name, email, phone }),
+  askQuestion: (sessionId, question, userName, userEmail, userPhone) => 
+    api.post('/rag/ask', { sessionId, question, userName, userEmail, userPhone }),
+  getConversations: (sessionId) => api.get(`/rag/conversations/${sessionId}`),
+  getDocuments: () => api.get('/rag/documents'),
+  uploadDocument: (formData) => api.post('/rag/documents', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  deleteDocument: (id) => api.delete(`/rag/documents/${id}`),
+  reindexDocument: (id) => api.post(`/rag/documents/${id}/reindex`),
+  getAllUsers: () => api.get('/rag/users'),
+  getPendingRequests: () => api.get('/rag/pending-requests'),
+  acceptRequest: (requestId) => api.post(`/rag/accept-request/${requestId}`),
+
+  // ADD THIS MISSING METHOD
+  getUserConversation: (userId) => api.get(`/rag/users/${userId}/conversation`),
+  getConversationsByUserId: (userId) => api.get(`/rag/conversations/user/${userId}`),
 };
 
 export default api;

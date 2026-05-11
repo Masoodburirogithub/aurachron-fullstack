@@ -10,19 +10,19 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div>
             <h3 className="text-2xl font-bold mb-4">
-              Aurachron<span className="text-indigo-400"> Systems</span>
+              Aurachron<span className="text-[#F59E0B] dark:text-[#F59E0B]"> Systems</span>
             </h3>
             <p className="text-gray-400 mb-4 leading-relaxed">
               Systems thinking. Radical transparency. Zero downtime. Building the future from Karachi for the planet.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-indigo-400 transition-all hover:scale-110 transform">
+              <a href="#" className="text-[#F59E0B] dark:text-[#F59E0B] transition-all hover:scale-110 transform">
                 <FaLinkedin size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-indigo-400 transition-all hover:scale-110 transform">
+              <a href="#" className="text-[#F59E0B] dark:text-[#F59E0B] transition-all hover:scale-110 transform">
                 <FaGithub size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-indigo-400 transition-all hover:scale-110 transform">
+              <a href="#" className="text-[#F59E0B] dark:text-[#F59E0B] transition-all hover:scale-110 transform">
                 <FaTwitter size={20} />
               </a>
             </div>

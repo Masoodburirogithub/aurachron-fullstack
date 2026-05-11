@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Image as ImageIcon } from 'lucide-react';
-// import { caseStudiesAPI } from '../services/api';
 import { caseStudiesAPI, getImageUrl } from '../services/api';
 
 const CaseStudiesPage = () => {
@@ -19,7 +18,7 @@ const CaseStudiesPage = () => {
     try {
       setLoading(true);
       const response = await caseStudiesAPI.getAll();
-      console.log('Case Studies Page Data:', response.data);
+      // console.log('Case Studies Page Data:', response.data);
       
       let data = [];
       if (response.data?.success) {
@@ -30,7 +29,6 @@ const CaseStudiesPage = () => {
         data = response.data.data;
       }
       
-      // Filter only active case studies
       const activeStudies = data.filter(study => study.isActive !== false);
       setCaseStudies(activeStudies);
     } catch (err) {
@@ -44,11 +42,10 @@ const CaseStudiesPage = () => {
 
   if (loading) {
     return (
-      <div style={{ paddingTop: '80px', minHeight: '100vh', backgroundColor: '#f9fafb', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ width: '60px', height: '60px', border: '4px solid #e5e7eb', borderTopColor: '#4f46e5', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}></div>
-          <p style={{ color: '#6b7280' }}>Loading case studies...</p>
-          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      <div className="pt-20 min-h-screen bg-gray-50 flex justify-center items-center">
+        <div className="text-center">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 text-sm sm:text-base">Loading case studies...</p>
         </div>
       </div>
     );
@@ -56,14 +53,12 @@ const CaseStudiesPage = () => {
 
   if (error) {
     return (
-      <div style={{ paddingTop: '80px', minHeight: '100vh', backgroundColor: '#f9fafb', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center', backgroundColor: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>Unable to Load Case Studies</h2>
-          <p style={{ color: '#6b7280', marginBottom: '20px' }}>{error}</p>
+      <div className="pt-20 min-h-screen bg-gray-50 flex justify-center items-center px-4">
+        <div className="text-center bg-white p-6 sm:p-10 rounded-2xl shadow-lg max-w-md w-full">
+          <p className="text-gray-500 text-sm sm:text-base mb-4">{error}</p>
           <button 
             onClick={fetchCaseStudies}
-            style={{ padding: '10px 30px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500' }}
+            className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
           >
             Try Again
           </button>
@@ -73,18 +68,14 @@ const CaseStudiesPage = () => {
   }
 
   return (
-    <div style={{ backgroundColor: '#f9fafb', minHeight: '100vh' }}>
-      {/* Hero Section - Guaranteed Visible */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-        padding: '100px 20px',
-        textAlign: 'center'
-      }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+    <div className="bg-gray-50 min-h-screen">
+      {/* Hero Section - Responsive */}
+      <div className="bg-gradient-to-br from-[#1E3A8A] to-[#1E40AF] py-12 sm:py-16 md:py-20 px-4 text-center">
+        <div className="max-w-7xl mx-auto">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }} 
             animate={{ opacity: 1, y: 0 }} 
-            style={{ fontSize: '56px', fontWeight: 'bold', color: 'white', marginBottom: '16px' }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4"
           >
             Our Success Stories
           </motion.h1>
@@ -92,7 +83,7 @@ const CaseStudiesPage = () => {
             initial={{ opacity: 0, y: 30 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ delay: 0.2 }} 
-            style={{ fontSize: '20px', color: '#c7d2fe' }}
+            className="text-base sm:text-lg md:text-xl text-indigo-200 max-w-2xl mx-auto"
           >
             Real results from real partnerships
           </motion.p>
@@ -100,17 +91,17 @@ const CaseStudiesPage = () => {
       </div>
 
       {/* Case Studies List */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 20px' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         {caseStudies.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'white', borderRadius: '16px' }}>
-            <div style={{ width: '80px', height: '80px', backgroundColor: '#f3f4f6', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-              <Sparkles size={40} style={{ color: '#9ca3af' }} />
+          <div className="text-center py-12 sm:py-16 bg-white rounded-2xl shadow-sm">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Sparkles size={32} className="text-gray-400" />
             </div>
-            <h3 style={{ fontSize: '24px', fontWeight: '600', color: '#111827', marginBottom: '10px' }}>No Case Studies Yet</h3>
-            <p style={{ color: '#6b7280' }}>Check back soon for our success stories.</p>
+            <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">No Case Studies Yet</h3>
+            <p className="text-gray-500 text-sm sm:text-base">Check back soon for our success stories.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+          <div className="flex flex-col gap-6 sm:gap-8 md:gap-10">
             {caseStudies.map((study, idx) => (
               <motion.div
                 key={study.id}
@@ -118,69 +109,75 @@ const CaseStudiesPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 viewport={{ once: true }}
-                style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', overflow: 'hidden', transition: 'box-shadow 0.3s ease' }}
-                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 25px 35px -12px rgba(0,0,0,0.25)'}
-                onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.1)'}
+                className="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden"
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-                  {/* Image Column */}
-                  <div style={{ height: '400px', overflow: 'hidden', backgroundColor: '#f3f4f6' }}>
-             {study.imageUrl ? (
-  <img 
-    src={getImageUrl(study.imageUrl)}
-    alt={study.title}
-    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
-    onError={(e) => {
-      console.error('Image failed to load:', getImageUrl(study.imageUrl));
-      e.target.onerror = null;
-      e.target.src = 'https://placehold.co/800x600/e2e8f0/64748b?text=Image+Not+Found';
-    }}
-  />
-) : (
-  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
-    <ImageIcon size={80} style={{ color: '#818cf8' }} />
-  </div>
-)}
+                {/* Responsive Grid - Stack on mobile, side by side on desktop */}
+                <div className="flex flex-col lg:flex-row">
+                  {/* Image Column - Full width on mobile, half on desktop */}
+                  <div className="w-full lg:w-1/2 h-64 sm:h-80 md:h-96 lg:h-auto overflow-hidden bg-gray-100">
+                    {study.imageUrl ? (
+                      <img 
+                        src={getImageUrl(study.imageUrl)}
+                        alt={study.title}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://placehold.co/800x600/e2e8f0/64748b?text=Image+Not+Found';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50">
+                        <ImageIcon size={48} className="text-indigo-400" />
+                      </div>
+                    )}
                   </div>
                   
-                  {/* Content Column */}
-                  <div style={{ padding: '40px' }}>
-                    <div style={{ marginBottom: '16px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: '600', color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{study.industry}</span>
+                  {/* Content Column - Full width on mobile, half on desktop */}
+                  <div className="w-full lg:w-1/2 p-5 sm:p-6 md:p-8">
+                    <div className="mb-3 sm:mb-4">
+                      <span className="text-xs sm:text-sm font-semibold text-[#F59E0B] uppercase tracking-wide">
+                        {study.industry}
+                      </span>
                     </div>
                     
-                    <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '20px', lineHeight: '1.3' }}>{study.title}</h2>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
+                      {study.title}
+                    </h2>
                     
-                    <div style={{ marginBottom: '20px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: '8px', height: '8px', backgroundColor: '#ef4444', borderRadius: '50%' }}></span>
+                    {/* Challenge */}
+                    <div className="mb-4">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-1.5 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                         Challenge
                       </h3>
-                      <p style={{ color: '#6b7280', lineHeight: '1.6' }}>{study.challenge}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{study.challenge}</p>
                     </div>
                     
-                    <div style={{ marginBottom: '20px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: '8px', height: '8px', backgroundColor: '#10b981', borderRadius: '50%' }}></span>
+                    {/* Solution */}
+                    <div className="mb-4">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-1.5 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                         Solution
                       </h3>
-                      <p style={{ color: '#6b7280', lineHeight: '1.6' }}>{study.solution}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{study.solution}</p>
                     </div>
                     
-                    <div style={{ marginBottom: '20px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: '8px', height: '8px', backgroundColor: '#4f46e5', borderRadius: '50%' }}></span>
+                    {/* Result */}
+                    <div className="mb-4">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-1.5 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-indigo-600 rounded-full"></span>
                         Result
                       </h3>
-                      <p style={{ color: '#6b7280', lineHeight: '1.6' }}>{study.result}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{study.result}</p>
                     </div>
                     
-                    <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                      <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#4f46e5' }}>
+                    {/* Footer Stats */}
+                    <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 flex flex-wrap justify-between items-center gap-3">
+                      <span className="text-xl sm:text-2xl font-bold text-[#F59E0B]">
                         {study.result?.match(/\d+%/)?.[0] || 'Success'}
                       </span>
-                      <span style={{ fontSize: '12px', color: '#9ca3af' }}>
-                        Technology: {study.technology}
+                      <span className="text-xs text-gray-400">
+                        Tech: {study.technology}
                       </span>
                     </div>
                   </div>
@@ -191,13 +188,11 @@ const CaseStudiesPage = () => {
         )}
       </div>
 
-      {/* Back Button */}
-      <div style={{ textAlign: 'center', paddingBottom: '60px' }}>
+      {/* Back Button - Responsive */}
+      <div className="text-center pb-8 sm:pb-12 md:pb-16 px-4">
         <button 
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-sm sm:text-base"
           onClick={() => window.history.back()}
-          style={{ padding: '12px 32px', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', transition: 'all 0.3s ease' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4f46e5'}
         >
           ← Go Back
         </button>

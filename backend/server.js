@@ -10,6 +10,8 @@ const pageSettingRoutes = require('./src/routes/pageSettingRoutes');
 const navigationRoutes = require('./src/routes/navigationRoutes');
 const dynamicServiceRoutes = require('./src/routes/dynamicServiceRoutes');
 const heroRoutes = require('./src/routes/heroRoutes');
+const ragRoutes = require('./src/routes/ragRoutes');
+
 
 dotenv.config();
 
@@ -52,13 +54,15 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/careers', careerRoutes);
 app.use('/api/case-studies', caseStudyRoutes);
-app.use('/api/chatbot', chatbotRoutes);
+// app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/page-settings', pageSettingRoutes);
 app.use('/api/navigation', navigationRoutes);
 app.use('/api/dynamic-services', dynamicServiceRoutes);
 app.use('/api/hero', heroRoutes);
+app.use('/api/rag', ragRoutes);
+
 
 // Health check
 app.get('/api/health', (req, res) => {

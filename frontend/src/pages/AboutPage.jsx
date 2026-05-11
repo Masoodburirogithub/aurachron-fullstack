@@ -14,7 +14,7 @@ const AboutPage = () => {
 
   return (
     <div className="pt-20">
-      <section className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white py-20">
+      <section className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white py-20">
         <div className="container-custom text-center">
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-6xl font-bold mb-4">
             About Aurachron Systems
@@ -49,11 +49,11 @@ const AboutPage = () => {
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-xl">
-                  <div className="text-2xl font-bold text-indigo-600">50+</div>
+                  <div className="text-2xl font-bold text-[#F59E0B] dark:text-[#F59E0B]">50+</div>
                   <div className="text-sm text-gray-500">Projects Delivered</div>
                 </div>
                 <div className="text-center p-3 bg-white dark:bg-gray-900 rounded-xl">
-                  <div className="text-2xl font-bold text-indigo-600">100%</div>
+                  <div className="text-2xl font-bold text-[#F59E0B] dark:text-[#F59E0B] ">100%</div>
                   <div className="text-sm text-gray-500">Client Satisfaction</div>
                 </div>
               </div>

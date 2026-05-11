@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
-import Chatbot from '../common/Chatbot';
+// import Chatbot from '../common/Chatbot';
+
+import RagChatbot from '../common/RagChatbot';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -25,7 +27,8 @@ const Layout = ({ children }) => {
         </motion.main>
       </AnimatePresence>
       <Footer />
-      <Chatbot />
+       <RagChatbot /> 
+      {/* <Chatbot /> */}
     </div>
   );
 };

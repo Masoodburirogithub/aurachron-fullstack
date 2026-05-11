@@ -32,7 +32,7 @@ const HeroSettingsManager = () => {
     try {
       setLoading(true);
       const response = await heroAPI.getSettings();
-      console.log('Hero settings:', response.data);
+      // console.log('Hero settings:', response.data);
       
       if (response.data?.success && response.data.data) {
         setSettings(response.data.data);

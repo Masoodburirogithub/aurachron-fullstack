@@ -77,14 +77,14 @@ const CaseStudyCard = ({ study, index }) => {
       
       {/* Content Section */}
       <div style={{ padding: '28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ fontSize: '13px', fontWeight: '600', color: '#4f46e5', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{study.industry}</div>
+        <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }} className='text-[#F59E0B] dark:text-[#F59E0B] '>{study.industry}</div>
         <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', marginBottom: '14px', lineHeight: '1.4' }}>{study.title}</h3>
         <p style={{ fontSize: '15px', color: '#6b7280', marginBottom: '24px', lineHeight: '1.6', flex: 1 }}>{study.challenge?.substring(0, 150)}...</p>
         
        
 <Link 
   to={`/case-studies/${study.id}`} 
-  className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm group-hover:gap-3 transition-all"
+  className="inline-flex items-center gap-2 text-[#F59E0B] dark:text-[#F59E0B]  font-semibold text-sm group-hover:gap-3 transition-all"
 >
   Read Full Story <ExternalLink className="w-3.5 h-3.5" />
 </Link>
@@ -218,7 +218,7 @@ const CaseStudiesSection = () => {
           <>
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
               gap: '35px',
               marginBottom: '60px'
             }}>
@@ -229,13 +229,14 @@ const CaseStudiesSection = () => {
 
             {displayStudies.length > 3 && (
               <div style={{ textAlign: 'center', marginTop: '30px' }}>
-                <Link 
+                <Link
+                className='bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] ' 
                   to="/case-studies" 
                   style={{ 
                     display: 'inline-flex', 
                     alignItems: 'center', 
                     gap: '12px', 
-                    backgroundColor: '#4f46e5', 
+                     
                     color: 'white', 
                     padding: '16px 48px', 
                     borderRadius: '12px', 
