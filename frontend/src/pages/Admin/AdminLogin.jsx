@@ -31,8 +31,8 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB]">
+      <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary">Admin Login</h1>
           <p className="text-gray-600 mt-2">Aurachron Systems Dashboard</p>
@@ -68,7 +68,7 @@ const AdminLogin = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-accent text-primary py-2 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white py-2 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>

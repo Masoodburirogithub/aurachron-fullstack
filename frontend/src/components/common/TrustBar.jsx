@@ -13,7 +13,7 @@ const TrustBar = () => {
     <div className="bg-gray-50 dark:bg-gray-900 py-12 border-y border-gray-200 dark:border-gray-800 overflow-hidden">
       <div className="container-custom">
         <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
-          Trusted by emerging enterprises in USA, UAE & KSA
+          Trusted by emerging enterprises in USA, UAE, UK & MENA
         </p>
       </div>
       
@@ -27,7 +27,7 @@ const TrustBar = () => {
             <motion.div
               key={i}
               whileHover={{ scale: 1.1, color: '#4f46e5' }}
-              className="text-gray-400 dark:text-gray-600 font-semibold text-lg hover:text-indigo-600 dark:hover:text-indigo-400 transition-all px-6 cursor-pointer"
+              className="text-gray-400 dark:text-gray-600\ font-semibold text-lg hover:text-indigo-600 dark:hover:text-indigo-400 transition-all px-6 cursor-pointer"
             >
               {logo}
             </motion.div>

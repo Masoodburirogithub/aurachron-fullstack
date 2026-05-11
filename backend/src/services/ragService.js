@@ -238,7 +238,7 @@ async function generateRagResponse(question, sessionId, userName, userEmail, use
         user,
         adminRequested: true,
         contactInfo: {
-          phone: '+92 311 2616192',
+          phone: '(021) 37123252',
           email: 'admin@aurachronsys.com',
           whatsapp: 'https://wa.me/923112616192'
         }
@@ -302,7 +302,7 @@ Answer concisely using only the context above. If the answer isn't there, say so
   } catch (error) {
     console.error('RAG error:', error);
     return {
-      answer: "I'm having trouble right now. Please contact us directly:\n📞 +92 311 2616192\n📧 admin@aurachronsys.com",
+      answer: "I'm having trouble right now. Please contact us directly:\n📞 (021) 37123252\n📧 admin@aurachronsys.com",
       sources: [],
       hasContext: false,
       user: null
