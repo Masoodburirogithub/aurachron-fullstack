@@ -48,8 +48,8 @@ const TestimonialsSection = () => {
             transition={{ duration: 0.6 }}
           >
             <span className="text-indigo-200 font-semibold text-sm uppercase tracking-wider">Testimonials</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#F59E0B] dark:text-[#F59E0B] mt-2 mb-4">
-              What our <span className="text-white">clients</span> are saying
+            <h2 className="text-4xl md:text-5xl font-bold text-white mt-2 mb-4">
+              What our <span className="text-[#F59E0B] dark:text-[#F59E0B]">clients</span> are saying
             </h2>
             <p className="text-xl text-indigo-100 max-w-3xl mx-auto">
               Don't just take our word for it — hear from our satisfied clients

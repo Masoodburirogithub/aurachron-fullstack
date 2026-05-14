@@ -87,14 +87,21 @@ export const contactAPI = {
   updateStatus: (id, status) => api.put(`/contact/submissions/${id}/status`, { status }),
 };
 
-// ==================== CAREERS API ====================
+// Add to careersAPI object
+// Make sure these methods exist in careersAPI
 export const careersAPI = {
   getPositions: () => api.get('/careers/positions'),
   getPositionById: (id) => api.get(`/careers/positions/${id}`),
-  apply: (data) => api.post('/careers/apply', data),
+  apply: (formData) => api.post('/careers/apply', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   createPosition: (data) => api.post('/careers/positions', data),
   updatePosition: (id, data) => api.put(`/careers/positions/${id}`, data),
   deletePosition: (id) => api.delete(`/careers/positions/${id}`),
+  // These are critical for ApplicationsManager
+  getApplications: () => api.get('/careers/applications'),
+  updateApplicationStatus: (id, status) => api.put(`/careers/applications/${id}/status`, { status }),
+  downloadCV: (id) => api.get(`/careers/applications/${id}/download-cv`),
 };
 
 // ==================== CASE STUDIES API ====================
@@ -194,12 +201,43 @@ export const ragAPI = {
 
 
 // ==================== VISITOR API ====================
+// ==================== VISITOR API ====================
 export const visitorAPI = {
-  getAllVisitors: (page = 1, limit = 20, search = '') => 
-    api.get(`/admin/visitors?page=${page}&limit=${limit}&search=${search}`),
+  getAllVisitors: (page = 1, limit = 20, search = '', startDate = '', endDate = '') => {
+    let url = `/admin/visitors?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${search}`;
+    if (startDate) url += `&startDate=${startDate}`;
+    if (endDate) url += `&endDate=${endDate}`;
+    return api.get(url);
+  },
   getVisitorById: (id) => api.get(`/admin/visitors/${id}`),
-  getVisitorStats: () => api.get('/admin/visitors/stats'),
+  getVisitorStats: (startDate = '', endDate = '') => {
+    let url = '/admin/visitors/stats';
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    if (params.toString()) url += `?${params.toString()}`;
+    return api.get(url);
+  },
   getPageViewsAnalytics: (days = 30) => api.get(`/admin/visitors/analytics/page-views?days=${days}`),
+  exportCSV: (startDate = '', endDate = '') => {
+    let url = '/admin/visitors/export/csv';
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    if (params.toString()) url += `?${params.toString()}`;
+    return url;
+  },
 };
 
+
+
+// ==================== DEMO API ====================
+// In src/services/api.js
+export const demoAPI = {
+  submitDemoRequest: (data) => api.post('/demo/submit', data),
+  getAllDemoRequests: () => api.get('/demo/requests'),
+  updateDemoRequestStatus: (id, status) => api.put(`/demo/requests/${id}/status`, { status }),
+  deleteDemoRequest: (id) => api.delete(`/demo/requests/${id}`),
+};
 export default api;

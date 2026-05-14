@@ -77,7 +77,7 @@ const CaseStudyDetailPage = () => {
   const imageUrl = getImageUrl(caseStudy.imageUrl);
 
   return (
-    <div className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="pt-0 md:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white overflow-hidden">
         {/* Animated Background */}

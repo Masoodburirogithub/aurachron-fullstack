@@ -27,9 +27,14 @@ const TrustBar = () => {
             <motion.div
               key={i}
               whileHover={{ scale: 1.1, color: '#4f46e5' }}
-              className="text-gray-400 dark:text-gray-600\ font-semibold text-lg hover:text-indigo-600 dark:hover:text-indigo-400 transition-all px-6 cursor-pointer"
+              className="group cursor-pointer"
             >
-              {logo}
+              {/* Card Style - Professional Look */}
+              <div className="bg-white dark:bg-gray-800 px-8 py-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300">
+                <span className="text-gray-600 dark:text-gray-300 font-semibold text-lg group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  {logo}
+                </span>
+              </div>
             </motion.div>
           ))}
         </motion.div>

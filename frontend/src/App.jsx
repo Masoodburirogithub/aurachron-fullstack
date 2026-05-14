@@ -6,8 +6,8 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import LoadingScreen from './components/ui/LoadingScreen';
 import ProtectedRoute from './components/ProtectedRoute';
-// import CaseStudyDetailPage from './pages/CaseStudyDetailPage';
-
+import ScrollToTop from './components/ui/ScrollToTop'; // ✅ Add this import
+import DemoRequestPage from './pages/DemoRequestPage';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -20,7 +20,7 @@ const CareersPage = lazy(() => import('./pages/CareersPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const AIDevelopmentPage = lazy(() => import('./pages/AIDevelopmentPage'));
 
-// Admin pages (not lazy loaded for immediate access)
+// Admin pages
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
@@ -28,6 +28,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop /> {/* ✅ Add this component here */}
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -40,7 +41,6 @@ function App() {
           }}
         />
         <Suspense fallback={<LoadingScreen />}>
-        
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Layout><HomePage /></Layout>} />
@@ -52,8 +52,9 @@ function App() {
             <Route path="/case-studies/:id" element={<Layout><CaseStudyDetailPage /></Layout>} />
             <Route path="/careers" element={<Layout><CareersPage /></Layout>} />
             <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
-            {/* <Route path="/case-studies/:id" element={<Layout><CaseStudyDetailPage /></Layout>} /> */}
-            {/* Admin Routes - No Layout wrapper */}
+            <Route path="/demo-request" element={<DemoRequestPage />} />
+            
+            {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route 
               path="/admin/*" 
@@ -64,7 +65,7 @@ function App() {
               } 
             />
             
-            {/* 404 Fallback - Redirect to home */}
+            {/* 404 Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

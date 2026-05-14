@@ -4,6 +4,17 @@ import { FaLinkedin, FaGithub, FaTwitter } from 'react-icons/fa';
 import { MdEmail, MdLocationOn } from 'react-icons/md';
 
 const Footer = () => {
+  // Simple email handler function
+  const handleEmailClick = (e) => {
+    e.preventDefault();
+    const email = 'admin@aurachronsys.com';
+    const subject = 'Inquiry from Aurachron Website';
+    const body = 'Hello Aurachron Team,%0D%0A%0D%0AI would like to inquire about...%0D%0A%0D%0AThank you.';
+    
+    // Create mailto link
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  };
+
   return (
     <footer className="bg-gray-900 text-white pt-16 pb-8">
       <div className="container-custom">
@@ -55,7 +66,12 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-3 text-gray-400">
                 <MdEmail size={18} />
-                <a href="mailto:admin@aurachronsys.com" className="hover:text-indigo-400">admin@aurachronsys.com</a>
+                <button 
+                  onClick={handleEmailClick}
+                  className="hover:text-indigo-400 transition-colors cursor-pointer bg-transparent border-none p-0 font-inherit"
+                >
+                  admin@aurachronsys.com
+                </button>
               </div>
             </div>
           </div>

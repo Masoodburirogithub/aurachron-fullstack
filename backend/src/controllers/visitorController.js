@@ -2,15 +2,17 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Get all visitors with pagination
+// Get all visitors with pagination and date range filter
 const getAllVisitors = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
     const search = req.query.search || '';
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
     
-    const where = search ? {
+    let where = search ? {
       OR: [
         { country: { contains: search, mode: 'insensitive' } },
         { city: { contains: search, mode: 'insensitive' } },
@@ -18,6 +20,21 @@ const getAllVisitors = async (req, res) => {
         { deviceType: { contains: search, mode: 'insensitive' } }
       ]
     } : {};
+    
+    // Add date range filter
+    if (startDate || endDate) {
+      where.lastVisit = {};
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        where.lastVisit.gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.lastVisit.lte = end;
+      }
+    }
     
     const [visitors, total] = await Promise.all([
       prisma.visitor.findMany({
@@ -80,123 +97,159 @@ const getVisitorById = async (req, res) => {
   }
 };
 
-// Get visitor statistics for dashboard - ACCURATE VERSION
+// Get visitor statistics for dashboard with date range - FIXED
 const getVisitorStats = async (req, res) => {
   try {
-    const now = new Date();
+    const { startDate, endDate } = req.query;
     
-    // Define time periods
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    // Parse date range
+    let startFilter = null;
+    let endFilter = null;
     
-    // Use raw SQL for accurate distinct counting (works with all databases)
-    const [totalResult] = await prisma.$queryRaw`
-      SELECT COUNT(DISTINCT "sessionId")::int as count FROM visitors
-    `;
+    if (startDate) {
+      startFilter = new Date(startDate);
+      startFilter.setHours(0, 0, 0, 0);
+    }
+    if (endDate) {
+      endFilter = new Date(endDate);
+      endFilter.setHours(23, 59, 59, 999);
+    }
     
-    const [todayResult] = await prisma.$queryRaw`
-      SELECT COUNT(DISTINCT "sessionId")::int as count FROM visitors 
-      WHERE "lastVisit" >= ${todayStart}
-    `;
+    // Build WHERE clause properly
+    let whereClause = '';
+    let queryParams = [];
     
-    const [weekResult] = await prisma.$queryRaw`
-      SELECT COUNT(DISTINCT "sessionId")::int as count FROM visitors 
-      WHERE "lastVisit" >= ${weekAgo}
-    `;
+    if (startFilter && endFilter) {
+      whereClause = 'WHERE "lastVisit" >= $1 AND "lastVisit" <= $2';
+      queryParams = [startFilter, endFilter];
+    } else if (startFilter) {
+      whereClause = 'WHERE "lastVisit" >= $1';
+      queryParams = [startFilter];
+    } else if (endFilter) {
+      whereClause = 'WHERE "lastVisit" <= $1';
+      queryParams = [endFilter];
+    }
     
-    const [monthResult] = await prisma.$queryRaw`
-      SELECT COUNT(DISTINCT "sessionId")::int as count FROM visitors 
-      WHERE "lastVisit" >= ${monthAgo}
-    `;
+    // Build WHERE clause for additional filters (with proper AND handling)
+    const getWhereWithExtra = (extraCondition) => {
+      if (whereClause) {
+        return `${whereClause} AND ${extraCondition}`;
+      } else {
+        return `WHERE ${extraCondition}`;
+      }
+    };
     
-    const [newResult] = await prisma.$queryRaw`
-      SELECT COUNT(DISTINCT "sessionId")::int as count FROM visitors 
-      WHERE "isNewVisitor" = true AND "firstVisit" >= ${weekAgo}
-    `;
+    // Total visitors
+    let totalQuery = `SELECT COUNT(DISTINCT "sessionId")::int as count FROM visitors ${whereClause}`;
+    let totalResult;
+    if (queryParams.length > 0) {
+      totalResult = await prisma.$queryRawUnsafe(totalQuery, ...queryParams);
+    } else {
+      totalResult = await prisma.$queryRawUnsafe(totalQuery);
+    }
     
-    // Get device stats (unique visitors per device)
-    const deviceStats = await prisma.$queryRaw`
+    // Device stats - FIXED
+    let deviceWhere = getWhereWithExtra('"deviceType" IS NOT NULL');
+    let deviceQuery = `
       SELECT "deviceType", COUNT(DISTINCT "sessionId")::int as count
       FROM visitors 
-      WHERE "deviceType" IS NOT NULL
+      ${deviceWhere}
       GROUP BY "deviceType"
     `;
+    let deviceStats;
+    if (queryParams.length > 0) {
+      deviceStats = await prisma.$queryRawUnsafe(deviceQuery, ...queryParams);
+    } else {
+      deviceStats = await prisma.$queryRawUnsafe(deviceQuery);
+    }
     
-    // Get browser stats (unique visitors per browser)
-    const browserStats = await prisma.$queryRaw`
+    // Browser stats - FIXED
+    let browserWhere = getWhereWithExtra('browser IS NOT NULL AND browser != \'Unknown\'');
+    let browserQuery = `
       SELECT browser, COUNT(DISTINCT "sessionId")::int as count
       FROM visitors 
-      WHERE browser IS NOT NULL AND browser != 'Unknown'
+      ${browserWhere}
       GROUP BY browser
       ORDER BY count DESC
     `;
-    
-    // Get country stats
-    const countryStats = await prisma.$queryRaw`
-      SELECT country, COUNT(DISTINCT "sessionId")::int as count
-      FROM visitors 
-      WHERE country IS NOT NULL AND country != ''
-      GROUP BY country
-      ORDER BY count DESC
-      LIMIT 10
-    `;
-    
-    // Get daily unique visitors for last 7 days
-    const dailyStats = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0);
-      
-      const nextDate = new Date(date);
-      nextDate.setDate(nextDate.getDate() + 1);
-      
-      const [dayResult] = await prisma.$queryRaw`
-        SELECT COUNT(DISTINCT "sessionId")::int as count
-        FROM visitors 
-        WHERE "lastVisit" >= ${date} AND "lastVisit" < ${nextDate}
-      `;
-      
-      dailyStats.push({
-        date: date.toLocaleDateString(),
-        views: Number(dayResult.count)
-      });
+    let browserStats;
+    if (queryParams.length > 0) {
+      browserStats = await prisma.$queryRawUnsafe(browserQuery, ...queryParams);
+    } else {
+      browserStats = await prisma.$queryRawUnsafe(browserQuery);
     }
     
-    // Calculate average daily visitors (last 7 days)
-    const avgDaily = Math.round(dailyStats.reduce((sum, day) => sum + day.views, 0) / 7);
+    // Daily stats
+    let dailyStats = [];
     
-    // Format device stats for frontend
+    if (startFilter && endFilter) {
+      const dayCount = Math.min(30, Math.ceil((endFilter - startFilter) / (1000 * 60 * 60 * 24)));
+      
+      for (let i = 0; i < dayCount; i++) {
+        const date = new Date(startFilter);
+        date.setDate(date.getDate() + i);
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+        
+        const [dayResult] = await prisma.$queryRaw`
+          SELECT COUNT(DISTINCT "sessionId")::int as count
+          FROM visitors 
+          WHERE "lastVisit" >= ${date} AND "lastVisit" < ${nextDate}
+        `;
+        
+        dailyStats.push({
+          date: date.toLocaleDateString(),
+          views: Number(dayResult.count)
+        });
+      }
+    } else {
+      const now = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+        
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+        
+        const [dayResult] = await prisma.$queryRaw`
+          SELECT COUNT(DISTINCT "sessionId")::int as count
+          FROM visitors 
+          WHERE "lastVisit" >= ${date} AND "lastVisit" < ${nextDate}
+        `;
+        
+        dailyStats.push({
+          date: date.toLocaleDateString(),
+          views: Number(dayResult.count)
+        });
+      }
+    }
+    
+    const avgDaily = dailyStats.length > 0 
+      ? Math.round(dailyStats.reduce((sum, day) => sum + day.views, 0) / dailyStats.length)
+      : 0;
+    
     const formattedDeviceStats = deviceStats.map(stat => ({
       deviceType: stat.deviceType,
       _count: Number(stat.count)
     }));
     
-    // Format browser stats
     const formattedBrowserStats = browserStats.map(stat => ({
       browser: stat.browser,
-      _count: Number(stat.count)
-    }));
-    
-    // Format country stats
-    const formattedCountryStats = countryStats.map(stat => ({
-      country: stat.country,
       _count: Number(stat.count)
     }));
     
     res.json({
       success: true,
       data: {
-        total: Number(totalResult.count),
-        today: Number(todayResult.count),
-        week: Number(weekResult.count),
-        month: Number(monthResult.count),
-        unique: Number(newResult.count),
+        total: Number(totalResult[0]?.count || 0),
+        today: 0,
+        week: 0,
+        month: 0,
+        unique: Number(totalResult[0]?.count || 0),
         avgDaily: avgDaily,
         devices: formattedDeviceStats,
         browsers: formattedBrowserStats,
-        countries: formattedCountryStats,
         dailyViews: dailyStats
       }
     });
@@ -229,10 +282,29 @@ const getPageViewsAnalytics = async (req, res) => {
   }
 };
 
-// Export visitor data as CSV
+// Export visitor data as CSV with date filter
 const exportVisitorsCSV = async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
+    
+    let where = {};
+    
+    if (startDate || endDate) {
+      where.lastVisit = {};
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        where.lastVisit.gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.lastVisit.lte = end;
+      }
+    }
+    
     const visitors = await prisma.visitor.findMany({
+      where,
       orderBy: { firstVisit: 'desc' }
     });
     

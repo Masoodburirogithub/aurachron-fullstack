@@ -210,7 +210,7 @@ const RagUsersManager = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 shadow-sm border border-blue-100">
+        <div className=" rounded-md p-4 shadow-sm border border-blue-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Users</p>
@@ -219,7 +219,7 @@ const RagUsersManager = () => {
             <FiUsers className="w-8 h-8 text-[#1E3A8A] opacity-50" />
           </div>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 shadow-sm border border-green-100">
+        <div className=" rounded-md p-4 shadow-sm border border-green-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Active</p>
@@ -228,7 +228,7 @@ const RagUsersManager = () => {
             <FiMessageSquare className="w-8 h-8 text-green-500 opacity-50" />
           </div>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-4 shadow-sm border border-yellow-100">
+        <div className=" rounded-md p-4 shadow-sm border border-yellow-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Waiting</p>
@@ -237,7 +237,7 @@ const RagUsersManager = () => {
             <FiClock className="w-8 h-8 text-yellow-500 opacity-50" />
           </div>
         </div>
-        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 shadow-sm border border-blue-100">
+        <div className=" rounded-md p-4 shadow-sm border border-blue-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Chatting</p>
@@ -246,7 +246,7 @@ const RagUsersManager = () => {
             <FiMessageSquare className="w-8 h-8 text-blue-500 opacity-50" />
           </div>
         </div>
-        <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className="rounded-md p-4 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Resolved</p>

@@ -9,6 +9,8 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Add this state
+const [sessionTimeout, setSessionTimeout] = useState(null);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -28,6 +30,31 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   }, []);
+
+
+  // Add this for session timeout
+useEffect(() => {
+  let timeoutId;
+  
+  const resetTimeout = () => {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (user) {
+      timeoutId = setTimeout(() => {
+        toast.warning('Session expired due to inactivity. Please login again.');
+        logout();
+      }, 30 * 60 * 1000); // 30 minutes
+    }
+  };
+  
+  const events = ['mousemove', 'keypress', 'click'];
+  events.forEach(event => window.addEventListener(event, resetTimeout));
+  resetTimeout();
+  
+  return () => {
+    clearTimeout(timeoutId);
+    events.forEach(event => window.removeEventListener(event, resetTimeout));
+  };
+}, [user]);
 
   const login = async (email, password) => {
     const response = await authAPI.login(email, password);

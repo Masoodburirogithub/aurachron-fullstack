@@ -13,6 +13,7 @@ const dynamicServiceRoutes = require('./src/routes/dynamicServiceRoutes');
 const heroRoutes = require('./src/routes/heroRoutes');
 const ragRoutes = require('./src/routes/ragRoutes');
 const { trackVisitor } = require('./src/middleware/visitorTracking');
+const demoRoutes = require('./src/routes/demoRoutes');
 
 dotenv.config();
 
@@ -33,6 +34,8 @@ app.use(cookieParser());  // ✅ First - parse cookies
 
 // Visitor tracking - depends on cookies
 app.use(trackVisitor);    // ✅ Second - track visitors
+
+app.use('/api/demo', demoRoutes);
 
 app.use((req, res, next) => {
   // Skip tracking for static files

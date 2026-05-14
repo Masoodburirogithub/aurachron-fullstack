@@ -8,9 +8,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Demo Request Model
+model DemoRequest {
+  id            String   @id @default(cuid())
+  businessEmail String
+  company       String
+  firstName     String
+  lastName      String
+  jobTitle      String
+  phoneNumber   String
+  status        String   @default("pending") // pending, contacted, completed
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-// Add after your existing models (before the last closing brace)
-
+  @@map("demo_requests")
+}
 // Website Visitor Tracking
 model Visitor {
   id            String    @id @default(cuid())
@@ -103,6 +115,7 @@ model VisitorDailyStat {
   @@index([date])
   @@map("visitor_daily_stats")
 }
+
 // RAG Document Model
 model RagDocument {
   id          String   @id @default(cuid())
@@ -275,12 +288,13 @@ model ContactSubmission {
   @@map("contact_submissions")
 }
 
-// Career Applications
+// Career Applications - UPDATED with CV field
 model CareerApplication {
   id            String   @id @default(cuid())
   fullName      String   @map("full_name")
   email         String
   position      String
+  cvUrl         String?  @map("cv_url")  // 🔴 ADD THIS LINE - CV file path
   resumeUrl     String?  @map("resume_url")
   portfolioLink String?  @map("portfolio_link")
   systemIdea    String   @map("system_idea")

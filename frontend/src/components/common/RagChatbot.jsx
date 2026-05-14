@@ -241,12 +241,12 @@ const RagChatbot = () => {
             exit={{ opacity: 0, scale: 0.9, y: 50 }}
             transition={{ type: "spring", damping: 25 }}
             className={`fixed bottom-20 sm:bottom-24 right-4 sm:right-6 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl z-50 overflow-hidden ${
-              isMinimized ? 'w-72 sm:w-80 h-14' : 'w-[calc(100vw-2rem)] sm:w-[450px] md:w-[500px] h-[550px] sm:h-[600px] md:h-[650px]'
+              isMinimized ? 'w-72 sm:w-80 h-14' : 'w-[calc(100vw-2rem)] sm:w-[400px] md:w-[420px] lg:w-[450px] h-[500px] sm:h-[550px] md:h-[580px]'
             }`}
             style={{ maxHeight: 'calc(100vh - 40px)', top: 'auto' }}
           >
             {/* Header - Responsive */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-4 sm:px-5 py-3 sm:py-4">
+            <div className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white px-4 sm:px-5 py-3 sm:py-4">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -254,7 +254,7 @@ const RagChatbot = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-sm sm:text-base md:text-lg">Aurachron AI</h3>
-                    <p className="text-[10px] sm:text-xs text-indigo-200">Powered by Gemini • 24/7</p>
+                    <p className="text-[10px] sm:text-xs text-indigo-200">Powered by Aurachron • 24/7</p>
                   </div>
                 </div>
                 <button onClick={() => setIsMinimized(!isMinimized)} className="hover:bg-white/20 p-1.5 sm:p-2 rounded-lg transition-all">
@@ -346,23 +346,23 @@ const RagChatbot = () => {
                   <>
                     <div 
                       ref={messagesContainerRef}
-                      className="h-[380px] sm:h-[440px] md:h-[480px] overflow-y-auto p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50 to-white"
+                      className="h-[350px] sm:h-[350px] md:h-[390px] overflow-y-auto p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50 to-white"
                     >
                       {messages.length === 0 ? (
-                        <div className="text-center py-8 sm:py-12">
-                          <div className="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                            <Bot size={28} className="sm:w-10 sm:h-10 text-indigo-600" />
+                        <div className="text-center py-6 sm:py-8">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                            <Bot size={24} className="sm:w-8 sm:h-8 text-indigo-600" />
                           </div>
-                          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1 sm:mb-2">
                             Hey {userInfo.name}! 👋
                           </h3>
-                          <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">Ask me about Aurachron</p>
+                          <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">Ask me about Aurachron</p>
                           <div className="flex flex-wrap gap-2 justify-center px-2">
                             {suggestedQuestions.map((q, idx) => (
                               <button
                                 key={idx}
                                 onClick={() => setInput(q)}
-                                className="px-2.5 py-1.5 sm:px-3 sm:py-2 bg-gray-100 rounded-full text-xs sm:text-sm hover:bg-indigo-100 hover:text-indigo-600 transition-all"
+                                className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gray-100 rounded-full text-xs sm:text-sm hover:bg-indigo-100 hover:text-indigo-600 transition-all"
                               >
                                 {q}
                               </button>
@@ -372,7 +372,7 @@ const RagChatbot = () => {
                       ) : (
                         messages.map((msg, idx) => (
                           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] p-3 sm:p-4 rounded-xl sm:rounded-2xl ${
+                            <div className={`max-w-[85%] p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${
                               msg.role === 'user'
                                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-md'
                                 : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
@@ -395,7 +395,7 @@ const RagChatbot = () => {
                       
                       {isTyping && (
                         <div className="flex justify-start">
-                          <div className="bg-white border border-gray-200 px-3 py-2 sm:px-4 sm:py-3 rounded-xl rounded-bl-md">
+                          <div className="bg-white border border-gray-200 px-3 py-2 sm:px-4 sm:py-3 rounded-lg rounded-bl-md">
                             <div className="flex space-x-1">
                               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" />
                               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />

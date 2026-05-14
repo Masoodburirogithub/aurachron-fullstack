@@ -60,7 +60,7 @@ const ServicesManager = () => {
       } else {
         setServices([]);
       }
-      toast.success('Services loaded');
+      // toast.success('Services loaded');
     } catch (error) {
       console.error('Error fetching services:', error);
       toast.error('Failed to fetch services');
@@ -188,7 +188,7 @@ const ServicesManager = () => {
             resetForm();
             setIsModalOpen(true);
           }}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors"
+          className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
           <FiPlus /> Add Service
         </button>

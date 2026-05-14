@@ -2,18 +2,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Sparkles, ArrowRight } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronUp, Sparkles, ArrowRight } from 'lucide-react';
 import { servicesAPI } from '../../services/api';
 import logoimg from '../../../src/assets/logoimg.jpeg';
 import * as Icons from 'lucide-react';
 
-
-const Header = () => {
+const Header = ({ isTransparent = false }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isHomePage = location.pathname === '/';
@@ -30,7 +30,6 @@ const Header = () => {
     try {
       setLoading(true);
       const response = await servicesAPI.getAll();
-      // console.log('Services for dropdown:', response.data);
       
       if (response.data?.success) {
         setServices(response.data.data.filter(s => s.isActive !== false));
@@ -70,6 +69,7 @@ const Header = () => {
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setMobileServicesOpen(false);
   }, [location]);
 
   // Prevent body scroll when mobile menu is open
@@ -86,10 +86,12 @@ const Header = () => {
 
   const toggleMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(prev => !prev);
+    setMobileServicesOpen(false);
   }, []);
 
   const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);
+    setMobileServicesOpen(false);
   }, []);
 
   const handleLogoClick = useCallback(() => {
@@ -115,26 +117,36 @@ const Header = () => {
   };
 
   const getHeaderBg = useCallback(() => {
+    // If transparent prop is true, make header transparent
+    if (isTransparent) return 'bg-transparent shadow-none';
+    
     if (isMobileMenuOpen) return 'bg-white dark:bg-gray-900 shadow-xl';
-    if (isScrolled) return 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl';
+    if (isScrolled) return 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl';
     if (!isHomePage) return 'bg-white dark:bg-gray-900 shadow-md';
     return 'bg-transparent';
-  }, [isMobileMenuOpen, isScrolled, isHomePage]);
+  }, [isMobileMenuOpen, isScrolled, isHomePage, isTransparent]);
 
   const getTextColor = useCallback(() => {
+    // If transparent prop is true, make text white
+    if (isTransparent) return 'text-white';
+    
     if (isMobileMenuOpen) return 'text-gray-800 dark:text-white';
     if (isScrolled) return 'text-gray-800 dark:text-white';
     if (!isHomePage) return 'text-gray-800 dark:text-white';
     return 'text-white';
-  }, [isMobileMenuOpen, isScrolled, isHomePage]);
+  }, [isMobileMenuOpen, isScrolled, isHomePage, isTransparent]);
 
   const headerBg = getHeaderBg();
   const textColor = getTextColor();
 
-  // Static navigation items
+  // Static navigation items - Updated order: About, Work
   const staticNavItems = [
-    { id: 'work', name: 'Work', path: '/case-studies' },
     { id: 'about', name: 'About', path: '/about' },
+    { id: 'work', name: 'Work', path: '/case-studies' }
+  ];
+
+  // Remaining nav items after Services dropdown
+  const remainingNavItems = [
     { id: 'careers', name: 'Careers', path: '/careers' },
     { id: 'contact', name: 'Contact', path: '/contact' }
   ];
@@ -149,7 +161,14 @@ const Header = () => {
   const sortedServices = [...services].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
   return (
-    <header ref={headerRef} className={`fixed top-0 w-full z-50 transition-all duration-300 ${headerBg}`}>
+    <header 
+      ref={headerRef} 
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${headerBg}`}
+      style={isTransparent ? {
+        backgroundColor: 'transparent',
+        boxShadow: 'none'
+      } : {}}
+    >
       <div className="container-custom">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -175,10 +194,10 @@ const Header = () => {
               </div>
             </div>
             <div className="flex flex-col">
-              <span className={`text-lg md:text-3xl font-bold leading-tight ${textColor}`}>
+              <span className={`text-base sm:text-lg md:text-3xl font-bold leading-tight ${textColor}`}>
                 Aurachron<span className="text-indigo-600 dark:text-indigo-400"></span>
               </span>
-              <span className=" text-[10px] md:text-[11px] text-gold-400 dark:text-gold-400 -mt-0.5 hidden sm:block">
+              <span className=" text-[8px] sm:text-[10px] md:text-[11px] text-gold-400 dark:text-gold-400 -mt-0.5 hidden sm:block">
                 - SYSTEMS PVT LTD -
               </span>
             </div>
@@ -186,7 +205,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
-            {/* Static nav items */}
+            {/* About and Work - First */}
             {staticNavItems.map((item) => (
               <Link
                 key={item.id}
@@ -197,7 +216,7 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* Services Dropdown - REDUCED WIDTH (40% of screen) */}
+            {/* Services Dropdown - Third */}
             <div
               className="relative"
               onMouseEnter={handleMouseEnter}
@@ -280,12 +299,23 @@ const Header = () => {
               </AnimatePresence>
             </div>
 
-            {/* Start a Project Button */}
+            {/* Careers and Contact - After Services */}
+            {remainingNavItems.map((item) => (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${textColor} hover:bg-white/10 hover:scale-105`}
+              >
+                {item.name}
+              </Link>
+            ))}
+
+            {/* Book Demo Button - Last */}
             <Link 
-              to="/contact" 
+              to="/demo-request"
               className="ml-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-6 py-2 rounded-md font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300"
             >
-              Start a Project
+              Book Demo
             </Link>
           </nav>
 
@@ -295,8 +325,12 @@ const Header = () => {
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
             style={{ 
-              backgroundColor: isScrolled || isMobileMenuOpen || !isHomePage ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
-              border: isScrolled || isMobileMenuOpen || !isHomePage ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)'
+              backgroundColor: isTransparent 
+                ? 'rgba(255,255,255,0.1)'
+                : (isScrolled || isMobileMenuOpen || !isHomePage ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)'),
+              border: isTransparent
+                ? '1px solid rgba(255,255,255,0.2)'
+                : (isScrolled || isMobileMenuOpen || !isHomePage ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)')
             }}
           >
             {isMobileMenuOpen ? (
@@ -307,7 +341,7 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - With Dropdown for Services */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -318,44 +352,92 @@ const Header = () => {
               className="fixed inset-0 top-16 md:top-20 bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto z-40"
             >
               <div className="container-custom py-4 pb-24">
-                {staticNavItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    className="block px-4 py-3 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800"
-                    onClick={closeMobileMenu}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+                {/* Mobile Menu Items - Increased text size */}
+                <Link
+                  to="/about"
+                  className="block px-4 py-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  About
+                </Link>
                 
-                {/* Services Section in Mobile */}
+                <Link
+                  to="/case-studies"
+                  className="block px-4 py-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  Work
+                </Link>
+                
+                {/* Services Dropdown in Mobile */}
                 <div className="border-b border-gray-100 dark:border-gray-800">
-                  <div className="px-4 py-3 font-semibold text-gray-900 dark:text-white">Services</div>
-                  {sortedServices.map((service) => (
-                    <Link
-                      key={service.id}
-                      to={`/services/${service.id}`}
-                      className="flex items-center gap-3 px-8 py-2 text-gray-600 dark:text-gray-400 hover:text-indigo-600"
-                      onClick={closeMobileMenu}
-                    >
-                      <div className={`w-6 h-6 rounded-lg bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5`}>
-                        <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                          {service.icon === 'Brain' ? '🧠' : service.icon === 'Cloud' ? '☁️' : service.icon === 'Smartphone' ? '📱' : '⚙️'}
+                  <button
+                    onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                    className="w-full flex items-center justify-between px-4 py-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 font-medium"
+                  >
+                    <span>Services</span>
+                    {mobileServicesOpen ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
+                  
+                  <AnimatePresence>
+                    {mobileServicesOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pl-8 pb-2 space-y-1">
+                          {sortedServices.map((service) => (
+                            <Link
+                              key={service.id}
+                              to={`/services/${service.id}`}
+                              className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 dark:text-gray-400 hover:text-[#F59E0B] transition-colors"
+                              onClick={closeMobileMenu}
+                            >
+                              <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5 flex-shrink-0`}>
+                                <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                                  {service.icon === 'Brain' ? '🧠' : service.icon === 'Cloud' ? '☁️' : service.icon === 'Smartphone' ? '📱' : '⚙️'}
+                                </div>
+                              </div>
+                              <span className="text-sm sm:text-base">{service.title}</span>
+                            </Link>
+                          ))}
                         </div>
-                      </div>
-                      <span>{service.title}</span>
-                    </Link>
-                  ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
                 
+                <Link
+                  to="/careers"
+                  className="block px-4 py-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  Careers
+                </Link>
+                
+                <Link
+                  to="/contact"
+                  className="block px-4 py-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  Contact
+                </Link>
+                
+                {/* Mobile Book Demo Button */}
                 <div className="p-4 mt-4">
                   <Link
-                    to="/contact"
-                    className="block text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold"
+                    to="/demo-request"
                     onClick={closeMobileMenu}
+                    className="block w-full text-center bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-6 py-4 rounded-xl font-semibold text-base sm:text-lg"
                   >
-                    Start a Project
+                    Book Demo
                   </Link>
                 </div>
               </div>

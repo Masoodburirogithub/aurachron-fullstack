@@ -68,7 +68,7 @@ const CaseStudiesPage = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen pt-0 md:pt-20">
       {/* Hero Section - Responsive */}
       <div className="bg-gradient-to-br from-[#1E3A8A] to-[#1E40AF] py-12 sm:py-16 md:py-20 px-4 text-center">
         <div className="max-w-7xl mx-auto">

@@ -1,5 +1,6 @@
-// src/pages/ContactPage.jsx - UPDATED with API Integration
+// src/pages/ContactPage.jsx - UPDATED with API Integration & FAST Animations
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { contactAPI } from '../services/api';
 
@@ -83,7 +84,6 @@ const ContactPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // UPDATED: Submit to backend API
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -96,7 +96,6 @@ const ContactPage = () => {
       
       toast.success('Message sent successfully! We will get back to you within 24 hours.');
       
-      // Reset form
       setFormData({ 
         fullName: '', 
         email: '', 
@@ -120,91 +119,196 @@ const ContactPage = () => {
     }
   };
 
-  // --- CORRECTED COORDINATES FROM GOOGLE MAPS LINK ---
-  // Latitude: 24.9236822, Longitude: 67.0937078
   const officialMapEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3619.789012345678!2d67.0917078!3d24.9216822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33ff22c1f5d49%3A0xc08a5c249812e6e0!2sAurachron%20Systems%20Pvt.%20Ltd.!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s";
 
+  // ==================== FASTER MOTION TIMES ====================
+  const fadeInUp = {
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.01, delay: 0.01 }
+  };
+
+  const fadeInLeft = {
+    initial: { opacity: 0, x: -50 },
+    whileInView: { opacity: 1, x: 0 },
+    transition: { duration: 0.3 },
+    viewport: { once: true }
+  };
+
+  const fadeInRight = {
+    initial: { opacity: 0, x: 50 },
+    whileInView: { opacity: 1, x: 0 },
+    transition: { duration: 0.3 },
+    viewport: { once: true }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08 }
+    }
+  };
+
+  const staggerItem = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25 } }
+  };
+  // ====================================================
+
   return (
-    <div style={{ paddingTop: '80px', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <div className='pt-0 md:pt-20' style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+      
       {/* Hero Section */}
-      <div style={{ background:  'linear-gradient(135deg, #1E3A8A, #1E40AF, #2563EB)' , padding: '60px 0', textAlign: 'center', color: 'white' }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        style={{ background: 'linear-gradient(135deg, #1E3A8A, #1E40AF, #2563EB)', padding: '60px 0', textAlign: 'center', color: 'white' }}
+      >
         <div className="container-custom">
-          <h1 style={{ fontSize: '56px', fontWeight: 'bold', marginBottom: '16px' }}>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            style={{ fontSize: '56px', fontWeight: 'bold', marginBottom: '16px' }}
+          >
             Stop interviewing. Start launching.
-          </h1>
-          <p style={{ fontSize: '20px', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            style={{ fontSize: '20px', opacity: 0.9, maxWidth: '600px', margin: '0 auto' }}
+          >
             Let's talk about your next project. No discovery fee for Karachi-based startups.
-          </p>
+          </motion.p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Contact Section */}
       <div style={{ padding: '60px 0' }}>
         <div className="container-custom">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px' }}>
             
-            {/* LEFT SIDE - Contact Info & Map */}
-            <div>
-              {/* Contact Info Card */}
-              <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>Get in Touch</h2>
+            {/* LEFT SIDE */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <motion.div
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+              >
+                <motion.h2
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}
+                >
+                  Get in Touch
+                </motion.h2>
                 
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}>
-                    <MailIcon />
-                  </div>
-                  <div>
-                    <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Email</p>
-                    <p style={{ color: '#4b5563', marginBottom: '2px' }}>admin@aurachronsys.com</p>
-                    <p style={{ fontSize: '12px', color: '#6b7280' }}>We respond within 24 hours</p>
-                  </div>
-                </div>
-                
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}>
-                    <MapPinIcon />
-                  </div>
-                  <div>
-                    <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Office Address</p>
-                    <p style={{ color: '#4b5563', lineHeight: '1.5' }}>
-                      Second Floor Office 02, Mishal Manzil, Fl-3/12,<br />
-                      Main Rashid Minhas Rd, Block 5 Gulshan-e-Iqbal,<br />
-                      Karachi, 75300 Pakistan
-                    </p>
-                    <a 
-                      href="https://maps.app.goo.gl/MwihF6X3meLmE1Vo6" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#4f46e5', fontSize: '12px', marginTop: '8px', textDecoration: 'none' }}
+                <motion.div
+                  variants={staggerContainer}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  <motion.div variants={staggerItem} style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <motion.div 
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.15 }}
+                      style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}
                     >
-                      Get Directions <ExternalLinkIcon />
-                    </a>
-                  </div>
-                </div>
+                      <MailIcon />
+                    </motion.div>
+                    <div>
+                      <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Email</p>
+                      <p style={{ color: '#4b5563', marginBottom: '2px' }}>admin@aurachronsys.com</p>
+                      <p style={{ fontSize: '12px', color: '#6b7280' }}>We respond within 24 hours</p>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div variants={staggerItem} style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <motion.div 
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.15 }}
+                      style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}
+                    >
+                      <MapPinIcon />
+                    </motion.div>
+                    <div>
+                      <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Office Address</p>
+                      <p style={{ color: '#4b5563', lineHeight: '1.5' }}>
+                        Second Floor Office 02, Mishal Manzil, Fl-3/12,<br />
+                        Main Rashid Minhas Rd, Block 5 Gulshan-e-Iqbal,<br />
+                        Karachi, 75300 Pakistan
+                      </p>
+                      <motion.a 
+                        href="https://maps.app.goo.gl/MwihF6X3meLmE1Vo6" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        whileHover={{ x: 5 }}
+                        transition={{ duration: 0.15 }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#4f46e5', fontSize: '12px', marginTop: '8px', textDecoration: 'none' }}
+                      >
+                        Get Directions <ExternalLinkIcon />
+                      </motion.a>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div variants={staggerItem} style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <motion.div 
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.15 }}
+                      style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}
+                    >
+                      <PhoneIcon />
+                    </motion.div>
+                    <div>
+                      <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Phone</p>
+                      <p style={{ color: '#4b5563' }}>(021) 37123252</p>
+                      <p style={{ fontSize: '12px', color: '#6b7280' }}>Mon-Fri, 9am-6pm</p>
+                    </div>
+                  </motion.div>
+                </motion.div>
                 
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '40px', height: '40px', background: '#e0e7ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5' }}>
-                    <PhoneIcon />
-                  </div>
-                  <div>
-                    <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Phone</p>
-                    <p style={{ color: '#4b5563' }}>(021) 37123252</p>
-                    <p style={{ fontSize: '12px', color: '#6b7280' }}>Mon-Fri, 9am-6pm</p>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '16px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-                  <a href="#" style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', transition: 'all 0.3s' }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, delay: 0.1 }}
+                  style={{ display: 'flex', gap: '16px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}
+                >
+                  <motion.a 
+                    href="#" 
+                    whileHover={{ scale: 1.1, backgroundColor: '#e0e7ff', color: '#4f46e5' }}
+                    transition={{ duration: 0.15 }}
+                    style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', transition: 'all 0.3s' }}
+                  >
                     <LinkedinIcon />
-                  </a>
-                  <a href="#" style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', transition: 'all 0.3s' }}>
+                  </motion.a>
+                  <motion.a 
+                    href="#" 
+                    whileHover={{ scale: 1.1, backgroundColor: '#e0e7ff', color: '#4f46e5' }}
+                    transition={{ duration: 0.15 }}
+                    style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', transition: 'all 0.3s' }}
+                  >
                     <GithubIcon />
-                  </a>
-                </div>
-              </div>
+                  </motion.a>
+                </motion.div>
+              </motion.div>
 
-              {/* --- GOOGLE MAP WITH CORRECT COORDINATES (RED PIN) --- */}
-              <div style={{ marginTop: '24px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+              {/* Google Map */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                viewport={{ once: true }}
+                style={{ marginTop: '24px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+              >
                 <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}>
                   <iframe
                     src={officialMapEmbedUrl}
@@ -224,9 +328,6 @@ const ContactPage = () => {
                   <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
                     Second Floor Office 02, Mishal Manzil, Fl-3/12, Main Rashid Minhas Rd, Block 5 Gulshan-e-Iqbal, Karachi
                   </div>
-                  <div style={{ fontSize: '11px', color: '#10b981', marginBottom: '8px' }}>
-                    📍 Coordinates: 24.9236822° N, 67.0937078° E
-                  </div>
                   <a 
                     href="https://maps.app.goo.gl/MwihF6X3meLmE1Vo6" 
                     target="_blank" 
@@ -236,16 +337,39 @@ const ContactPage = () => {
                     Open in Google Maps for Navigation <ExternalLinkIcon />
                   </a>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* RIGHT SIDE - Contact Form */}
-            <div>
-              <form onSubmit={handleSubmit} style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>Send us a Message</h2>
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <motion.form
+                onSubmit={handleSubmit}
+                whileHover={{ boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }}
+                transition={{ duration: 0.2 }}
+                style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+              >
+                <motion.h2
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}
+                >
+                  Send us a Message
+                </motion.h2>
                 
                 {/* Full Name */}
-                <div style={{ marginBottom: '20px' }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: 0.05 }}
+                  viewport={{ once: true }}
+                  style={{ marginBottom: '20px' }}
+                >
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Full Name <span style={{ color: 'red' }}>*</span>
                   </label>
@@ -254,14 +378,22 @@ const ContactPage = () => {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
-                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.fullName ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', fontSize: '14px' }}
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.fullName ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', fontSize: '14px', transition: 'border-color 0.2s' }}
                     placeholder="John Doe"
+                    onFocus={(e) => e.target.style.borderColor = '#F59E0B'}
+                    onBlur={(e) => e.target.style.borderColor = errors.fullName ? '#ef4444' : '#d1d5db'}
                   />
-                  {errors.fullName && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.fullName}</p>}
-                </div>
+                  {errors.fullName && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.fullName}</motion.p>}
+                </motion.div>
 
                 {/* Email */}
-                <div style={{ marginBottom: '20px' }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: 0.1 }}
+                  viewport={{ once: true }}
+                  style={{ marginBottom: '20px' }}
+                >
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Email <span style={{ color: 'red' }}>*</span>
                   </label>
@@ -270,27 +402,43 @@ const ContactPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.email ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', fontSize: '14px' }}
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.email ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', fontSize: '14px', transition: 'border-color 0.2s' }}
                     placeholder="john@company.com"
+                    onFocus={(e) => e.target.style.borderColor = '#F59E0B'}
+                    onBlur={(e) => e.target.style.borderColor = errors.email ? '#ef4444' : '#d1d5db'}
                   />
-                  {errors.email && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.email}</p>}
-                </div>
+                  {errors.email && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.email}</motion.p>}
+                </motion.div>
 
                 {/* Company */}
-                <div style={{ marginBottom: '20px' }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: 0.15 }}
+                  viewport={{ once: true }}
+                  style={{ marginBottom: '20px' }}
+                >
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Company</label>
                   <input
                     type="text"
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '12px', outline: 'none', fontSize: '14px' }}
+                    style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '12px', outline: 'none', fontSize: '14px', transition: 'border-color 0.2s' }}
                     placeholder="Your Company"
+                    onFocus={(e) => e.target.style.borderColor = '#F59E0B'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                   />
-                </div>
+                </motion.div>
 
                 {/* Timeline */}
-                <div style={{ marginBottom: '20px' }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: 0.2 }}
+                  viewport={{ once: true }}
+                  style={{ marginBottom: '20px' }}
+                >
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Timeline <span style={{ color: 'red' }}>*</span>
                   </label>
@@ -298,7 +446,9 @@ const ContactPage = () => {
                     name="timeline"
                     value={formData.timeline}
                     onChange={handleChange}
-                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.timeline ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', background: 'white', fontSize: '14px' }}
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.timeline ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', background: 'white', fontSize: '14px', transition: 'border-color 0.2s' }}
+                    onFocus={(e) => e.target.style.borderColor = '#F59E0B'}
+                    onBlur={(e) => e.target.style.borderColor = errors.timeline ? '#ef4444' : '#d1d5db'}
                   >
                     <option value="">Select timeline</option>
                     <option value="ASAP">ASAP</option>
@@ -306,11 +456,17 @@ const ContactPage = () => {
                     <option value="3-6 months">3-6 months</option>
                     <option value="Planning stage">Planning stage</option>
                   </select>
-                  {errors.timeline && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.timeline}</p>}
-                </div>
+                  {errors.timeline && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.timeline}</motion.p>}
+                </motion.div>
 
                 {/* Project Description */}
-                <div style={{ marginBottom: '24px' }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: 0.25 }}
+                  viewport={{ once: true }}
+                  style={{ marginBottom: '24px' }}
+                >
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                     Project Description <span style={{ color: 'red' }}>*</span>
                   </label>
@@ -319,28 +475,37 @@ const ContactPage = () => {
                     value={formData.projectDesc}
                     onChange={handleChange}
                     rows="4"
-                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.projectDesc ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', resize: 'vertical', fontSize: '14px', fontFamily: 'inherit' }}
+                    style={{ width: '100%', padding: '12px', border: `1px solid ${errors.projectDesc ? '#ef4444' : '#d1d5db'}`, borderRadius: '12px', outline: 'none', resize: 'vertical', fontSize: '14px', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
                     placeholder="Tell us about your project..."
+                    onFocus={(e) => e.target.style.borderColor = '#F59E0B'}
+                    onBlur={(e) => e.target.style.borderColor = errors.projectDesc ? '#ef4444' : '#d1d5db'}
                   />
-                  {errors.projectDesc && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.projectDesc}</p>}
-                </div>
+                  {errors.projectDesc && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.projectDesc}</motion.p>}
+                </motion.div>
 
                 {/* Submit Button */}
-                <button
+                <motion.button
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ width: '100%', background: 'linear-gradient(135deg, #F59E0B, #FBBF24)', color: '#1E3A8A', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '16px' }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
+                  style={{ width: '100%', background: 'linear-gradient(135deg, #F59E0B, #FBBF24)', color: '#1E3A8A', padding: '14px', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '16px', transition: 'all 0.2s' }}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'} <SendIcon />
-                </button>
+                </motion.button>
 
-                {/* Success Message */}
-                <p style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.25, delay: 0.3 }}
+                  style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                >
                   <span style={{ color: '#10b981' }}><CheckCircleIcon /></span>
                   We'll respond within 24 hours
-                </p>
-              </form>
-            </div>
+                </motion.p>
+              </motion.form>
+            </motion.div>
           </div>
         </div>
       </div>

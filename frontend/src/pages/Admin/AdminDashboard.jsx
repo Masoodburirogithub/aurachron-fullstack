@@ -20,6 +20,7 @@ import RagDocumentsManager from './RagDocumentsManager';
 import RagUsersManager from './RagUsersManager';
 import AdminNotification from './AdminNotification';
 import VisitorsManager from './VisitorsManager';
+import DemoRequestsManager from './DemoRequestsManager';
 
 const AdminDashboard = () => {
   const { logout } = useAuth();
@@ -143,7 +144,7 @@ const AdminDashboard = () => {
             <Route path="/hero" element={<HeroSettingsManager />} />
             <Route path="/rag" element={<RagDocumentsManager />} />
             <Route path="/rag-users" element={<RagUsersManager />} />
-            
+            <Route path="/demo-requests" element={<DemoRequestsManager />} />
           </Routes>
         </div>
       </div>

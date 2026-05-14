@@ -2,10 +2,55 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+// File extensions to skip tracking (static assets)
+const STATIC_EXTENSIONS = [
+  '.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.ico', 
+  '.mp4', '.webm', '.mov', '.avi', '.mkv',
+  '.css', '.scss', '.sass',
+  '.js', '.ts', '.jsx', '.tsx', '.map',
+  '.woff', '.woff2', '.ttf', '.eot', '.otf',
+  '.json', '.xml', '.txt', '.pdf', '.doc', '.docx'
+];
+
+// Check if URL is a static asset (should not be tracked)
+// Check if URL is a static asset (should not be tracked)
+const isStaticAsset = (url) => {
+  if (!url) return true;
+  const lowercaseUrl = url.toLowerCase();
+  
+  // Skip ALL API calls
+  if (lowercaseUrl.includes('/api/')) return true;
+  
+  // Skip ALL uploads (anything in /uploads/ folder)
+  if (lowercaseUrl.includes('/uploads/')) {
+    console.log(`Skipping upload: ${url}`);
+    return true;
+  }
+  
+  // Skip common static file patterns
+  const staticPatterns = [
+    '.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.ico',
+    '.mp4', '.webm', '.mov', '.avi', '.mkv',
+    '.css', '.scss', '.sass',
+    '.js', '.ts', '.jsx', '.tsx', '.map',
+    '.woff', '.woff2', '.ttf', '.eot', '.otf',
+    '.json', '.xml', '.txt', '.pdf'
+  ];
+  
+  // Check if URL contains any static pattern (not just ends with)
+  const isStatic = staticPatterns.some(pattern => lowercaseUrl.includes(pattern));
+  
+  if (isStatic) {
+    console.log(`Skipping static file: ${url}`);
+  }
+  
+  return isStatic;
+};
+
 // Get geolocation from IP
 const getGeoLocation = async (ip) => {
   try {
-    if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
+    if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
       return null;
     }
     
@@ -38,12 +83,14 @@ const parseUserAgent = (userAgent) => {
   let os = 'Unknown';
   let osVersion = 'Unknown';
   
+  // Detect device type
   if (/(tablet|ipad|playbook|silk)|(android(?!.*mobile))/i.test(ua)) {
     deviceType = 'tablet';
   } else if (/(Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini))/i.test(ua)) {
     deviceType = 'mobile';
   }
   
+  // Detect browser
   if (ua.includes('Chrome') && !ua.includes('Edg')) {
     browser = 'Chrome';
     const match = ua.match(/Chrome\/(\d+)/);
@@ -58,6 +105,7 @@ const parseUserAgent = (userAgent) => {
     browser = 'Edge';
   }
   
+  // Detect OS
   if (ua.includes('Windows NT 10.0')) os = 'Windows 10';
   else if (ua.includes('Windows NT 6.1')) os = 'Windows 7';
   else if (ua.includes('Mac OS X')) os = 'macOS';
@@ -68,125 +116,110 @@ const parseUserAgent = (userAgent) => {
   return { deviceType, browser, browserVersion, os, osVersion };
 };
 
-// FIXED: Track visitor - properly handles existing sessions
+// Track visitor - MAIN FUNCTION (UPDATED to skip static assets)
 const trackVisitor = async (req, res, next) => {
   try {
-    // IMPORTANT: Try to get existing session ID from cookie
-    let sessionId = req.cookies?.visitorSessionId;
-    
-    const userAgent = req.headers['user-agent'];
     const currentPage = req.originalUrl || req.url;
     
-    // Skip tracking for admin routes and API calls
-    if (currentPage.includes('/admin') || currentPage.includes('/api/')) {
+    // CRITICAL: Skip tracking for static assets and uploads
+    if (isStaticAsset(currentPage)) {
       return next();
     }
     
-    const now = new Date();
-    
-    if (sessionId) {
-      // EXISTING VISITOR - Update last visit only, don't create new record
-      const existingVisitor = await prisma.visitor.findUnique({
-        where: { sessionId }
-      });
-      
-      if (existingVisitor) {
-        // Update existing visitor - this does NOT increase visitor count
-        await prisma.visitor.update({
-          where: { sessionId },
-          data: {
-            lastVisit: now,
-            visitCount: { increment: 1 },
-            totalTimeSpent: { increment: 30 } // Assume ~30 seconds per page view
-          }
-        });
-        
-        // Track page view
-        await prisma.visitorPageView.create({
-          data: {
-            sessionId,
-            visitorId: existingVisitor.id,
-            pageUrl: currentPage,
-            createdAt: now
-          }
-        });
-        
-        // Attach to request
-        req.visitor = existingVisitor;
-        req.visitorSessionId = sessionId;
-        
-        // Refresh cookie expiry
-        res.cookie('visitorSessionId', sessionId, {
-          maxAge: 30 * 24 * 60 * 60 * 1000,
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          path: '/'
-        });
-        
-        return next();
-      }
+    // Skip admin API routes
+    if (currentPage.includes('/admin') && currentPage.includes('/api/')) {
+      return next();
     }
     
-    // NEW VISITOR - Create only when no valid session exists
-    const newSessionId = 'vis_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    // Get or create session
+    let sessionId = req.cookies?.visitorSessionId;
+    
+    if (!sessionId) {
+      sessionId = 'vis_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
     
     const ipAddress = req.ip || req.connection?.remoteAddress || req.socket?.remoteAddress;
     const cleanIp = ipAddress === '::1' ? '127.0.0.1' : ipAddress?.replace(/^::ffff:/, '');
+    const userAgent = req.headers['user-agent'];
     const referrer = req.headers.referer || req.headers.referrer;
     
     const { deviceType, browser, browserVersion, os, osVersion } = parseUserAgent(userAgent);
     const geoData = await getGeoLocation(cleanIp);
     
-    // Create new visitor record
-    const newVisitor = await prisma.visitor.create({
-      data: {
-        sessionId: newSessionId,
-        ipAddress: cleanIp,
-        userAgent,
-        deviceType,
-        browser,
-        browserVersion,
-        os,
-        osVersion,
-        referrer,
-        landingPage: currentPage,
-        isNewVisitor: true,
-        visitCount: 1,
-        firstVisit: now,
-        lastVisit: now,
-        country: geoData?.country,
-        city: geoData?.city,
-        region: geoData?.region,
-        latitude: geoData?.latitude,
-        longitude: geoData?.longitude,
-        timezone: geoData?.timezone
-      }
+    const now = new Date();
+    
+    // Find or create visitor
+    let visitor = await prisma.visitor.findUnique({
+      where: { sessionId }
     });
     
-    // Track first page view
+    if (visitor) {
+      // Update existing visitor
+      const timeDiff = Math.floor((now - visitor.lastVisit) / 1000);
+      
+      visitor = await prisma.visitor.update({
+        where: { sessionId },
+        data: {
+          visitCount: { increment: 1 },
+          lastVisit: now,
+          totalTimeSpent: { increment: Math.min(timeDiff, 1800) },
+          ipAddress: cleanIp || visitor.ipAddress,
+          userAgent: userAgent || visitor.userAgent,
+          deviceType: deviceType || visitor.deviceType,
+          browser: browser || visitor.browser,
+          os: os || visitor.os,
+          country: geoData?.country || visitor.country,
+          city: geoData?.city || visitor.city,
+        }
+      });
+    } else {
+      // Create new visitor
+      visitor = await prisma.visitor.create({
+        data: {
+          sessionId,
+          ipAddress: cleanIp,
+          userAgent,
+          deviceType,
+          browser,
+          browserVersion,
+          os,
+          osVersion,
+          referrer,
+          landingPage: currentPage,
+          isNewVisitor: true,
+          visitCount: 1,
+          firstVisit: now,
+          lastVisit: now,
+          country: geoData?.country,
+          city: geoData?.city,
+          region: geoData?.region,
+        }
+      });
+    }
+    
+    // Only track page views for actual HTML pages (not static files)
+    // Static files are already filtered by isStaticAsset()
     await prisma.visitorPageView.create({
       data: {
-        sessionId: newSessionId,
-        visitorId: newVisitor.id,
+        sessionId,
+        visitorId: visitor.id,
         pageUrl: currentPage,
         referrer,
         createdAt: now
       }
     });
     
-    // Attach to request
-    req.visitor = newVisitor;
-    req.visitorSessionId = newSessionId;
-    
-    // Set persistent cookie
-    res.cookie('visitorSessionId', newSessionId, {
+    // Set cookie
+    res.cookie('visitorSessionId', sessionId, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/'
     });
+    
+    req.visitor = visitor;
+    req.visitorSessionId = sessionId;
     
     next();
   } catch (error) {
