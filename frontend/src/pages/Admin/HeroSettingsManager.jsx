@@ -267,58 +267,58 @@ const HeroSettingsManager = () => {
 
         {/* Statistics Section */}
         <div className="border-t pt-4">
-          <div className="flex justify-between items-center mb-3">
-            <label className="block text-sm font-medium">Statistics Cards</label>
-            <button
-              type="button"
-              onClick={addStat}
-              className="text-indigo-600 text-sm hover:text-indigo-700 flex items-center gap-1"
-            >
-              <FiPlus size={14} /> Add Stat
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            {(settings.stats || []).map((stat, idx) => (
-              <div key={idx} className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg">
-                <input
-                  type="text"
-                  placeholder="Value (e.g., 50+)"
-                  value={stat.value || ''}
-                  onChange={(e) => updateStat(idx, 'value', e.target.value)}
-                  className="flex-1 px-3 py-2 border rounded-lg text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Label (e.g., Projects)"
-                  value={stat.label || ''}
-                  onChange={(e) => updateStat(idx, 'label', e.target.value)}
-                  className="flex-1 px-3 py-2 border rounded-lg text-sm"
-                />
-                <select
-                  value={stat.icon || 'TrendingUp'}
-                  onChange={(e) => updateStat(idx, 'icon', e.target.value)}
-                  className="w-32 px-3 py-2 border rounded-lg text-sm"
-                >
-                  <option value="TrendingUp">📈 Trending Up</option>
-                  <option value="Clock">⏰ Clock</option>
-                  <option value="Award">🏆 Award</option>
-                </select>
-                <button
-                  type="button"
-                  onClick={() => removeStat(idx)}
-                  className="text-red-500 hover:text-red-700 p-2"
-                >
-                  <FiTrash2 size={16} />
-                </button>
-              </div>
-            ))}
-            
-            {(!settings.stats || settings.stats.length === 0) && (
-              <p className="text-sm text-gray-500 text-center py-4">No statistics added. Click "Add Stat" to create one.</p>
-            )}
-          </div>
-        </div>
+  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+    <label className="block text-sm font-medium">Statistics Cards</label>
+    <button
+      type="button"
+      onClick={addStat}
+      className="text-indigo-600 text-sm hover:text-indigo-700 flex items-center gap-1 w-full sm:w-auto justify-center sm:justify-start"
+    >
+      <FiPlus size={14} /> Add Stat
+    </button>
+  </div>
+  
+  <div className="space-y-3">
+    {(settings.stats || []).map((stat, idx) => (
+      <div key={idx} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center bg-gray-50 p-3 rounded-lg">
+        <input
+          type="text"
+          placeholder="Value (e.g., 50+)"
+          value={stat.value || ''}
+          onChange={(e) => updateStat(idx, 'value', e.target.value)}
+          className="w-full sm:flex-1 px-3 py-2 border rounded-lg text-sm"
+        />
+        <input
+          type="text"
+          placeholder="Label (e.g., Projects)"
+          value={stat.label || ''}
+          onChange={(e) => updateStat(idx, 'label', e.target.value)}
+          className="w-full sm:flex-1 px-3 py-2 border rounded-lg text-sm"
+        />
+        <select
+          value={stat.icon || 'TrendingUp'}
+          onChange={(e) => updateStat(idx, 'icon', e.target.value)}
+          className="w-full sm:w-32 px-3 py-2 border rounded-lg text-sm"
+        >
+          <option value="TrendingUp">📈 Trending Up</option>
+          <option value="Clock">⏰ Clock</option>
+          <option value="Award">🏆 Award</option>
+        </select>
+        <button
+          type="button"
+          onClick={() => removeStat(idx)}
+          className="text-red-500 hover:text-red-700 p-2 w-full sm:w-auto flex justify-center"
+        >
+          <FiTrash2 size={16} />
+        </button>
+      </div>
+    ))}
+    
+    {(!settings.stats || settings.stats.length === 0) && (
+      <p className="text-sm text-gray-500 text-center py-4">No statistics added. Click "Add Stat" to create one.</p>
+    )}
+  </div>
+</div>
 
         {/* Live Preview */}
         <div className="border-t pt-4">
