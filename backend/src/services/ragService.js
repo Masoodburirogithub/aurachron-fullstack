@@ -7,7 +7,8 @@ const { GoogleGenAI } = require('@google/genai');
 const prisma = new PrismaClient();
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-console.log('✅ Google Gemini AI initialized');
+// Track greeted users per session to prevent repeated long greetings
+const greetedUsers = new Map();
 
 // Extract text from files
 function extractTxtText(filePath) {
@@ -22,8 +23,6 @@ function extractTxtText(filePath) {
 // Index document
 async function indexDocument(documentId) {
   try {
-    console.log(`📄 Indexing document: ${documentId}`);
-    
     const document = await prisma.ragDocument.findUnique({
       where: { id: documentId }
     });
@@ -60,7 +59,6 @@ async function indexDocument(documentId) {
       }
     });
     
-    console.log(`✅ Indexed: ${document.title} (${chunks.length} chunks)`);
     return { success: true };
     
   } catch (error) {
@@ -74,14 +72,36 @@ async function indexDocument(documentId) {
 }
 
 // Search relevant chunks
-async function searchRelevantChunks(query, topK = 3) {
+async function searchRelevantChunks(query, topK = 5) {
   const documents = await prisma.ragDocument.findMany({
     where: { status: 'indexed', isActive: true }
   });
   
+  if (documents.length === 0) {
+    return [];
+  }
+  
   const allChunks = [];
   const queryLower = query.toLowerCase();
-  const queryWords = queryLower.split(/\s+/);
+  
+  const keywords = {
+    service: ['service', 'services', 'offer', 'provide', 'solution', 'solutions', 'product', 'products', 'what do you do'],
+    pricing: ['price', 'pricing', 'cost', 'package', 'packages', 'plan', 'plans', 'fee', 'charges'],
+    support: ['support', 'help', 'assist', 'issue', 'problem', 'troubleshoot'],
+    contact: ['contact', 'reach', 'call', 'email', 'phone', 'whatsapp'],
+    technology: ['tech', 'technology', 'stack', 'tools', 'framework', 'language']
+  };
+  
+  let queryCategory = null;
+  for (const [category, words] of Object.entries(keywords)) {
+    for (const word of words) {
+      if (queryLower.includes(word)) {
+        queryCategory = category;
+        break;
+      }
+    }
+    if (queryCategory) break;
+  }
   
   for (const doc of documents) {
     if (doc.chunks && Array.isArray(doc.chunks)) {
@@ -89,10 +109,32 @@ async function searchRelevantChunks(query, topK = 3) {
         const chunkLower = chunk.text.toLowerCase();
         let score = 0;
         
+        const queryWords = queryLower.split(/\s+/);
         for (const word of queryWords) {
           if (word.length > 2 && chunkLower.includes(word)) {
-            score++;
+            const occurrences = (chunkLower.match(new RegExp(word, 'g')) || []).length;
+            score += occurrences * 2;
           }
+        }
+        
+        if (queryCategory) {
+          const categoryWords = keywords[queryCategory];
+          for (const catWord of categoryWords) {
+            if (chunkLower.includes(catWord)) {
+              score += 3;
+            }
+          }
+        }
+        
+        const titleLower = doc.title.toLowerCase();
+        for (const word of queryWords) {
+          if (titleLower.includes(word)) {
+            score += 5;
+          }
+        }
+        
+        if (score === 0 && chunk.text.length > 100) {
+          score = 1;
         }
         
         if (score > 0) {
@@ -107,7 +149,22 @@ async function searchRelevantChunks(query, topK = 3) {
   }
   
   allChunks.sort((a, b) => b.score - a.score);
-  return allChunks.slice(0, topK);
+  const topResults = allChunks.slice(0, topK);
+  
+  if (topResults.length === 0) {
+    for (const doc of documents) {
+      if (doc.chunks && doc.chunks.length > 0) {
+        topResults.push({
+          text: doc.chunks[0].text,
+          score: 1,
+          documentTitle: doc.title
+        });
+        break;
+      }
+    }
+  }
+  
+  return topResults;
 }
 
 // Get or create user
@@ -126,7 +183,6 @@ async function getOrCreateUser(sessionId, name, email, phone) {
         lastActive: new Date()
       }
     });
-    console.log('✅ New user created:', user.name);
   } else if (user && (name || email || phone)) {
     user = await prisma.ragUser.update({
       where: { sessionId },
@@ -137,68 +193,114 @@ async function getOrCreateUser(sessionId, name, email, phone) {
         lastActive: new Date()
       }
     });
-    console.log('✅ User updated:', user.name);
   }
   
   return user;
 }
 
-// Generate friendly response for greetings
-function getGreetingResponse(message, userName) {
+// ONLY for actual greeting messages (hi, hello, hey)
+// Does NOT trigger for normal questions
+function getGreetingResponse(message, userName, hasBeenGreetedBefore = false) {
   const lowerMsg = message.toLowerCase();
   
-  if (lowerMsg.includes('hi') || lowerMsg.includes('hello') || lowerMsg.includes('hey')) {
-    return `Hello ${userName || 'there'}! 👋\n\nI'm your AI assistant. How can I help you today?\n\nYou can ask me about:\n• Our services and solutions\n• Pricing and packages\n• Technology stack\n• Case studies\n• Or type "Talk to human" to speak with a real person!`;
+  // ONLY handle actual greeting words, not every message
+  const isGreeting = lowerMsg.includes('hi') || lowerMsg.includes('hello') || lowerMsg.includes('hey');
+  
+  if (!isGreeting) {
+    return null; // Not a greeting, let normal RAG handle it
   }
   
-  if (lowerMsg.includes('how are you')) {
-    return `I'm doing great, thanks for asking ${userName || 'friend'}! 🤖\n\nI'm ready to help you with any questions about Aurachron Systems. What would you like to know?`;
+  // FIRST TIME GREETING - Full welcome message
+  if (!hasBeenGreetedBefore) {
+    return `**👋 Hello ${userName || 'there'}!**
+
+I'm your AI assistant for **Aurachron Systems**. I'm here to help you with any questions about our company, services, or solutions.
+
+**💡 Here's what I can help you with:**
+
+• 📋 Company information and background
+
+• 🚀 Our services and solutions
+
+• 💰 Pricing and packages
+
+• 🔧 Technical support
+
+• 📞 Contact information
+
+• 👥 Career opportunities
+
+**✨ Quick Tip:** Type **"Talk to human"** anytime to speak with a real person!
+
+**What would you like to know today?**`;
   }
   
-  if (lowerMsg.includes('thanks') || lowerMsg.includes('thank you')) {
-    return `You're welcome ${userName || 'friend'}! 😊\n\nIs there anything else I can help you with today?`;
-  }
-  
-  if (lowerMsg.includes('bye') || lowerMsg.includes('goodbye')) {
-    return `Goodbye ${userName || 'friend'}! 👋\n\nFeel free to come back if you have more questions. Have a great day!`;
-  }
-  
-  return null;
+  // SUBSEQUENT GREETINGS - Short and simple, no long welcome
+  return `**👋 Hey ${userName || 'there'}!** Good to see you again. What can I help you with today?`;
+}
+
+// Contact response
+function getContactResponse() {
+  return `**👤 Connect with a Real Person**
+
+I understand you'd like to speak with a member of our team. I've notified our support team about your request, and someone will reach out to you shortly.
+
+**📞 You can also contact us directly:**
+
+• **Phone:** (021) 37123252
+
+• **Email:** admin@aurachronsys.com
+
+• **WhatsApp:** https://wa.me/923112616192
+
+• **Office Hours:** Monday - Friday, 9:00 AM - 6:00 PM
+
+**⏱️ Response Time:** We typically respond within 1-2 business hours.
+
+Thank you for your patience! 🙏`;
 }
 
 // Generate RAG response
 async function generateRagResponse(question, sessionId, userName, userEmail, userPhone) {
   try {
-    console.log(`🤖 Processing: "${question}" from ${userName || 'Anonymous'}`);
-    
-    // Get or create user
     const user = await getOrCreateUser(sessionId, userName, userEmail, userPhone);
     
-    // Check for greetings first
-    const greetingResponse = getGreetingResponse(question, userName);
-    if (greetingResponse) {
-      // Save the conversation
-      await prisma.ragConversation.create({
-        data: {
-          sessionId,
-          userId: user?.id,
-          question,
-          answer: greetingResponse,
-          sources: []
-        }
-      });
+    // Check if this is a greeting message (hi, hello, hey)
+    const isGreeting = /^(hi|hello|hey)$/i.test(question.trim()) || 
+                       /^(hi|hello|hey)[\s!,.?]*$/i.test(question.trim());
+    
+    // ONLY for greeting messages, show welcome response
+    if (isGreeting) {
+      const hasBeenGreetedBefore = greetedUsers.has(sessionId);
+      const greetingResponse = getGreetingResponse(question, userName, hasBeenGreetedBefore);
       
-      return { answer: greetingResponse, sources: [], hasContext: false, user };
+      if (greetingResponse) {
+        // Mark this user as greeted
+        greetedUsers.set(sessionId, true);
+        
+        await prisma.ragConversation.create({
+          data: {
+            sessionId,
+            userId: user?.id,
+            question,
+            answer: greetingResponse,
+            sources: []
+          }
+        });
+        
+        return { answer: greetingResponse, sources: [], hasContext: false, user };
+      }
     }
     
-    // Check if user wants to talk to a human
+    // For ALL other messages (not greetings), NEVER say hello again
+    // Just answer the question directly
+    
     if (question.toLowerCase().includes('talk to human') || 
         question.toLowerCase().includes('talk to admin') ||
         question.toLowerCase().includes('speak to person') ||
         question.toLowerCase().includes('real person')) {
       
-      // Create chat request
-      const chatRequest = await prisma.chatRequest.create({
+      await prisma.chatRequest.create({
         data: {
           sessionId,
           userId: user?.id,
@@ -210,7 +312,6 @@ async function generateRagResponse(question, sessionId, userName, userEmail, use
         }
       });
       
-      // Update user wantsHuman flag
       if (user) {
         await prisma.ragUser.update({
           where: { id: user.id },
@@ -218,9 +319,8 @@ async function generateRagResponse(question, sessionId, userName, userEmail, use
         });
       }
       
-      const contactResponse = `I understand you'd like to speak with a real person. 👤\n\nOur team has been notified and will reach out to you shortly.\n\n📞 **You can also contact us directly:**\n• **Phone/WhatsApp:** +92 311 2616192\n• **Email:** admin@aurachronsys.com\n• **Office Hours:** Mon-Fri, 9am-6pm\n\nThank you for your patience! 🙏`;
+      const contactResponse = getContactResponse();
       
-      // Save the conversation
       await prisma.ragConversation.create({
         data: {
           sessionId,
@@ -245,7 +345,7 @@ async function generateRagResponse(question, sessionId, userName, userEmail, use
       };
     }
     
-    // Search for relevant content
+    // Search for relevant content from uploaded files
     const relevantChunks = await searchRelevantChunks(question);
     
     let context = '';
@@ -259,14 +359,20 @@ async function generateRagResponse(question, sessionId, userName, userEmail, use
     let answer;
     
     if (context) {
-      const prompt = `You are an AI assistant for Aurachron Systems. Answer based ONLY on this context. Be friendly and helpful.
+      const prompt = `You are a professional AI assistant for Aurachron Systems. Answer based on the following context.
 
 CONTEXT:
 ${context}
 
 USER QUESTION: ${question}
 
-Answer concisely using only the context above. If the answer isn't there, say so politely.`;
+INSTRUCTIONS:
+1. Answer using the information from the context above
+2. Do NOT start your answer with "Hello" or any greeting
+3. Answer directly and concisely
+4. Be helpful and professional
+
+ANSWER:`;
 
       const response = await genAI.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -275,10 +381,21 @@ Answer concisely using only the context above. If the answer isn't there, say so
       
       answer = response.text;
     } else {
-      answer = "I couldn't find specific information about that in our knowledge base. 📚\n\nWould you like me to connect you with our support team? Just type 'Talk to human' and someone will assist you!";
+      answer = `**📚 Information Not Found**
+
+I searched my knowledge base but couldn't find specific information about "${question}".
+
+**💡 Here's what you can do:**
+
+• Try asking with different keywords
+
+• Type **"Talk to human"** to speak with our support team
+
+• Contact us directly at admin@aurachronsys.com
+
+**Would you like me to connect you with a human support specialist?**`;
     }
     
-    // Save conversation
     await prisma.ragConversation.create({
       data: {
         sessionId,
@@ -289,7 +406,6 @@ Answer concisely using only the context above. If the answer isn't there, say so
       }
     });
     
-    // Update user last active
     if (user) {
       await prisma.ragUser.update({
         where: { id: user.id },

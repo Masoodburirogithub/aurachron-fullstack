@@ -23,7 +23,7 @@ const isStaticAsset = (url) => {
   
   // Skip ALL uploads (anything in /uploads/ folder)
   if (lowercaseUrl.includes('/uploads/')) {
-    console.log(`Skipping upload: ${url}`);
+    // console.log(`Skipping upload: ${url}`);
     return true;
   }
   
@@ -41,7 +41,7 @@ const isStaticAsset = (url) => {
   const isStatic = staticPatterns.some(pattern => lowercaseUrl.includes(pattern));
   
   if (isStatic) {
-    console.log(`Skipping static file: ${url}`);
+    // console.log(`Skipping static file: ${url}`);
   }
   
   return isStatic;

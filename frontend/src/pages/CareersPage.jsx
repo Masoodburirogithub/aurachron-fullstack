@@ -125,12 +125,12 @@ const CareersPage = () => {
   return (
     <div className="pt-0 md:pt-20">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white py-20">
+      <section className="bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70 text-white py-20">
         <div className="container-custom text-center">
-          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Build the future with us
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-base sm:text-lg md:text-xl text-indigo-100 max-w-3xl mx-auto px-4">
+          <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-base sm:text-lg md:text-xl text-white max-w-3xl mx-auto px-4">
             We're hiring engineers who want to ship real code, learn in public, and shape Karachi's tech future.
           </motion.p>
         </div>

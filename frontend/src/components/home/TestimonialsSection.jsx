@@ -39,7 +39,7 @@ const TestimonialsSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="section-padding bg-gradient-to-r from-[#1E3A8A] via-[#1E40AF] to-[#2563EB]">
+    <section ref={ref} className="section-padding bg-gradient-to-r from-[#F59E0B]/80 to-[#FBBF24]/50">
       <div className="container-custom">
         <div className="text-center mb-12">
           <motion.div
@@ -47,11 +47,11 @@ const TestimonialsSection = () => {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-indigo-200 font-semibold text-sm uppercase tracking-wider">Testimonials</span>
+            <span className="text-white font-semibold text-sm uppercase tracking-wider">Testimonials</span>
             <h2 className="text-4xl md:text-5xl font-bold text-white mt-2 mb-4">
-              What our <span className="text-[#F59E0B] dark:text-[#F59E0B]">clients</span> are saying
+              What our <span className="">clients</span> are saying
             </h2>
-            <p className="text-xl text-indigo-100 max-w-3xl mx-auto">
+            <p className="text-xl text-white max-w-3xl mx-auto">
               Don't just take our word for it — hear from our satisfied clients
             </p>
           </motion.div>

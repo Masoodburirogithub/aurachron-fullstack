@@ -106,7 +106,7 @@ const ServiceDetailPage = () => {
     >
       {/* Hero Section */}
       <motion.section 
-        className={`bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white py-20`}
+        className={`bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70 text-white py-20`}
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}

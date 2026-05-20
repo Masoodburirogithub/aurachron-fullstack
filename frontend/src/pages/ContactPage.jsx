@@ -164,16 +164,18 @@ const ContactPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
-        style={{ background: 'linear-gradient(135deg, #1E3A8A, #1E40AF, #2563EB)', padding: '60px 0', textAlign: 'center', color: 'white' }}
+        style={{ padding: '60px 0', textAlign: 'center', color: 'white' }}
+        className='bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70'
       >
         <div className="container-custom">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            style={{ fontSize: '56px', fontWeight: 'bold', marginBottom: '16px' }}
+            style={{ fontWeight: 'bold', marginBottom: '16px' }}
+            className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl'
           >
-            Stop interviewing. Start launching.
+            Stop waiting. Start building.
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 30 }}

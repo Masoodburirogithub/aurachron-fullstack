@@ -13,7 +13,7 @@ const TrustBar = () => {
     <div className="bg-gray-50 dark:bg-gray-900 py-12 border-y border-gray-200 dark:border-gray-800 overflow-hidden">
       <div className="container-custom">
         <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
-          Trusted by emerging enterprises in USA, UAE, UK & MENA
+          Trusted by emerging enterprises in USA, UK & MENA
         </p>
       </div>
       
@@ -26,12 +26,12 @@ const TrustBar = () => {
           {[...logos, ...logos, ...logos].map((logo, i) => (
             <motion.div
               key={i}
-              whileHover={{ scale: 1.1, color: '#4f46e5' }}
+              whileHover={{ scale: 1.1 }}
               className="group cursor-pointer"
             >
               {/* Card Style - Professional Look */}
-              <div className="bg-white dark:bg-gray-800 px-8 py-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300">
-                <span className="text-gray-600 dark:text-gray-300 font-semibold text-lg group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              <div className="bg-white dark:bg-gray-800 px-8 py-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-[#F59E0B] dark:hover:border-[#F59E0B] transition-all duration-300">
+                <span className="text-gray-600 dark:text-gray-300 font-semibold text-lg group-hover:text-[#F59E0B] dark:group-hover:text-[#F59E0B] transition-colors">
                   {logo}
                 </span>
               </div>

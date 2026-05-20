@@ -187,7 +187,7 @@ const DemoRequestPage = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-[#007aff] text-white py-2.5 sm:py-3 md:py-3.5 rounded-full text-sm sm:text-base font-semibold uppercase tracking-[0.5px] cursor-pointer transition-all duration-300 hover:bg-[#0062cc] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white py-2.5 sm:py-3 md:py-3.5 rounded-full text-sm sm:text-base font-semibold uppercase tracking-[0.5px] cursor-pointer transition-all duration-300 hover:bg-[#0062cc] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? 'Submitting...' : 'Book a Demo'}
                   </button>

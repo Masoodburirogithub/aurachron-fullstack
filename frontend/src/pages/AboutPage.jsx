@@ -14,12 +14,12 @@ const AboutPage = () => {
 
   return (
     <div className="pt-0 md:pt-20 ">
-      <section className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white py-20">
+      <section className="bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70  text-white py-20">
         <div className="container-custom text-center">
-          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-3xl md:text-5xl font-bold mb-4">
+          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             About Aurachron Systems
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl max-w-3xl mx-auto text-indigo-100">
+          <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-xl max-w-3xl mx-auto">
             We build software that outlasts trends and creates high-impact tech careers in Pakistan
           </motion.p>
         </div>
@@ -29,9 +29,9 @@ const AboutPage = () => {
         <div className="container-custom">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-              <span className="text-indigo-600 font-semibold text-sm uppercase tracking-wider">Our Mission</span>
+              <span className="text-[#F59E0B]/90 font-semibold text-sm uppercase tracking-wider">Our Mission</span>
               <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-4">
-                To build software that outlasts trends and creates <span className="gradient-text">high-impact</span> tech careers in Pakistan.
+                To build software that outlasts trends and creates <span className="text-[#F59E0B] dark:text-[#F59E0B] ">high-impact</span> tech careers in Pakistan.
               </h2>
               <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
                 We're on a mission to prove that world-class software engineering can come from Karachi. 

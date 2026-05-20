@@ -1,4 +1,3 @@
-// backend/src/controllers/ragController.js
 const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
 const path = require('path');
@@ -66,7 +65,6 @@ const askQuestion = async (req, res) => {
       userPhone
     );
     
-    // Emit socket event for admin notification if user wants human
     if (result.adminRequested) {
       const io = req.app.get('io');
       io.emit('admin-notification', {
@@ -105,16 +103,13 @@ const getConversations = async (req, res) => {
   }
 };
 
-// Add this function to your ragController.js file
-
 // Get user conversations by user ID (Admin)
 const getUserConversations = async (req, res) => {
   try {
     const { userId } = req.params;
     
-    console.log(`📖 Fetching conversations for user ID: ${userId}`);
+    // console.log(`📖 Fetching conversations for user ID: ${userId}`);
     
-    // First, find the user to get their sessionId
     const user = await prisma.ragUser.findUnique({
       where: { id: userId }
     });
@@ -126,15 +121,14 @@ const getUserConversations = async (req, res) => {
       });
     }
     
-    console.log(`✅ User found: ${user.name || 'Anonymous'} (Session: ${user.sessionId})`);
+    // console.log(`✅ User found: ${user.name || 'Anonymous'} (Session: ${user.sessionId})`);
     
-    // Get conversations using the sessionId
     const conversations = await prisma.ragConversation.findMany({
       where: { sessionId: user.sessionId },
       orderBy: { createdAt: 'asc' }
     });
     
-    console.log(`📝 Found ${conversations.length} conversations`);
+    // console.log(`📝 Found ${conversations.length} conversations`);
     
     res.json({
       success: true,
@@ -157,7 +151,6 @@ const getUserConversations = async (req, res) => {
     });
   }
 };
-
 
 // Upload document
 const uploadDocument = async (req, res) => {
@@ -293,7 +286,6 @@ const acceptRequest = async (req, res) => {
       }
     });
     
-    // Update user status
     if (request.userId) {
       await prisma.ragUser.update({
         where: { id: request.userId },
@@ -314,18 +306,16 @@ const acceptRequest = async (req, res) => {
   }
 };
 
-
-// Make sure to export it at the bottom
 module.exports = {
   saveUserInfo,
   askQuestion,
   getConversations,
+  getUserConversations,
   uploadDocument,
   getDocuments,
   deleteDocument,
   reindexDocument,
   getAllUsers,
   getPendingRequests,
-  acceptRequest,
-  getUserConversations  // ADD THIS
+  acceptRequest
 };

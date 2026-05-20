@@ -68,25 +68,7 @@ const ServicesSection = () => {
   const displayServices = services.filter(s => s.isActive !== false);
 
   if (loading) {
-    return (
-      <section className="py-8 md:py-20 bg-gray-50 dark:bg-gray-900 overflow-hidden relative">
-        <div className="container-custom">
-          <div className="text-center mb-6 md:mb-12">
-            <div className="inline-flex items-center gap-2 bg-gray-200 dark:bg-gray-800 rounded-full px-3 md:px-4 py-1 mb-3 md:mb-4">
-              <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-gray-500 animate-pulse" />
-              <span className="text-xs md:text-sm text-gray-600 font-medium">Loading...</span>
-            </div>
-            <div className="h-10 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg mx-auto mb-3 animate-pulse"></div>
-            <div className="h-6 w-96 bg-gray-200 dark:bg-gray-700 rounded-lg mx-auto animate-pulse"></div>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="bg-gray-200 dark:bg-gray-700 rounded-xl h-80 animate-pulse"></div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+     return null;
   }
 
   return (
@@ -106,7 +88,7 @@ const ServicesSection = () => {
           </div>
           
           <h2 className="text-[clamp(36px,6vw,52px)] md:text-[clamp(36px,6vw,52px)] lg:text-[52px] font-bold text-gray-900 dark:text-white mb-4 md:mb-5 leading-tight">
-  <span className="text-[#4f46e5]">{pageSettings.title}</span>
+  <span className="text-[#F59E0B]/80 dark:text-[#F59E0B]">{pageSettings.title}</span>
 </h2>
           
           <p className="text-[clamp(16px,4vw,18px)] md:text-[clamp(18px,4vw,22px)] lg:text-[22px] text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4 leading-relaxed">

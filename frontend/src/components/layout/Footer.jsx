@@ -24,7 +24,7 @@ const Footer = () => {
               Aurachron<span className="text-[#F59E0B] dark:text-[#F59E0B]"> Systems</span>
             </h3>
             <p className="text-gray-400 mb-4 leading-relaxed">
-              Systems thinking. Radical transparency. Zero downtime. Building the future from Karachi for the planet.
+              Systems thinking. Radical transparency. Zero downtime. Building the future for the planet.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-[#F59E0B] dark:text-[#F59E0B] transition-all hover:scale-110 transform">
@@ -61,8 +61,10 @@ const Footer = () => {
             <h4 className="font-semibold mb-4 text-lg">Contact</h4>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-gray-400">
-                <MdLocationOn size={18} />
-                <span>Karachi, Pakistan</span>
+                <MdLocationOn size={60} />
+                <span>Second Floor Office 02, Mishal Manzil, Fl-3/12,
+                       Main Rashid Minhas Rd, Block 5 Gulshan-e-Iqbal,
+                       Karachi, 75300 Pakistan.</span>
               </div>
               <div className="flex items-center gap-3 text-gray-400">
                 <MdEmail size={18} />

@@ -70,7 +70,7 @@ const CaseStudiesPage = () => {
   return (
     <div className="bg-gray-50 min-h-screen pt-0 md:pt-20">
       {/* Hero Section - Responsive */}
-      <div className="bg-gradient-to-br from-[#1E3A8A] to-[#1E40AF] py-12 sm:py-16 md:py-20 px-4 text-center">
+      <div className="bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70 py-12 sm:py-16 md:py-20 px-4 text-center">
         <div className="max-w-7xl mx-auto">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }} 
@@ -83,7 +83,7 @@ const CaseStudiesPage = () => {
             initial={{ opacity: 0, y: 30 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ delay: 0.2 }} 
-            className="text-base sm:text-lg md:text-xl text-indigo-200 max-w-2xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-white max-w-2xl mx-auto"
           >
             Real results from real partnerships
           </motion.p>

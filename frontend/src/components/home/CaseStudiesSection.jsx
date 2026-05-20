@@ -190,7 +190,7 @@ const CaseStudiesSection = () => {
             padding: '0 20px',
             lineHeight: '1.2'
           }}>
-            Our Prime <span style={{ color: '#4f46e5' }}>Projects & Case Studies</span>
+            Our Prime <span className='text-[#F59E0B]/80 dark:text-[#F59E0B]'>Projects & Case Studies</span>
           </h2>
           
           <p style={{ 

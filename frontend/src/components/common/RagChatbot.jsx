@@ -1,10 +1,9 @@
-// src/components/common/RagChatbot.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MessageSquare, X, Send, Minimize2, Maximize2, Sparkles, 
-  Database, Loader, Bot, User, Phone, Mail, Copy, Check,
-  Headphones, MessageCircle, Zap, Bell, Users
+  X, Send, Minimize2, Maximize2, Sparkles, 
+  Bot, User, Phone, Mail, 
+  Headphones, MessageCircle, Zap, Users
 } from 'lucide-react';
 import { ragAPI } from '../../services/api';
 import ReactMarkdown from 'react-markdown';
@@ -26,13 +25,12 @@ const RagChatbot = () => {
   const [showContactOptions, setShowContactOptions] = useState(false);
   const [contactInfo, setContactInfo] = useState(null);
   const [socket, setSocket] = useState(null);
-  const [notificationSound] = useState(new Audio('/notification.mp3'));
   
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const chatWindowRef = useRef(null);
+  const lastMessageCountRef = useRef(0);
 
-  // Initialize socket connection
   useEffect(() => {
     const newSocket = io('http://localhost:5000');
     setSocket(newSocket);
@@ -45,7 +43,6 @@ const RagChatbot = () => {
     return () => newSocket.disconnect();
   }, []);
 
-  // Initialize session and user info
   useEffect(() => {
     let storedSessionId = localStorage.getItem('ragSessionId');
     const storedUserInfo = localStorage.getItem('ragUserInfo');
@@ -66,7 +63,6 @@ const RagChatbot = () => {
     }
   }, []);
 
-  // Load conversation history
   useEffect(() => {
     if (sessionId && isOpen && !hasLoaded && !isLoadingHistory && isUserInfoSubmitted) {
       loadConversationHistory();
@@ -81,7 +77,7 @@ const RagChatbot = () => {
         const history = [];
         response.data.data.forEach(conv => {
           history.push({ role: 'user', content: conv.question });
-          history.push({ role: 'assistant', content: conv.answer, sources: conv.sources });
+          history.push({ role: 'assistant', content: conv.answer });
         });
         setMessages(history);
       }
@@ -93,15 +89,62 @@ const RagChatbot = () => {
     }
   };
 
-  // Auto-scroll
+  // FIXED: Scroll to show the FIRST LETTER/START of the new response at the TOP
   useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+    if (messagesContainerRef.current && messages.length > lastMessageCountRef.current) {
+      lastMessageCountRef.current = messages.length;
+      
+      // Increased delay to ensure full message rendering
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          // Find ALL bot messages
+          const botMessages = messagesContainerRef.current.querySelectorAll('.flex.justify-start');
+          const lastBotMessage = botMessages[botMessages.length - 1];
+          
+          if (lastBotMessage) {
+            // Get the first child element inside the message bubble (the text container)
+            const textContainer = lastBotMessage.querySelector('.text-xs');
+            
+            if (textContainer) {
+              // Get the position of the FIRST character
+              const firstCharPosition = textContainer.getBoundingClientRect().top;
+              const containerTop = messagesContainerRef.current.getBoundingClientRect().top;
+              const scrollOffset = firstCharPosition - containerTop - 100;
+              const currentScroll = messagesContainerRef.current.scrollTop;
+              
+              messagesContainerRef.current.scrollTo({
+                top: currentScroll + scrollOffset,
+                behavior: 'smooth'
+              });
+            } else {
+              // Fallback: scroll to the message's offsetTop
+              messagesContainerRef.current.scrollTo({
+                top: lastBotMessage.offsetTop - 10,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }
+      }, 200); // Increased delay from 100ms to 200ms
     }
-  }, [messages, isTyping]);
+  }, [messages]);
+
+  // Also handle typing indicator
+  useEffect(() => {
+    if (messagesContainerRef.current && isTyping) {
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          const typingElement = messagesContainerRef.current.querySelector('.flex.justify-start:last-child');
+          if (typingElement) {
+            messagesContainerRef.current.scrollTo({
+              top: typingElement.offsetTop - 10,
+              behavior: 'smooth'
+            });
+          }
+        }
+      }, 50);
+    }
+  }, [isTyping]);
 
   useEffect(() => {
     if (isOpen && !isMinimized && inputRef.current && isUserInfoSubmitted) {
@@ -132,7 +175,25 @@ const RagChatbot = () => {
     setIsUserInfoSubmitted(true);
     setShowUserForm(false);
     
-    const welcomeMessage = `Nice to meet you ${userInfo.name}! 👋\n\nI'm your AI assistant for Aurachron Systems. I can help you with:\n\n• 📋 Information about our services\n• 💰 Pricing and packages\n• 🔧 Technical support\n• 📞 Contact information\n\n**Type "Talk to human" anytime to speak with a real person!**\n\nWhat would you like to know today?`;
+    const welcomeMessage = `**👋 Nice to meet you ${userInfo.name}!**
+
+I'm your AI assistant for **Aurachron Systems**. I'm here to help you with any questions about our company, services, or solutions.
+
+**💡 Here's what I can help you with:**
+
+• 📋 Information about our services
+
+• 💰 Pricing and packages
+
+• 🔧 Technical support
+
+• 📞 Contact information
+
+• 👥 Career opportunities
+
+**✨ Quick Tip:** Type **"Talk to human"** anytime to speak with a real person!
+
+**What would you like to know today?**`;
     
     setMessages([{ role: 'assistant', content: welcomeMessage }]);
     
@@ -164,8 +225,7 @@ const RagChatbot = () => {
       if (response.data?.success) {
         setMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: response.data.answer,
-          sources: response.data.sources
+          content: response.data.answer
         }]);
         
         if (response.data.adminRequested) {
@@ -213,14 +273,13 @@ const RagChatbot = () => {
 
   return (
     <>
-      {/* Chat Toggle Button - Responsive */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={toggleChat}
-        className="rag-chat-toggle fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white p-3 sm:p-4 rounded-full shadow-2xl hover:shadow-xl transition-all z-50 group cursor-pointer"
+        className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white p-3 sm:p-4 rounded-full shadow-2xl hover:shadow-xl transition-all z-50 group cursor-pointer"
       >
         {isOpen ? (
           <X size={20} className="sm:w-6 sm:h-6 group-hover:rotate-90 transition-transform" />
@@ -235,26 +294,25 @@ const RagChatbot = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            ref={chatWindowRef}
-            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-            transition={{ type: "spring", damping: 25 }}
-            className={`fixed bottom-20 sm:bottom-24 right-4 sm:right-6 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl z-50 overflow-hidden ${
-              isMinimized ? 'w-72 sm:w-80 h-14' : 'w-[calc(100vw-2rem)] sm:w-[400px] md:w-[420px] lg:w-[450px] h-[500px] sm:h-[550px] md:h-[580px]'
-            }`}
-            style={{ maxHeight: 'calc(100vh - 40px)', top: 'auto' }}
-          >
-            {/* Header - Responsive */}
-            <div className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white px-4 sm:px-5 py-3 sm:py-4">
+  ref={chatWindowRef}
+  initial={{ opacity: 0, y: 100 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: 100 }}
+  transition={{ duration: 0.3, ease: "easeOut" }}
+  className={`fixed bottom-20 sm:bottom-24 right-4 sm:right-6 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl z-50 overflow-hidden ${
+    isMinimized ? 'w-72 sm:w-80 h-14' : 'w-[calc(100vw-2rem)] sm:w-[400px] md:w-[420px] lg:w-[400px] h-[480px] sm:h-[500px] md:h-[445px]'
+  }`}
+  style={{ maxHeight: 'calc(100vh - 40px)', top: 'auto' }}
+>
+            <div className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24]/70 text-white px-4 sm:px-5 py-3 sm:py-2">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <div className="w-8 h-8 sm:w-7 sm:h-7 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                     <Zap size={16} className="sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm sm:text-base md:text-lg">Aurachron AI</h3>
-                    <p className="text-[10px] sm:text-xs text-indigo-200">Powered by Aurachron • 24/7</p>
+                    <h3 className="font-semibold text-sm sm:text-base md:text-xl">Aurachron AI</h3>
+                    
                   </div>
                 </div>
                 <button onClick={() => setIsMinimized(!isMinimized)} className="hover:bg-white/20 p-1.5 sm:p-2 rounded-lg transition-all">
@@ -265,7 +323,6 @@ const RagChatbot = () => {
 
             {!isMinimized && (
               <>
-                {/* User Info Form - Responsive */}
                 {showUserForm && !isUserInfoSubmitted && (
                   <div className="p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-b">
                     <div className="text-center mb-3 sm:mb-4">
@@ -309,7 +366,6 @@ const RagChatbot = () => {
                   </div>
                 )}
 
-                {/* Contact Options Banner - Responsive */}
                 {showContactOptions && contactInfo && (
                   <div className="p-3 sm:p-4 bg-green-50 border-b border-green-200">
                     <div className="flex items-center gap-2 mb-2">
@@ -341,12 +397,11 @@ const RagChatbot = () => {
                   </div>
                 )}
 
-                {/* Messages Area - Responsive */}
                 {isUserInfoSubmitted && (
                   <>
                     <div 
                       ref={messagesContainerRef}
-                      className="h-[350px] sm:h-[350px] md:h-[390px] overflow-y-auto p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50 to-white"
+                      className="h-[350px] sm:h-[330px] md:h-[320px] overflow-y-auto p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50 to-white"
                     >
                       {messages.length === 0 ? (
                         <div className="text-center py-6 sm:py-8">
@@ -377,14 +432,6 @@ const RagChatbot = () => {
                                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-md'
                                 : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
                             }`}>
-                              {msg.sources && msg.sources.length > 0 && (
-                                <div className="mb-1 pb-1 border-b border-gray-200">
-                                  <div className="flex items-center gap-1 text-[10px] sm:text-xs text-indigo-600">
-                                    <Database size={10} className="sm:w-3 sm:h-3" />
-                                    <span className="truncate">Sources: {msg.sources.map(s => s.title).join(', ')}</span>
-                                  </div>
-                                </div>
-                              )}
                               <div className="text-xs sm:text-sm leading-relaxed break-words">
                                 <ReactMarkdown>{msg.content}</ReactMarkdown>
                               </div>
@@ -406,7 +453,6 @@ const RagChatbot = () => {
                       )}
                     </div>
 
-                    {/* Input Area - Responsive */}
                     <div className="border-t p-3 sm:p-4 bg-white">
                       <div className="flex gap-2">
                         <textarea
@@ -426,13 +472,6 @@ const RagChatbot = () => {
                         >
                           <Send size={16} className="sm:w-4 sm:h-4" />
                         </button>
-                      </div>
-                      <div className="flex items-center justify-between mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-gray-400">
-                        <div className="flex items-center gap-1">
-                          <Database size={10} className="sm:w-3 sm:h-3" />
-                          <span>RAG Knowledge Base</span>
-                        </div>
-                        <div><kbd className="px-1 py-0.5 bg-gray-100 rounded text-[10px] sm:text-xs">↵</kbd> to send</div>
                       </div>
                     </div>
                   </>

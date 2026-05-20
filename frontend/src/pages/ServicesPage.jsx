@@ -156,7 +156,7 @@ const ServicesPage = () => {
     <div className="pt-0 md:pt-20 ">
 
       {/* HERO SECTION */}
-      <section className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white py-20">
+      <section className="bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70 text-white py-20">
 
         <div className="container-custom text-center">
 
@@ -171,21 +171,21 @@ const ServicesPage = () => {
 
               <Sparkles className="w-4 h-4 text-indigo-400" />
 
-              <span className="text-sm text-indigo-200 font-medium">
+              <span className="text-sm text-white font-medium">
                 {pageSettings.badgeText}
               </span>
 
             </div>
 
             {/* TITLE */}
-            <h1 className="text-3xl md:text-5xl font-bold">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">
 
               {pageSettings.title}
 
             </h1>
 
             {/* SUBTITLE */}
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-white max-w-3xl mx-auto leading-relaxed">
 
               {pageSettings.subtitle}
 
@@ -254,7 +254,7 @@ const ServicesPage = () => {
                     </div>
 
                     {/* TITLE */}
-                    <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                    <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-[#F59E0B] dark:text-[#F59E0B]  transition-colors">
 
                       {service.title}
 
@@ -292,7 +292,7 @@ const ServicesPage = () => {
                     {/* LEARN MORE */}
                     <Link
                       to={`/services/${service.id}`}
-                      className="inline-flex items-center gap-2 text-indigo-600 font-semibold group-hover:gap-3 transition-all"
+                      className="inline-flex items-center gap-2 text-[#F59E0B] dark:text-[#F59E0B]  font-semibold group-hover:gap-3 transition-all"
                     >
 
                       Learn More

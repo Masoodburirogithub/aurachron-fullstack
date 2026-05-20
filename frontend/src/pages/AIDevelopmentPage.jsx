@@ -12,8 +12,8 @@ const AIDevelopmentPage = () => {
   ];
 
   return (
-    <div className="pt-20">
-      <section className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white py-20">
+    <div className="pt-0 md:pt-20">
+      <section className="bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70 text-white py-20">
         <div className="container-custom text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
             <Brain className="w-16 h-16 mx-auto mb-4 opacity-80" />
