@@ -12,7 +12,6 @@ import io from 'socket.io-client';
 
 const RagChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -89,24 +88,20 @@ const RagChatbot = () => {
     }
   };
 
-  // FIXED: Scroll to show the FIRST LETTER/START of the new response at the TOP
+  // Scroll to show the FIRST LETTER/START of the new response at the TOP
   useEffect(() => {
     if (messagesContainerRef.current && messages.length > lastMessageCountRef.current) {
       lastMessageCountRef.current = messages.length;
       
-      // Increased delay to ensure full message rendering
       setTimeout(() => {
         if (messagesContainerRef.current) {
-          // Find ALL bot messages
           const botMessages = messagesContainerRef.current.querySelectorAll('.flex.justify-start');
           const lastBotMessage = botMessages[botMessages.length - 1];
           
           if (lastBotMessage) {
-            // Get the first child element inside the message bubble (the text container)
             const textContainer = lastBotMessage.querySelector('.text-xs');
             
             if (textContainer) {
-              // Get the position of the FIRST character
               const firstCharPosition = textContainer.getBoundingClientRect().top;
               const containerTop = messagesContainerRef.current.getBoundingClientRect().top;
               const scrollOffset = firstCharPosition - containerTop - 100;
@@ -117,7 +112,6 @@ const RagChatbot = () => {
                 behavior: 'smooth'
               });
             } else {
-              // Fallback: scroll to the message's offsetTop
               messagesContainerRef.current.scrollTo({
                 top: lastBotMessage.offsetTop - 10,
                 behavior: 'smooth'
@@ -125,11 +119,11 @@ const RagChatbot = () => {
             }
           }
         }
-      }, 200); // Increased delay from 100ms to 200ms
+      }, 200);
     }
   }, [messages]);
 
-  // Also handle typing indicator
+  // Handle typing indicator
   useEffect(() => {
     if (messagesContainerRef.current && isTyping) {
       setTimeout(() => {
@@ -147,18 +141,17 @@ const RagChatbot = () => {
   }, [isTyping]);
 
   useEffect(() => {
-    if (isOpen && !isMinimized && inputRef.current && isUserInfoSubmitted) {
+    if (isOpen && inputRef.current && isUserInfoSubmitted) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen, isMinimized, isUserInfoSubmitted]);
+  }, [isOpen, isUserInfoSubmitted]);
 
   const toggleChat = () => {
-    if (isOpen) {
-      setIsOpen(false);
-      setIsMinimized(false);
-    } else {
-      setIsOpen(true);
-    }
+    setIsOpen(!isOpen);
+  };
+
+  const closeChat = () => {
+    setIsOpen(false);
   };
 
   const addBotMessage = (content) => {
@@ -273,6 +266,7 @@ I'm your AI assistant for **Aurachron Systems**. I'm here to help you with any q
 
   return (
     <>
+      {/* Chat Toggle Button */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -282,7 +276,7 @@ I'm your AI assistant for **Aurachron Systems**. I'm here to help you with any q
         className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white p-3 sm:p-4 rounded-full shadow-2xl hover:shadow-xl transition-all z-50 group cursor-pointer"
       >
         {isOpen ? (
-          <X size={20} className="sm:w-6 sm:h-6 group-hover:rotate-90 transition-transform" />
+          <X size={20} className="sm:w-6 sm:h-6" />
         ) : (
           <div className="relative">
             <Bot size={20} className="sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
@@ -294,16 +288,15 @@ I'm your AI assistant for **Aurachron Systems**. I'm here to help you with any q
       <AnimatePresence>
         {isOpen && (
           <motion.div
-  ref={chatWindowRef}
-  initial={{ opacity: 0, y: 100 }}
-  animate={{ opacity: 1, y: 0 }}
-  exit={{ opacity: 0, y: 100 }}
-  transition={{ duration: 0.3, ease: "easeOut" }}
-  className={`fixed bottom-20 sm:bottom-24 right-4 sm:right-6 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl z-50 overflow-hidden ${
-    isMinimized ? 'w-72 sm:w-80 h-14' : 'w-[calc(100vw-2rem)] sm:w-[400px] md:w-[420px] lg:w-[400px] h-[480px] sm:h-[500px] md:h-[445px]'
-  }`}
-  style={{ maxHeight: 'calc(100vh - 40px)', top: 'auto' }}
->
+            ref={chatWindowRef}
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="fixed bottom-20 sm:bottom-24 right-4 sm:right-6 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl z-50 overflow-hidden w-[calc(100vw-2rem)] sm:w-[400px] md:w-[420px] lg:w-[400px] h-[480px] sm:h-[500px] md:h-[445px]"
+            style={{ maxHeight: 'calc(100vh - 40px)', top: 'auto' }}
+          >
+            {/* Header with CLOSE button instead of minimize */}
             <div className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24]/70 text-white px-4 sm:px-5 py-3 sm:py-2">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -312,170 +305,170 @@ I'm your AI assistant for **Aurachron Systems**. I'm here to help you with any q
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm sm:text-base md:text-xl">Aurachron AI</h3>
-                    
                   </div>
                 </div>
-                <button onClick={() => setIsMinimized(!isMinimized)} className="hover:bg-white/20 p-1.5 sm:p-2 rounded-lg transition-all">
-                  {isMinimized ? <Maximize2 size={14} className="sm:w-4 sm:h-4" /> : <Minimize2 size={14} className="sm:w-4 sm:h-4" />}
+                {/* CLOSE button - replaces minimize button */}
+                <button 
+                  onClick={closeChat} 
+                  className="hover:bg-white/20 p-1.5 sm:p-2 rounded-lg transition-all"
+                  aria-label="Close chat"
+                >
+                  <X size={16} className="sm:w-4 sm:h-4" />
                 </button>
               </div>
             </div>
 
-            {!isMinimized && (
+            {showUserForm && !isUserInfoSubmitted && (
+              <div className="p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-b">
+                <div className="text-center mb-3 sm:mb-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold">Welcome! 👋</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Please introduce yourself</p>
+                </div>
+                
+                <div className="space-y-2 sm:space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Your name *"
+                    value={userInfo.name}
+                    onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
+                    className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Your email (optional)"
+                    value={userInfo.email}
+                    onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
+                    className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm border rounded-lg"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Your phone (optional)"
+                    value={userInfo.phone}
+                    onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
+                    className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm border rounded-lg"
+                  />
+                  <button
+                    onClick={saveUserInfo}
+                    disabled={!userInfo.name}
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-1.5 sm:py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                  >
+                    Start Chatting
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showContactOptions && contactInfo && (
+              <div className="p-3 sm:p-4 bg-green-50 border-b border-green-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Headphones className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" />
+                  <span className="text-xs sm:text-sm font-semibold text-green-700">Connect with a real person:</span>
+                </div>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  <button
+                    onClick={() => copyContact(contactInfo.phone, 'Phone number')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-green-600 text-white rounded-lg text-xs sm:text-sm hover:bg-green-700 transition"
+                  >
+                    <Phone size={12} className="sm:w-3.5 sm:h-3.5" /> Call
+                  </button>
+                  <button
+                    onClick={() => copyContact(contactInfo.email, 'Email')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-blue-600 text-white rounded-lg text-xs sm:text-sm hover:bg-blue-700 transition"
+                  >
+                    <Mail size={12} className="sm:w-3.5 sm:h-3.5" /> Copy Email
+                  </button>
+                  <a
+                    href={contactInfo.whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-green-500 text-white rounded-lg text-xs sm:text-sm hover:bg-green-600 transition"
+                  >
+                    <MessageCircle size={12} className="sm:w-3.5 sm:h-3.5" /> WhatsApp
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {isUserInfoSubmitted && (
               <>
-                {showUserForm && !isUserInfoSubmitted && (
-                  <div className="p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-b">
-                    <div className="text-center mb-3 sm:mb-4">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                        <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                <div 
+                  ref={messagesContainerRef}
+                  className="h-[350px] sm:h-[330px] md:h-[320px] overflow-y-auto p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50 to-white"
+                >
+                  {messages.length === 0 ? (
+                    <div className="text-center py-6 sm:py-8">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                        <Bot size={24} className="sm:w-8 sm:h-8 text-indigo-600" />
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold">Welcome! 👋</h3>
-                      <p className="text-xs sm:text-sm text-gray-600">Please introduce yourself</p>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1 sm:mb-2">
+                        Hey {userInfo.name}! 👋
+                      </h3>
+                      <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">Ask me about Aurachron</p>
+                      <div className="flex flex-wrap gap-2 justify-center px-2">
+                        {suggestedQuestions.map((q, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setInput(q)}
+                            className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gray-100 rounded-full text-xs sm:text-sm hover:bg-indigo-100 hover:text-indigo-600 transition-all"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    
-                    <div className="space-y-2 sm:space-y-3">
-                      <input
-                        type="text"
-                        placeholder="Your name *"
-                        value={userInfo.name}
-                        onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
-                        className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                      />
-                      <input
-                        type="email"
-                        placeholder="Your email (optional)"
-                        value={userInfo.email}
-                        onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
-                        className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm border rounded-lg"
-                      />
-                      <input
-                        type="tel"
-                        placeholder="Your phone (optional)"
-                        value={userInfo.phone}
-                        onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
-                        className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm border rounded-lg"
-                      />
-                      <button
-                        onClick={saveUserInfo}
-                        disabled={!userInfo.name}
-                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-1.5 sm:py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50"
-                      >
-                        Start Chatting
-                      </button>
+                  ) : (
+                    messages.map((msg, idx) => (
+                      <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${
+                          msg.role === 'user'
+                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-md'
+                            : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
+                        }`}>
+                          <div className="text-xs sm:text-sm leading-relaxed break-words">
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  
+                  {isTyping && (
+                    <div className="flex justify-start">
+                      <div className="bg-white border border-gray-200 px-3 py-2 sm:px-4 sm:py-3 rounded-lg rounded-bl-md">
+                        <div className="flex space-x-1">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" />
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
-                {showContactOptions && contactInfo && (
-                  <div className="p-3 sm:p-4 bg-green-50 border-b border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Headphones className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" />
-                      <span className="text-xs sm:text-sm font-semibold text-green-700">Connect with a real person:</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2 sm:gap-3">
-                      <button
-                        onClick={() => copyContact(contactInfo.phone, 'Phone number')}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-green-600 text-white rounded-lg text-xs sm:text-sm hover:bg-green-700 transition"
-                      >
-                        <Phone size={12} className="sm:w-3.5 sm:h-3.5" /> Call
-                      </button>
-                      <button
-                        onClick={() => copyContact(contactInfo.email, 'Email')}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-blue-600 text-white rounded-lg text-xs sm:text-sm hover:bg-blue-700 transition"
-                      >
-                        <Mail size={12} className="sm:w-3.5 sm:h-3.5" /> Copy Email
-                      </button>
-                      <a
-                        href={contactInfo.whatsapp}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-green-500 text-white rounded-lg text-xs sm:text-sm hover:bg-green-600 transition"
-                      >
-                        <MessageCircle size={12} className="sm:w-3.5 sm:h-3.5" /> WhatsApp
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {isUserInfoSubmitted && (
-                  <>
-                    <div 
-                      ref={messagesContainerRef}
-                      className="h-[350px] sm:h-[330px] md:h-[320px] overflow-y-auto p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4 bg-gradient-to-b from-gray-50 to-white"
+                <div className="border-t p-3 sm:p-4 bg-white">
+                  <div className="flex gap-2">
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Ask me anything..."
+                      rows={1}
+                      className="flex-1 px-3 py-2 sm:px-4 sm:py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                      style={{ minHeight: '40px', maxHeight: '100px' }}
+                    />
+                    <button
+                      onClick={sendMessage}
+                      disabled={!input.trim() || isTyping}
+                      className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 sm:p-3 rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
                     >
-                      {messages.length === 0 ? (
-                        <div className="text-center py-6 sm:py-8">
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                            <Bot size={24} className="sm:w-8 sm:h-8 text-indigo-600" />
-                          </div>
-                          <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1 sm:mb-2">
-                            Hey {userInfo.name}! 👋
-                          </h3>
-                          <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">Ask me about Aurachron</p>
-                          <div className="flex flex-wrap gap-2 justify-center px-2">
-                            {suggestedQuestions.map((q, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => setInput(q)}
-                                className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gray-100 rounded-full text-xs sm:text-sm hover:bg-indigo-100 hover:text-indigo-600 transition-all"
-                              >
-                                {q}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        messages.map((msg, idx) => (
-                          <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${
-                              msg.role === 'user'
-                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-md'
-                                : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
-                            }`}>
-                              <div className="text-xs sm:text-sm leading-relaxed break-words">
-                                <ReactMarkdown>{msg.content}</ReactMarkdown>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                      
-                      {isTyping && (
-                        <div className="flex justify-start">
-                          <div className="bg-white border border-gray-200 px-3 py-2 sm:px-4 sm:py-3 rounded-lg rounded-bl-md">
-                            <div className="flex space-x-1">
-                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" />
-                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="border-t p-3 sm:p-4 bg-white">
-                      <div className="flex gap-2">
-                        <textarea
-                          ref={inputRef}
-                          value={input}
-                          onChange={(e) => setInput(e.target.value)}
-                          onKeyPress={handleKeyPress}
-                          placeholder="Ask me anything..."
-                          rows={1}
-                          className="flex-1 px-3 py-2 sm:px-4 sm:py-3 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                          style={{ minHeight: '40px', maxHeight: '100px' }}
-                        />
-                        <button
-                          onClick={sendMessage}
-                          disabled={!input.trim() || isTyping}
-                          className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 sm:p-3 rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
-                        >
-                          <Send size={16} className="sm:w-4 sm:h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+                      <Send size={16} className="sm:w-4 sm:h-4" />
+                    </button>
+                  </div>
+                </div>
               </>
             )}
           </motion.div>

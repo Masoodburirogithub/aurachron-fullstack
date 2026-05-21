@@ -13,12 +13,12 @@ const initializeSocket = (server) => {
   });
 
   io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
+    // console.log('New client connected:', socket.id);
 
     // Join user room based on sessionId
     socket.on('join-user', (sessionId) => {
       socket.join(sessionId);
-      console.log(`User ${sessionId} joined room`);
+      // console.log(`User ${sessionId} joined room`);
     });
 
     // Admin authentication
@@ -28,7 +28,7 @@ const initializeSocket = (server) => {
         if (decoded.role === 'admin') {
           socket.join('admin-room');
           socket.isAdmin = true;
-          console.log('Admin authenticated:', socket.id);
+          // console.log('Admin authenticated:', socket.id);
         }
       } catch (error) {
         console.log('Admin auth failed');
@@ -46,7 +46,7 @@ const initializeSocket = (server) => {
     });
 
     socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
+      // console.log('Client disconnected:', socket.id);
     });
   });
 

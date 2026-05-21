@@ -67,7 +67,7 @@ const TestimonialsSection = () => {
             nextEl: '.testimonial-next',
             prevEl: '.testimonial-prev',
           }}
-          className="pb-12"
+          className="pb-12 custom-testimonial-swiper"
         >
           {testimonials.map((testimonial, idx) => (
             <SwiperSlide key={idx}>
@@ -82,7 +82,7 @@ const TestimonialsSection = () => {
                   "{testimonial.text}"
                 </p>
                 <div className="flex items-center gap-4">
-                  <img src={testimonial.image} alt={testimonial.author} className="w-14 h-14 rounded-full object-cover border-2 border-indigo-600" />
+                  <img src={testimonial.image} alt={testimonial.author} className="w-14 h-14 rounded-full object-cover border-2 border-[#F59E0B]" />
                   <div>
                     <p className="font-bold text-gray-900 dark:text-white text-lg">{testimonial.author}</p>
                     <p className="text-gray-500 dark:text-gray-400">{testimonial.title}</p>
@@ -103,6 +103,39 @@ const TestimonialsSection = () => {
           </button>
         </div>
       </div>
+
+      {/* Custom CSS for Pagination Colors */}
+      <style>{`
+        .custom-testimonial-swiper .swiper-pagination-bullet {
+          background-color: rgba(255, 255, 255, 0.5) !important;
+          opacity: 1 !important;
+          width: 10px !important;
+          height: 10px !important;
+          margin: 0 6px !important;
+        }
+        
+        .custom-testimonial-swiper .swiper-pagination-bullet-active {
+          background-color: #FFFFFF !important;
+          width: 24px !important;
+          border-radius: 10px !important;
+        }
+        
+        .custom-testimonial-swiper .swiper-pagination-bullet-active-main {
+          background-color: #FFFFFF !important;
+        }
+        
+        /* For dynamic bullets */
+        .custom-testimonial-swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
+          background: #FFFFFF !important;
+        }
+        
+        /* Hover effect on pagination dots */
+        .custom-testimonial-swiper .swiper-pagination-bullet:hover {
+          background-color: #FFFFFF !important;
+          transform: scale(1.2);
+          transition: all 0.3s ease;
+        }
+      `}</style>
     </section>
   );
 };

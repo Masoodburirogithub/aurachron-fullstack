@@ -88,8 +88,8 @@ const ServicesSection = () => {
           </div>
           
           <h2 className="text-[clamp(36px,6vw,52px)] md:text-[clamp(36px,6vw,52px)] lg:text-[52px] font-bold text-gray-900 dark:text-white mb-4 md:mb-5 leading-tight">
-  <span className="text-[#F59E0B]/80 dark:text-[#F59E0B]">{pageSettings.title}</span>
-</h2>
+            <span className="text-[#F59E0B]/80 dark:text-[#F59E0B]">{pageSettings.title}</span>
+          </h2>
           
           <p className="text-[clamp(16px,4vw,18px)] md:text-[clamp(18px,4vw,22px)] lg:text-[22px] text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4 leading-relaxed">
             {pageSettings.subtitle}
@@ -143,24 +143,24 @@ const ServicesSection = () => {
             ))}
           </Swiper>
 
-          {/* Navigation Buttons */}
+          {/* Navigation Buttons - Changed to Gold */}
           <button 
             onClick={() => swiperRef.current?.slidePrev()}
-            className="hidden md:flex absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-14 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 hover:scale-110 transition-all duration-300 items-center justify-center cursor-pointer group"
+            className="hidden md:flex absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-14 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white hover:bg-[#F59E0B]/10 dark:hover:bg-[#F59E0B]/20 hover:border-[#F59E0B] dark:hover:border-[#F59E0B] hover:scale-110 transition-all duration-300 items-center justify-center cursor-pointer group"
             aria-label="Previous slide"
           >
-            <ChevronLeft size={20} className="md:w-5 md:h-5 group-hover:-translate-x-0.5 transition-transform duration-200" />
+            <ChevronLeft size={20} className="md:w-5 md:h-5 group-hover:-translate-x-0.5 transition-transform duration-200 group-hover:text-[#F59E0B]" />
           </button>
           <button 
             onClick={() => swiperRef.current?.slideNext()}
-            className="hidden md:flex absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-14 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 hover:scale-110 transition-all duration-300 items-center justify-center cursor-pointer group"
+            className="hidden md:flex absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-14 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white hover:bg-[#F59E0B]/10 dark:hover:bg-[#F59E0B]/20 hover:border-[#F59E0B] dark:hover:border-[#F59E0B] hover:scale-110 transition-all duration-300 items-center justify-center cursor-pointer group"
             aria-label="Next slide"
           >
-            <ChevronRight size={20} className="md:w-5 md:h-5 group-hover:translate-x-0.5 transition-transform duration-200" />
+            <ChevronRight size={20} className="md:w-5 md:h-5 group-hover:translate-x-0.5 transition-transform duration-200 group-hover:text-[#F59E0B]" />
           </button>
         </div>
 
-        {/* Slide Indicators */}
+        {/* Slide Indicators - Changed to Gold */}
         <div className="flex justify-center gap-2 md:gap-3 mt-4 md:mt-8">
           {displayServices.map((_, idx) => (
             <button
@@ -168,8 +168,8 @@ const ServicesSection = () => {
               onClick={() => swiperRef.current?.slideTo(idx)}
               className={`h-1 md:h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                 activeIndex === idx 
-                  ? 'w-6 md:w-12 bg-gradient-to-r from-indigo-600 to-purple-600' 
-                  : 'w-3 md:w-6 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                  ? 'w-6 md:w-12 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24]' 
+                  : 'w-3 md:w-6 bg-gray-300 dark:bg-gray-600 hover:bg-[#F59E0B]/50 dark:hover:bg-[#F59E0B]/50'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />
@@ -192,30 +192,40 @@ const ServicesSection = () => {
         .centered-slider .swiper-slide-active {
           z-index: 20;
         }
+        
+        /* Swiper Pagination - Changed to Gold */
         .swiper-pagination {
           position: relative !important;
-          margin-top: 10px;
+          margin-top: 20px;
         }
         .swiper-pagination-bullet {
           background: #cbd5e1 !important;
           opacity: 0.5 !important;
           transition: all 0.3s ease !important;
+          width: 8px !important;
+          height: 8px !important;
         }
         .dark .swiper-pagination-bullet {
           background: #475569 !important;
         }
         .swiper-pagination-bullet-active {
-          background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+          background: linear-gradient(135deg, #F59E0B, #FBBF24) !important;
           opacity: 1 !important;
-          width: 20px !important;
-          borderRadius: 8px !important;
+          width: 24px !important;
+          border-radius: 10px !important;
         }
+        .swiper-pagination-bullet:hover {
+          background: #F59E0B !important;
+          opacity: 0.8 !important;
+          transform: scale(1.2);
+        }
+        
         @media (min-width: 768px) {
           .centered-slider { padding: 40px 0 60px 0; }
-          .swiper-pagination-bullet-active { width: 28px !important; }
+          .swiper-pagination-bullet-active { width: 32px !important; }
         }
         @media (min-width: 1024px) {
-          .swiper-pagination-bullet-active { width: 32px !important; }
+          .swiper-pagination-bullet-active { width: 40px !important; }
         }
         .scale-85 {
           transform: scale(0.85);

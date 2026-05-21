@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, ChevronUp, Sparkles, ArrowRight } from 'lucide-react';
 import { servicesAPI } from '../../services/api';
-import logoimg from '../../../src/assets/logoimg.jpeg';
+import logoimg from '../../../src/assets/metalogoimg.jpeg';
 import * as Icons from 'lucide-react';
 
 const Header = ({ isTransparent = false }) => {
