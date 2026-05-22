@@ -60,9 +60,15 @@ app.use((req, res, next) => {
 });
 
 // Serve static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/uploads/case-studies', express.static(path.join(__dirname, 'uploads/case-studies')));
-
+// Serve static files with CORS headers for cross-origin image loading
+const staticOptions = {
+  setHeaders: (res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+};
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), staticOptions));
+app.use('/uploads/case-studies', express.static(path.join(__dirname, 'uploads/case-studies'), staticOptions));
 // Make io accessible to routes
 app.set('io', io);
 
