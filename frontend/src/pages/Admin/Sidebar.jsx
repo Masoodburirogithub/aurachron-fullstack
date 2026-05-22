@@ -9,6 +9,7 @@ import {
 import { FiSettings } from 'react-icons/fi';
 import { FiDatabase } from 'react-icons/fi';
 import { FiMessageCircle } from 'react-icons/fi';
+import logoimg from '../../../src/assets/logoimg.jpeg';
 
 const Sidebar = ({ onLogout, isMobile, closeMobileMenu }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -18,13 +19,11 @@ const Sidebar = ({ onLogout, isMobile, closeMobileMenu }) => {
     { path: '/admin/case-studies', icon: FiFileText, label: 'Case Studies' },
     { path: '/admin/services', icon: FiGrid, label: 'Services' },
     { path: '/admin/careers', icon: FiBriefcase, label: 'Careers' },
-    // { path: '/admin/applications', icon: FiUsers, label: 'Applications' },
     { path: '/admin/contacts', icon: FiMail, label: 'Contacts' },
     { path: '/admin/demo-requests', icon: FiMail, label: 'Demo Requests' },
     { path: '/admin/rag-users', icon: FiMessageCircle, label: 'RAG Conversations' },
     { path: '/admin/rag', icon: FiDatabase, label: 'RAG Knowledge Base' },
     { path: '/admin/visitors', icon: FiUsers, label: 'Website Visitors' },
-    
     { path: '/admin/hero', icon: FiHome, label: 'Hero Section' },
   ];
 
@@ -46,28 +45,44 @@ const Sidebar = ({ onLogout, isMobile, closeMobileMenu }) => {
           isCollapsed ? 'w-20' : 'w-64'
         }`}
       >
-        {/* Header with Logo AND Collapse Button at Top */}
+        {/* Header - Logo completely hidden when collapsed */}
         <div className={`p-5 border-b border-gray-700/50 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          {/* Logo - Only show when NOT collapsed */}
           {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">A</span>
+            <div className="flex items-center gap-3">
+              <div className="relative flex-shrink-0">
+                <img 
+                  src={logoimg} 
+                  alt="Logo" 
+                  className="w-10 h-10 object-contain rounded-full"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    if (e.target.nextSibling) {
+                      e.target.nextSibling.style.display = 'flex';
+                    }
+                  }}
+                />
+                <div className="fallback-logo w-10 h-10 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] rounded-xl flex items-center justify-center shadow-lg hidden">
+                  <span className="text-white font-bold text-xl">A</span>
+                </div>
               </div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Admin Panel
-              </h1>
-            </div>
-          )}
-          {isCollapsed && (
-            <div className="w-10 h-10 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">A</span>
+              <div className="flex flex-col">
+                <span className="text-base sm:text-lg font-bold leading-tight text-white">
+                  Aurachron<span className="text-[#F59E0B]"></span>
+                </span>
+                <span className="text-[9px] text-gray-400 -mt-0.5 hidden sm:block">
+                  SYSTEMS PVT LTD
+                </span>
+              </div>
             </div>
           )}
           
-          {/* ONLY ONE Collapse Toggle Button - Desktop version */}
+          {/* Collapse Toggle Button - Always visible */}
           <button
             onClick={toggleSidebar}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-300 rounded-lg p-2 shadow-md border border-gray-700 group flex items-center justify-center"
+            className={`bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-all duration-300 rounded-lg p-2 shadow-md border border-gray-700 group flex items-center justify-center ${
+              isCollapsed ? 'mx-auto' : ''
+            }`}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <FiSidebar 
@@ -135,13 +150,31 @@ const Sidebar = ({ onLogout, isMobile, closeMobileMenu }) => {
       `}>
         {/* Mobile Header */}
         <div className="p-5 border-b border-gray-700/50 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">A</span>
+          <div className="flex items-center gap-3">
+            <div className="relative flex-shrink-0">
+              <img 
+                src={logoimg} 
+                alt="Logo" 
+                className="w-10 h-10 object-contain rounded-full"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  if (e.target.nextSibling) {
+                    e.target.nextSibling.style.display = 'flex';
+                  }
+                }}
+              />
+              <div className="fallback-logo w-10 h-10 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] rounded-xl flex items-center justify-center shadow-lg hidden">
+                <span className="text-white font-bold text-xl">A</span>
+              </div>
             </div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              Admin Panel
-            </h1>
+            <div className="flex flex-col">
+              <span className="text-base sm:text-lg font-bold leading-tight text-white">
+                Aurachron<span className="text-[#F59E0B]"></span>
+              </span>
+              <span className="text-[9px] text-gray-400 -mt-0.5 hidden sm:block">
+                SYSTEMS PVT LTD
+              </span>
+            </div>
           </div>
           <button
             onClick={handleNavClick}
