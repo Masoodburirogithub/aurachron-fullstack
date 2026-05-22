@@ -5,6 +5,9 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Play, TrendingUp, Clock, Award, Sparkles } from 'lucide-react';
 import { heroAPI } from '../../services/api';
 
+// ✅ Use env var with localhost fallback for dev
+const MEDIA_BASE_URL = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
+
 const HeroSection = () => {
   const videoRef = useRef(null);
   const [heroSettings, setHeroSettings] = useState({
@@ -32,8 +35,6 @@ const HeroSection = () => {
     try {
       setLoading(true);
       const response = await heroAPI.getSettings();
-      // console.log('Hero settings:', response.data);
-      
       if (response.data?.success && response.data.data) {
         setHeroSettings(response.data.data);
       }
@@ -44,19 +45,24 @@ const HeroSection = () => {
     }
   };
 
+  // ✅ Helper to build a fully-qualified media URL from any input
+  const buildMediaUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `${MEDIA_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   useEffect(() => {
     if (!heroSettings.videoUrl || videoError) return;
-    
+
     const videoElement = videoRef.current;
     if (!videoElement) return;
-    
-    const videoUrl = heroSettings.videoUrl.startsWith('http') 
-      ? heroSettings.videoUrl 
-      : `http://localhost:5000${heroSettings.videoUrl.startsWith('/') ? '' : '/'}${heroSettings.videoUrl}`;
-    
+
+    const videoUrl = buildMediaUrl(heroSettings.videoUrl);
+
     videoElement.src = videoUrl;
     videoElement.load();
-    
+
     videoElement.play().catch((err) => {
       console.error('Video play failed:', err);
       setVideoError(true);
@@ -64,7 +70,7 @@ const HeroSection = () => {
   }, [heroSettings.videoUrl, videoError]);
 
   const getIconComponent = (iconName) => {
-    switch(iconName) {
+    switch (iconName) {
       case 'TrendingUp': return TrendingUp;
       case 'Clock': return Clock;
       case 'Award': return Award;
@@ -73,17 +79,11 @@ const HeroSection = () => {
   };
 
   if (loading) {
-    return (
-      null
-    );
+    return null;
   }
 
   const hasVideo = heroSettings.videoUrl && !videoError;
-  const videoSource = heroSettings.videoUrl 
-    ? (heroSettings.videoUrl.startsWith('http') 
-        ? heroSettings.videoUrl 
-        : `http://localhost:5000${heroSettings.videoUrl}`)
-    : null;
+  const videoSource = buildMediaUrl(heroSettings.videoUrl);
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
@@ -104,10 +104,10 @@ const HeroSection = () => {
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900" />
       )}
-      
+
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40 z-0" />
-      
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ left: '10%', top: '20%' }} />
@@ -124,7 +124,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-2xl ml-0"
           >
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
@@ -134,7 +134,7 @@ const HeroSection = () => {
               <span className="text-white/90 text-sm">{heroSettings.badgeText}</span>
             </motion.div>
 
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
@@ -142,8 +142,8 @@ const HeroSection = () => {
             >
               {heroSettings.title}
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
@@ -151,26 +151,26 @@ const HeroSection = () => {
             >
               {heroSettings.subtitle}
             </motion.p>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-4 mb-12 justify-start"
             >
-              <Link 
-                to={heroSettings.buttonLink || "/contact"} 
+              <Link
+                to={heroSettings.buttonLink || "/contact"}
                 className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300 inline-flex items-center gap-2 group text-lg"
               >
                 {heroSettings.buttonText}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <button className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-3 rounded-xl font-semibold hover:bg-white/20 hover:border-indigo-400 transition-all duration-300 group">
-                <Play className="w-5 h-5 group-hover:scale-110 transition-transform" /> 
+                <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 {heroSettings.demoButtonText}
               </button>
             </motion.div>
-            
+
             <div className="flex flex-wrap gap-5 justify-start">
               {heroSettings.stats?.map((stat, idx) => {
                 const IconComponent = getIconComponent(stat.icon);
@@ -197,18 +197,6 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Animated Scroll Indicator */}
-      {/* <motion.div 
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 cursor-pointer"
-        whileHover={{ scale: 1.2 }}
-      >
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-          <div className="w-1 h-2 bg-white rounded-full mt-2 animate-blink" />
-        </div>
-      </motion.div> */}
     </section>
   );
 };

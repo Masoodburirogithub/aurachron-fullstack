@@ -31,7 +31,8 @@ const RagChatbot = () => {
   const lastMessageCountRef = useRef(0);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:5000');
+const newSocket = io(import.meta.env.VITE_WS_URL || 'http://localhost:5000');
+
     setSocket(newSocket);
     
     newSocket.on('admin-accepted', (data) => {
