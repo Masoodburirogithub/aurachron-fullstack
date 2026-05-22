@@ -7,3 +7,7 @@ node_modules
 backend/uploads/
 uploads/
 
+
+.env
+.env.local
+.env.production

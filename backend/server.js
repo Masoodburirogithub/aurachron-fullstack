@@ -1,10 +1,17 @@
+// ============================================
 // backend/server.js
+// LOAD ENV FIRST - BEFORE ANY OTHER REQUIRES
+// (Prisma reads process.env at require-time, so dotenv MUST run first)
+// ============================================
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const http = require('http');
 const path = require('path');
-const cookieParser = require('cookie-parser'); // Move this import up
+const cookieParser = require('cookie-parser');
+
+// Routes & middleware (these import Prisma indirectly, so env MUST be loaded first)
 const { initializeSocket } = require('./src/sockets/socketManager');
 const serviceRoutes = require('./src/routes/serviceRoutes');
 const pageSettingRoutes = require('./src/routes/pageSettingRoutes');
@@ -15,28 +22,35 @@ const ragRoutes = require('./src/routes/ragRoutes');
 const { trackVisitor } = require('./src/middleware/visitorTracking');
 const demoRoutes = require('./src/routes/demoRoutes');
 
-dotenv.config();
-
 const app = express();
 const server = http.createServer(app);
 const io = initializeSocket(server);
 
-// Middleware - ORDER MATTERS!
+// ============================================
+// MIDDLEWARE - ORDER MATTERS!
+// ============================================
+
+// CORS - allow local dev + production frontend
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+    'https://aurachronsys.com',
+    'https://www.aurachronsys.com',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   credentials: true
 }));
+
+// Body parsers
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // IMPORTANT: cookieParser MUST come BEFORE trackVisitor
 app.use(cookieParser());  // ✅ First - parse cookies
 
-// Visitor tracking - depends on cookies
-app.use(trackVisitor);    // ✅ Second - track visitors
-
-app.use('/api/demo', demoRoutes);
-
+// Visitor tracking - depends on cookies, skip static assets
 app.use((req, res, next) => {
   // Skip tracking for static files
   if (req.path.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
@@ -45,7 +59,6 @@ app.use((req, res, next) => {
   return trackVisitor(req, res, next);
 });
 
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/case-studies', express.static(path.join(__dirname, 'uploads/case-studies')));
@@ -53,7 +66,9 @@ app.use('/uploads/case-studies', express.static(path.join(__dirname, 'uploads/ca
 // Make io accessible to routes
 app.set('io', io);
 
-// Import routes
+// ============================================
+// IMPORT REMAINING ROUTES
+// ============================================
 const authRoutes = require('./src/routes/authRoutes');
 const contactRoutes = require('./src/routes/contactRoutes');
 const careerRoutes = require('./src/routes/careerRoutes');
@@ -61,7 +76,9 @@ const caseStudyRoutes = require('./src/routes/caseStudyRoutes');
 const chatbotRoutes = require('./src/routes/chatbotRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 
-// Routes
+// ============================================
+// API ROUTES
+// ============================================
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/careers', careerRoutes);
@@ -74,24 +91,61 @@ app.use('/api/navigation', navigationRoutes);
 app.use('/api/dynamic-services', dynamicServiceRoutes);
 app.use('/api/hero', heroRoutes);
 app.use('/api/rag', ragRoutes);
+app.use('/api/demo', demoRoutes);
 
-// Health check
+// ============================================
+// HEALTH CHECK (used by Render to verify deployment)
+// ============================================
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV || 'development',
+    dbConnected: !!process.env.DATABASE_URL
+  });
 });
+
+// Root route - friendly message
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Aurachron API is running 🚀',
+    health: '/api/health',
+    docs: 'https://aurachronsys.com'
+  });
+});
+
+// ============================================
+// ERROR HANDLERS
+// ============================================
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Server Error:', err.stack);
   res.status(500).json({ error: err.message });
 });
 
-// 404 handler
+// 404 handler (MUST be last)
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ error: 'Route not found', path: req.path });
 });
 
+// ============================================
+// START SERVER
+// ============================================
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
+  console.log('========================================');
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Connected ✅' : 'NOT configured ❌'}`);
+  console.log('========================================');
+});
+
+// Graceful shutdown (important for Render)
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });

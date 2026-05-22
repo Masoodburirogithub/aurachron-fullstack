@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: aurachron-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: master
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 1d
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_USER
+        value: admin@aurachronsys.com
+      - key: EMAIL_PASS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@aurachronsys.com
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: ADMIN_PHONE
+        value: "+923112616192"
+      - key: FRONTEND_URL
+        value: https://aurachronsys.com
