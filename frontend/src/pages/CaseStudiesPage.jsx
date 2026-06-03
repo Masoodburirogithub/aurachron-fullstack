@@ -1,4 +1,5 @@
-// src/pages/CaseStudiesPage.jsx
+// src/pages/CaseStudiesPage.jsx - Update the Link to use slugs
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -18,7 +19,6 @@ const CaseStudiesPage = () => {
     try {
       setLoading(true);
       const response = await caseStudiesAPI.getAll();
-      // console.log('Case Studies Page Data:', response.data);
       
       let data = [];
       if (response.data?.success) {
@@ -171,14 +171,17 @@ const CaseStudiesPage = () => {
                       <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{study.result}</p>
                     </div>
                     
-                    {/* Footer Stats */}
+                    {/* Footer with View Details Link */}
                     <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 flex flex-wrap justify-between items-center gap-3">
                       <span className="text-xl sm:text-2xl font-bold text-[#F59E0B]">
                         {study.result?.match(/\d+%/)?.[0] || 'Success'}
                       </span>
-                      <span className="text-xs text-gray-400">
-                        Tech: {study.technology}
-                      </span>
+                      <Link 
+                        to={`/case-studies/${study.slug}`}
+                        className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-semibold text-sm transition-colors"
+                      >
+                        Read Full Story <ArrowRight className="w-4 h-4" />
+                      </Link>
                     </div>
                   </div>
                 </div>

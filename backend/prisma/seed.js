@@ -1,149 +1,230 @@
+// backend/prisma/seed.js
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const { slugify } = require('../src/utils/slugify');
 
 const prisma = new PrismaClient();
+
+// Helper function to generate unique slug
+async function generateUniqueSlugForService(title, excludeId = null) {
+  let baseSlug = slugify(title);
+  let slug = baseSlug;
+  let counter = 1;
+  
+  let existing;
+  do {
+    if (excludeId) {
+      existing = await prisma.service.findFirst({
+        where: {
+          slug: slug,
+          NOT: { id: excludeId }
+        }
+      });
+    } else {
+      existing = await prisma.service.findUnique({
+        where: { slug: slug }
+      });
+    }
+    
+    if (existing) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+  } while (existing);
+  
+  return slug;
+}
 
 async function main() {
   console.log('🌱 Seeding database...');
 
   // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  await prisma.user.upsert({
-    where: { email: 'admin@aurachronsys.com' },
-    update: {},
-    create: {
-      email: 'admin@aurachronsys.com',
-      password: adminPassword,
-      role: 'admin'
-    }
+  const adminEmail = 'admin@aurachron.com';
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail }
   });
-  console.log('✅ Admin user created');
 
-
-
-  const defaultMenus = [
-  { name: 'Work', path: '/case-studies', order: 1, isActive: true, isDropdown: false },
-  { name: 'Services', path: '#', order: 2, isActive: true, isDropdown: true, dropdownItems: [
-    { name: 'AI Development', path: '/services/ai-development' },
-    { name: 'Enterprise SaaS', path: '/services/saas' },
-    { name: 'Web & Mobile Apps', path: '/services/web-mobile' }
-  ]},
-  { name: 'About', path: '/about', order: 3, isActive: true, isDropdown: false },
-  { name: 'Careers', path: '/careers', order: 4, isActive: true, isDropdown: false },
-  { name: 'Contact', path: '/contact', order: 5, isActive: true, isDropdown: false }
-];
-
-
-
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash('Admin@123', 10);
+    await prisma.user.create({
+      data: {
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'admin'
+      }
+    });
+    console.log('✅ Admin user created');
+  } else {
+    console.log('⏭️  Admin user already exists');
+  }
 
   // Create sample case studies
-  const caseStudies = [
-    {
-      title: "Gulf Oil — Eliminated 85% of Safety Incident Reporting Time",
-      industry: "Oil & Gas",
-      technology: "AI Agents, RAG Pipeline",
-      challenge: "500+ sites reporting safety incidents manually taking 4+ hours per incident, leading to delayed responses and incomplete data.",
-      solution: "Developed an AI-powered safety reporting system with computer vision for automatic incident detection, RAG pipeline for regulatory compliance, and mobile-first app for field workers.",
-      result: "85% reduction in reporting time (from 4 hours to 30 minutes). Real-time dashboards for HQ with live incident tracking.",
-      imageUrl: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800",
-      displayOrder: 1,
-      isActive: true
-    },
-    {
-      title: "Real Estate AI — From Minutes to Seconds",
-      industry: "PropTech",
-      technology: "LLM Integration, RAG",
-      challenge: "Proposal creation took 45 minutes per document with inconsistent quality and formatting issues across the team.",
-      solution: "LLM-based proposal generation system that pulls client data, property details, and market analysis to create professional proposals.",
-      result: "70% faster proposal turnaround (45 minutes → 15 seconds). 90% client satisfaction rate.",
-      imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800",
-      displayOrder: 2,
-      isActive: true
+  const existingCaseStudies = await prisma.caseStudy.count();
+  
+  if (existingCaseStudies === 0) {
+    const caseStudies = [
+      {
+        title: 'AI-Powered Customer Support Transformation',
+        slug: await generateUniqueSlugForService('AI-Powered Customer Support Transformation'),
+        subtitle: 'How we reduced response time by 85% using AI agents',
+        industry: 'Customer Service',
+        technology: 'LLM, RAG, AI Agents',
+        challenge: 'The company was struggling with high volume of customer inquiries, long response times, and inconsistent service quality.',
+        solution: 'We implemented a custom AI agent with RAG pipeline that could understand context, access knowledge base, and provide accurate responses.',
+        result: '85% reduction in response time, 60% cost savings, and 95% customer satisfaction rate.',
+        displayOrder: 1,
+        isActive: true
+      },
+      {
+        title: 'Real Estate Platform Modernization',
+        slug: await generateUniqueSlugForService('Real Estate Platform Modernization'),
+        subtitle: 'Modernizing property management with AI',
+        industry: 'PropTech',
+        technology: 'AI, Cloud, Analytics',
+        challenge: 'Outdated property management system causing inefficiencies and poor user experience.',
+        solution: 'Built a modern AI-powered platform with predictive analytics and automated workflows.',
+        result: '40% increase in operational efficiency, 50% faster property listings.',
+        displayOrder: 2,
+        isActive: true
+      },
+      {
+        title: 'Supply Chain Optimization',
+        slug: await generateUniqueSlugForService('Supply Chain Optimization'),
+        subtitle: 'AI-driven logistics and inventory management',
+        industry: 'Logistics',
+        technology: 'Machine Learning, IoT',
+        challenge: 'Inefficient supply chain leading to stockouts and excess inventory.',
+        solution: 'Implemented ML models for demand forecasting and automated reordering.',
+        result: '30% reduction in stockouts, 25% decrease in inventory costs.',
+        displayOrder: 3,
+        isActive: true
+      }
+    ];
+
+    for (const study of caseStudies) {
+      await prisma.caseStudy.create({ data: study });
     }
-  ];
-
-  for (const study of caseStudies) {
-    await prisma.caseStudy.upsert({
-      where: { id: study.title },
-      update: {},
-      create: study
-    });
+    console.log('✅ Sample case studies created');
+  } else {
+    console.log('⏭️  Case studies already exist');
   }
-  console.log('✅ Sample case studies created');
 
+  // Create sample services with slugs
+  const existingServices = await prisma.service.count();
+  
+  if (existingServices === 0) {
+    const services = [
+      {
+        title: 'AI Development & Agents',
+        slug: await generateUniqueSlugForService('AI Development & Agents'),
+        description: 'Custom AI agents, LLM integrations, RAG pipelines, and AI enablement — from strategy to production',
+        icon: 'Brain',
+        features: [
+          'Agentic AI Solutions',
+          'LLM Integration & RAG',
+          'AI Enablement Consulting',
+          'Intelligent Document Processing'
+        ],
+        gradient: 'from-blue-500 to-indigo-500',
+        color: 'blue',
+        displayOrder: 1,
+        isActive: true
+      },
+      {
+        title: 'Cloud & DevOps Solutions',
+        slug: await generateUniqueSlugForService('Cloud & DevOps Solutions'),
+        description: 'Scalable cloud infrastructure, CI/CD pipelines, and DevOps automation for modern applications',
+        icon: 'Cloud',
+        features: [
+          'Cloud Migration',
+          'CI/CD Implementation',
+          'Infrastructure as Code',
+          '24/7 Cloud Monitoring'
+        ],
+        gradient: 'from-cyan-500 to-blue-500',
+        color: 'cyan',
+        displayOrder: 2,
+        isActive: true
+      },
+      {
+        title: 'Mobile App Development',
+        slug: await generateUniqueSlugForService('Mobile App Development'),
+        description: 'Native and cross-platform mobile applications with modern UI/UX and robust backend integration',
+        icon: 'Smartphone',
+        features: [
+          'iOS & Android Development',
+          'React Native & Flutter',
+          'App Store Optimization',
+          'Maintenance & Support'
+        ],
+        gradient: 'from-green-500 to-teal-500',
+        color: 'green',
+        displayOrder: 3,
+        isActive: true
+      },
+      {
+        title: 'Cybersecurity Services',
+        slug: await generateUniqueSlugForService('Cybersecurity Services'),
+        description: 'Comprehensive security solutions to protect your business from evolving cyber threats',
+        icon: 'Shield',
+        features: [
+          'Security Audits',
+          'Penetration Testing',
+          'Compliance Management',
+          'Threat Monitoring'
+        ],
+        gradient: 'from-purple-500 to-pink-500',
+        color: 'purple',
+        displayOrder: 4,
+        isActive: true
+      },
+      {
+        title: 'Data Analytics & BI',
+        slug: await generateUniqueSlugForService('Data Analytics & BI'),
+        description: 'Transform raw data into actionable insights with advanced analytics and business intelligence',
+        icon: 'TrendingUp',
+        features: [
+          'Data Warehousing',
+          'Dashboard Development',
+          'Predictive Analytics',
+          'Real-time Reporting'
+        ],
+        gradient: 'from-orange-500 to-red-500',
+        color: 'orange',
+        displayOrder: 5,
+        isActive: true
+      },
+      {
+        title: 'Digital Transformation',
+        slug: await generateUniqueSlugForService('Digital Transformation'),
+        description: 'End-to-end digital transformation services to modernize your business operations',
+        icon: 'RefreshCw',
+        features: [
+          'Process Automation',
+          'Legacy Modernization',
+          'Digital Strategy',
+          'Change Management'
+        ],
+        gradient: 'from-indigo-500 to-purple-500',
+        color: 'indigo',
+        displayOrder: 6,
+        isActive: true
+      }
+    ];
 
-  // backend/prisma/seed.js - Add default services
-const defaultServices = [
-  {
-    title: "AI Development & Agents",
-    description: "Custom AI agents, LLM integrations, RAG pipelines, and AI enablement — from strategy to production",
-    icon: "Brain",
-    features: ["Agentic AI Solutions", "LLM Integration & RAG", "AI Enablement Consulting", "Intelligent Document Processing"],
-    gradient: "from-blue-500 to-indigo-500",
-    color: "blue",
-    displayOrder: 1,
-    isActive: true
-  },
-  {
-    title: "Enterprise SaaS",
-    description: "Multi-tenant architecture, subscription management, SOC2-ready logging that scales from 10 to 100k users",
-    icon: "Cloud",
-    features: ["Multi-tenant Architecture", "Subscription Management", "SOC2 Ready", "Scalable Infrastructure"],
-    gradient: "from-cyan-500 to-blue-500",
-    color: "cyan",
-    displayOrder: 2,
-    isActive: true
-  },
-  // Add more services...
-];
-
-// Add to seed function
-for (const service of defaultServices) {
-  await prisma.service.upsert({
-    where: { id: service.title },
-    update: {},
-    create: service
-  });
-}
-
-  // Create sample career positions
-  const positions = [
-    {
-      title: "Senior Full Stack Engineer",
-      department: "Engineering",
-      location: "Karachi (Hybrid)",
-      type: "Full-time",
-      experience: "5+ years",
-      description: "We are looking for a Senior Full Stack Engineer to join our growing team...",
-      requirements: ["React/Next.js", "Node.js", "PostgreSQL", "TypeScript"],
-      isActive: true
-    },
-    {
-      title: "AI/ML Engineer",
-      department: "AI",
-      location: "Karachi (Hybrid)",
-      type: "Full-time",
-      experience: "3+ years",
-      description: "Join our AI team to build cutting-edge solutions...",
-      requirements: ["Python", "TensorFlow/PyTorch", "LLMs", "RAG"],
-      isActive: true
+    for (const service of services) {
+      await prisma.service.create({ data: service });
     }
-  ];
-
-  for (const position of positions) {
-    await prisma.careerPosition.upsert({
-      where: { id: position.title },
-      update: {},
-      create: position
-    });
+    console.log('✅ Sample services created with slugs');
+  } else {
+    console.log('⏭️  Services already exist');
   }
-  console.log('✅ Sample career positions created');
 
-  console.log('🎉 Seeding completed!');
+  console.log('✅ Seeding completed!');
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error('❌ Seeding failed:', e);
     process.exit(1);
   })

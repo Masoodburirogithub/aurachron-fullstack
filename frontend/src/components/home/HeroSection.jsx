@@ -161,10 +161,10 @@ const HeroSection = () => {
                 {heroSettings.buttonText}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <button className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-3 rounded-xl font-semibold hover:bg-white/20 hover:border-indigo-400 transition-all duration-300 group">
+              {/* <button className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-3 rounded-xl font-semibold hover:bg-white/20 hover:border-indigo-400 transition-all duration-300 group">
                 <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 {heroSettings.demoButtonText}
-              </button>
+              </button> */}
             </motion.div>
 
             <div className="flex flex-wrap gap-5 justify-start">

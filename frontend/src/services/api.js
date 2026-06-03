@@ -126,16 +126,19 @@ export const careersAPI = {
 // ==================== CASE STUDIES API ====================
 export const caseStudiesAPI = {
   getAll: () => api.get('/case-studies'),
-  getById: (id) => api.get(`/case-studies/${id}`),
+  getById: (id) => api.get(`/case-studies/by-id/${id}`),  // Changed to by-id route
+  getBySlug: (slug) => api.get(`/case-studies/${slug}`),  // Slug-based lookup
   create: (data) => api.post('/case-studies', data),
   update: (id, data) => api.put(`/case-studies/${id}`, data),
   delete: (id) => api.delete(`/case-studies/${id}`),
 };
 
 // ==================== SERVICES API ====================
+// src/services/api.js
 export const servicesAPI = {
   getAll: () => api.get('/services'),
-  getById: (id) => api.get(`/services/${id}`),
+  getById: (id) => api.get(`/services/by-id/${id}`),  // Keep for admin
+  getBySlug: (slug) => api.get(`/services/${slug}`),  // New method for public
   create: (data) => api.post('/services', data),
   update: (id, data) => api.put(`/services/${id}`, data),
   delete: (id) => api.delete(`/services/${id}`),

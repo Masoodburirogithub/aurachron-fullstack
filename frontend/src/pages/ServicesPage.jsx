@@ -291,15 +291,12 @@ const ServicesPage = () => {
 
                     {/* LEARN MORE */}
                     <Link
-                      to={`/services/${service.id}`}
-                      className="inline-flex items-center gap-2 text-[#F59E0B] dark:text-[#F59E0B]  font-semibold group-hover:gap-3 transition-all"
-                    >
-
-                      Learn More
-
-                      <ArrowRight className="w-4 h-4" />
-
-                    </Link>
+  to={`/services/${service.slug}`}  // Changed from service.id to service.slug
+  className="inline-flex items-center gap-2 text-[#F59E0B] dark:text-[#F59E0B] font-semibold group-hover:gap-3 transition-all"
+>
+  Learn More
+  <ArrowRight className="w-4 h-4" />
+</Link>
 
                   </div>
 

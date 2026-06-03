@@ -82,8 +82,8 @@ const CaseStudyCard = ({ study, index }) => {
         
        
 <Link 
-  to={`/case-studies/${study.id}`} 
-  className="inline-flex items-center gap-2 text-[#F59E0B] dark:text-[#F59E0B]  font-semibold text-sm group-hover:gap-3 transition-all"
+  to={`/case-studies/${study.slug}`}  // Changed from study.id to study.slug
+  className="inline-flex items-center gap-2 text-[#F59E0B] dark:text-[#F59E0B] font-semibold text-sm group-hover:gap-3 transition-all"
 >
   Read Full Story <ExternalLink className="w-3.5 h-3.5" />
 </Link>

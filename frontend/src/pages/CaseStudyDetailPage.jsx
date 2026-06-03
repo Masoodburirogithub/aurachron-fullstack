@@ -1,4 +1,5 @@
-// src/pages/CaseStudyDetailPage.jsx
+// src/pages/CaseStudyDetailPage.jsx - Update to use slug parameter
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,7 +7,7 @@ import { ArrowLeft, CheckCircle, ArrowRight, Calendar, User, Tag, ExternalLink, 
 import { caseStudiesAPI, getImageUrl } from '../services/api';
 
 const CaseStudyDetailPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();  // Changed from { id } to { slug }
   const navigate = useNavigate();
   const [caseStudy, setCaseStudy] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,12 +16,12 @@ const CaseStudyDetailPage = () => {
   useEffect(() => {
     fetchCaseStudyDetail();
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [slug]);  // Changed dependency from id to slug
 
   const fetchCaseStudyDetail = async () => {
     try {
       setLoading(true);
-      const response = await caseStudiesAPI.getById(id);
+      const response = await caseStudiesAPI.getBySlug(slug);  // Use getBySlug method
       
       if (response.data?.success) {
         setCaseStudy(response.data.data);
@@ -300,7 +301,7 @@ const CaseStudyDetailPage = () => {
         </div>
       </section>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translate(0, 0); }
           50% { transform: translate(20px, 20px); }

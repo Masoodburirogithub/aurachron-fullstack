@@ -260,6 +260,7 @@ model PageSetting {
 // prisma/schema.prisma - Add Service model
 model Service {
   id           String   @id @default(cuid())
+  slug         String   @unique 
   title        String
   description  String   @db.Text
   icon         String // Icon name (Brain, Cloud, Smartphone, etc.)
@@ -328,6 +329,7 @@ model CareerPosition {
 // Case Studies
 model CaseStudy {
   id           String   @id @default(cuid())
+  slug         String?  @unique  // ADD THIS - nullable for existing records
   title        String
   subtitle     String?
   industry     String

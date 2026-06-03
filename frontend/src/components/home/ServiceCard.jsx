@@ -155,9 +155,10 @@ perspective: 'none',
             whileHover={{ x: 8, scale: 1.02 }}
             className="inline-flex items-center gap-1.5 md:gap-2 text-[#F59E0B] dark:text-[#F59E0B] font-semibold"
           >
-            <Link to={`/services/${service.id}`} className={`inline-flex items-center gap-1.5 md:gap-2 ${isActive ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
-              Learn More <ArrowRight className={`${isActive ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4' : 'w-2.5 h-2.5 sm:w-3 sm:h-3'} transition-transform`} />
-            </Link>
+            
+<Link to={`/services/${service.slug}`} className={`inline-flex items-center gap-1.5 md:gap-2 ${isActive ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
+  Learn More <ArrowRight className={`${isActive ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4' : 'w-2.5 h-2.5 sm:w-3 sm:h-3'} transition-transform`} />
+</Link>
           </motion.div>
         </div>
       </motion.div>

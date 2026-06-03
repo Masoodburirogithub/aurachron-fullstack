@@ -46,10 +46,10 @@ function App() {
             <Route path="/" element={<Layout><HomePage /></Layout>} />
             <Route path="/about" element={<Layout><AboutPage /></Layout>} />
             <Route path="/services" element={<Layout><ServicesPage /></Layout>} />
-            <Route path="/services/:serviceId" element={<Layout><ServiceDetailPage /></Layout>} />
+            <Route path="/services/:slug" element={<Layout><ServiceDetailPage /></Layout>} />
             <Route path="/services/ai-development" element={<Layout><AIDevelopmentPage /></Layout>} />
             <Route path="/case-studies" element={<Layout><CaseStudiesPage /></Layout>} />
-            <Route path="/case-studies/:id" element={<Layout><CaseStudyDetailPage /></Layout>} />
+            <Route path="/case-studies/:slug" element={<Layout><CaseStudyDetailPage /></Layout>} />
             <Route path="/careers" element={<Layout><CareersPage /></Layout>} />
             <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
             <Route path="/demo-request" element={<DemoRequestPage />} />

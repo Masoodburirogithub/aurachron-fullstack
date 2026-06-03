@@ -7,17 +7,21 @@ import { servicesAPI } from '../services/api';
 import * as Icons from 'lucide-react';
 
 const ServiceDetailPage = () => {
-  const { serviceId } = useParams();
+  const { slug } = useParams();  // Changed from serviceId to slug
   const navigate = useNavigate();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchServiceDetails();
-  }, [serviceId]);
+    if (slug && slug !== 'null' && slug !== 'undefined') {
+      fetchServiceDetails();
+    } else {
+      setError('Invalid service URL');
+      setLoading(false);
+    }
+  }, [slug]);
 
-  // Scroll to top when page loads
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -25,7 +29,9 @@ const ServiceDetailPage = () => {
   const fetchServiceDetails = async () => {
     try {
       setLoading(true);
-      const response = await servicesAPI.getById(serviceId);
+      console.log('Fetching service with slug:', slug);
+      
+      const response = await servicesAPI.getBySlug(slug);  // Use getBySlug
       
       if (response.data?.success) {
         setService(response.data.data);
@@ -73,7 +79,7 @@ const ServiceDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-50 flex items-center justify-center">
+      <div className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading service details...</p>
@@ -86,9 +92,10 @@ const ServiceDetailPage = () => {
     return (
       <div className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'Service not found'}</p>
           <button
             onClick={() => navigate('/services')}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+            className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-white px-6 py-2 rounded-lg hover:shadow-lg transition"
           >
             Back to Services
           </button>
@@ -106,14 +113,14 @@ const ServiceDetailPage = () => {
     >
       {/* Hero Section */}
       <motion.section 
-        className={`bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70 text-white py-20`}
+        className="bg-gradient-to-r from-[#F59E0B]/90 to-[#FBBF24]/70 text-white py-20"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
         <div className="container-custom">
           <motion.button 
-            onClick={() => navigate(-1)} 
+            onClick={() => navigate('/services')} 
             className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors"
             whileHover={{ x: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
@@ -151,7 +158,7 @@ const ServiceDetailPage = () => {
         </div>
       </motion.section>
 
-      {/* Content Section */}
+      {/* Content Section - Keep the same as before */}
       <motion.section 
         className="py-16"
         variants={containerVariants}

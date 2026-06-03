@@ -247,11 +247,11 @@ const Header = ({ isTransparent = false }) => {
                             const IconComponent = getIconComponent(service.icon);
                             return (
                               <Link
-                                key={service.id}
-                                to={`/services/${service.id}`}
-                                className="group relative p-4 rounded-xl bg-white dark:bg-gray-800/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-800"
-                                onClick={() => setActiveDropdown(null)}
-                              >
+  key={service.id}
+  to={`/services/${service.slug}`}  // Changed from service.id to service.slug
+  className="group relative p-4 rounded-xl bg-white dark:bg-gray-800/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-800"
+  onClick={() => setActiveDropdown(null)}
+>
                                 <div className="flex items-start gap-3">
                                   <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5 flex-shrink-0`}>
                                     <div className="w-full h-full bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center">
@@ -395,11 +395,11 @@ const Header = ({ isTransparent = false }) => {
                         <div className="pl-8 pb-2 space-y-1">
                           {sortedServices.map((service) => (
                             <Link
-                              key={service.id}
-                              to={`/services/${service.id}`}
-                              className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 dark:text-gray-400 hover:text-[#F59E0B] transition-colors"
-                              onClick={closeMobileMenu}
-                            >
+  key={service.id}
+  to={`/services/${service.slug}`}  // Changed from service.id to service.slug
+  className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 dark:text-gray-400 hover:text-[#F59E0B] transition-colors"
+  onClick={closeMobileMenu}
+>
                               <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${service.gradient || 'from-blue-500 to-indigo-500'} p-0.5 flex-shrink-0`}>
                                 <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center">
                                   {service.icon === 'Brain' ? '🧠' : service.icon === 'Cloud' ? '☁️' : service.icon === 'Smartphone' ? '📱' : '⚙️'}

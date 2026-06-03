@@ -1,5 +1,6 @@
 // backend/src/controllers/caseStudyController.js
 const { PrismaClient } = require('@prisma/client');
+const { slugify, generateUniqueSlug } = require('../utils/slugify');
 const prisma = new PrismaClient();
 
 // Get all case studies
@@ -21,7 +22,28 @@ const getCaseStudies = async (req, res) => {
   }
 };
 
-// Get single case study
+// Get case study by slug (NEW - for dynamic URLs)
+const getCaseStudyBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    console.log('Looking for case study with slug:', slug);
+    
+    const caseStudy = await prisma.caseStudy.findUnique({
+      where: { slug: slug }
+    });
+    
+    if (!caseStudy) {
+      return res.status(404).json({ success: false, error: 'Case study not found' });
+    }
+    
+    res.json({ success: true, data: caseStudy });
+  } catch (error) {
+    console.error('Get case study by slug error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Get case study by ID (keep for backward compatibility)
 const getCaseStudyById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -40,12 +62,11 @@ const getCaseStudyById = async (req, res) => {
   }
 };
 
-// Create case study - Store base64 image directly in database (PERMANENT)
+// Create case study
 const createCaseStudy = async (req, res) => {
   try {
     const { title, subtitle, industry, technology, challenge, solution, result, imageUrl, displayOrder } = req.body;
     
-    // Validate required fields
     if (!title || !industry || !technology || !challenge || !solution || !result) {
       return res.status(400).json({ 
         success: false, 
@@ -53,10 +74,12 @@ const createCaseStudy = async (req, res) => {
       });
     }
     
-    // Store image as base64 directly in database - PERMANENT storage
+    // Generate unique slug from title
+    const slug = await generateUniqueSlug(prisma, title);
+    
     let savedImageUrl = null;
     if (imageUrl && imageUrl.startsWith('data:image')) {
-      savedImageUrl = imageUrl;  // Base64 stored in Neon database - never disappears
+      savedImageUrl = imageUrl;
     } else if (imageUrl && imageUrl.startsWith('http')) {
       savedImageUrl = imageUrl;
     } else if (imageUrl) {
@@ -66,6 +89,7 @@ const createCaseStudy = async (req, res) => {
     const caseStudy = await prisma.caseStudy.create({
       data: {
         title,
+        slug,  // Save the generated slug
         subtitle: subtitle || null,
         industry,
         technology,
@@ -89,23 +113,27 @@ const createCaseStudy = async (req, res) => {
   }
 };
 
-// Update case study - Store base64 image directly in database (PERMANENT)
+// Update case study
 const updateCaseStudy = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, subtitle, industry, technology, challenge, solution, result, imageUrl, displayOrder, isActive } = req.body;
     
-    // Get existing case study
     const existingCaseStudy = await prisma.caseStudy.findUnique({ where: { id } });
     if (!existingCaseStudy) {
       return res.status(404).json({ success: false, error: 'Case study not found' });
     }
     
     let savedImageUrl = existingCaseStudy.imageUrl;
+    let slug = existingCaseStudy.slug;
     
-    // Handle new image - store base64 directly in database (PERMANENT)
+    // If title changed, generate new slug
+    if (title && title !== existingCaseStudy.title) {
+      slug = await generateUniqueSlug(prisma, title, id);
+    }
+    
     if (imageUrl && imageUrl.startsWith('data:image')) {
-      savedImageUrl = imageUrl;  // Base64 stored in Neon database - never disappears
+      savedImageUrl = imageUrl;
     } else if (imageUrl === '') {
       savedImageUrl = null;
     } else if (imageUrl && imageUrl.startsWith('http')) {
@@ -118,6 +146,7 @@ const updateCaseStudy = async (req, res) => {
       where: { id },
       data: {
         title: title || existingCaseStudy.title,
+        slug,  // Update slug if changed
         subtitle: subtitle !== undefined ? subtitle : existingCaseStudy.subtitle,
         industry: industry || existingCaseStudy.industry,
         technology: technology || existingCaseStudy.technology,
@@ -145,9 +174,7 @@ const updateCaseStudy = async (req, res) => {
 const deleteCaseStudy = async (req, res) => {
   try {
     const { id } = req.params;
-    
     await prisma.caseStudy.delete({ where: { id } });
-    
     res.json({ success: true, message: 'Case study deleted successfully' });
   } catch (error) {
     console.error('Delete case study error:', error);
@@ -158,6 +185,7 @@ const deleteCaseStudy = async (req, res) => {
 module.exports = {
   getCaseStudies,
   getCaseStudyById,
+  getCaseStudyBySlug,  // Export the new function
   createCaseStudy,
   updateCaseStudy,
   deleteCaseStudy
