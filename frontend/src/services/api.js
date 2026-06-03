@@ -2,8 +2,8 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://aurachron-api.onrender.com/api';
+const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || 'https://aurachron-api.onrender.com';
 
 // console.log('API Base URL:', API_BASE_URL);
 // console.log('Image Base URL:', IMAGE_BASE_URL);
@@ -18,8 +18,27 @@ const api = axios.create({
 // Helper function to get full image URL
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
-  if (imagePath.startsWith('http')) return imagePath;
-  if (imagePath.startsWith('/uploads')) return `${IMAGE_BASE_URL}${imagePath}`;
+  
+  // If it's base64 (starts with data:image), return as-is - PERMANENT storage!
+  if (imagePath.startsWith('data:image')) {
+    return imagePath;
+  }
+  
+  // If it's a video base64
+  if (imagePath.startsWith('data:video')) {
+    return imagePath;
+  }
+  
+  // If it's a full URL, return as is
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+  
+  // For any other path (local uploads - fallback)
+  if (imagePath.startsWith('/uploads')) {
+    return `${IMAGE_BASE_URL}${imagePath}`;
+  }
+  
   return `${IMAGE_BASE_URL}/uploads/${imagePath}`;
 };
 

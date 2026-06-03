@@ -48,32 +48,31 @@ const CaseStudyCard = ({ study, index }) => {
     >
       {/* Image Section - Fixed with getImageUrl */}
       <div style={{ position: 'relative', height: '280px', overflow: 'hidden', backgroundColor: '#f3f4f6' }}>
-        {study.imageUrl ? (
-          <img 
-            src={getImageUrl(study.imageUrl)}
-            alt={study.title} 
-            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            onError={(e) => {
-              // console.error('Image failed to load:', getImageUrl(study.imageUrl));
-              e.target.onerror = null;
-              e.target.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Found';
-            }}
-          />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
-            <ImageIcon size={64} style={{ color: '#818cf8' }} />
-          </div>
-        )}
-        <div style={{ position: 'absolute', bottom: '12px', left: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {tags.slice(0, 2).map((tag, i) => (
-            <span key={i} style={{ fontSize: '11px', backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', color: 'white', padding: '5px 12px', borderRadius: '9999px' }}>
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
+  {study.imageUrl ? (
+    <img 
+      src={study.imageUrl.startsWith('data:') ? study.imageUrl : getImageUrl(study.imageUrl)}
+      alt={study.title} 
+      style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Found';
+      }}
+    />
+  ) : (
+    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
+      <ImageIcon size={64} style={{ color: '#818cf8' }} />
+    </div>
+  )}
+  <div style={{ position: 'absolute', bottom: '12px', left: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+    {tags.slice(0, 2).map((tag, i) => (
+      <span key={i} style={{ fontSize: '11px', backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', color: 'white', padding: '5px 12px', borderRadius: '9999px' }}>
+        {tag}
+      </span>
+    ))}
+  </div>
+</div>
       
       {/* Content Section */}
       <div style={{ padding: '28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -132,34 +131,13 @@ const CaseStudiesSection = () => {
   };
 
   if (loading) {
-    return (
-      <div style={{ padding: '80px 20px', backgroundColor: '#f9fafb' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-            <div style={{ display: 'inline-block', height: '30px', width: '150px', backgroundColor: '#e5e7eb', borderRadius: '9999px', marginBottom: '16px' }}></div>
-            <div style={{ height: '48px', width: '300px', backgroundColor: '#e5e7eb', borderRadius: '8px', margin: '0 auto 16px' }}></div>
-            <div style={{ height: '24px', width: '350px', backgroundColor: '#e5e7eb', borderRadius: '8px', margin: '0 auto' }}></div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px' }}>
-            {[1, 2, 3].map(i => (
-              <div key={i} style={{ height: '520px', backgroundColor: '#e5e7eb', borderRadius: '16px', animation: 'pulse 1.5s ease-in-out infinite' }}></div>
-            ))}
-          </div>
-        </div>
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-          }
-        `}</style>
-      </div>
-    );
+    return null
   }
 
   const displayStudies = caseStudies.filter(study => study.isActive !== false);
 
   return (
-    <div ref={ref} style={{ padding: '80px 20px', backgroundColor: '#f9fafb' }}>
+    <div ref={ref} style={{ padding: '50px 20px', backgroundColor: '#f9fafb' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* HEADER SECTION */}
         <motion.div

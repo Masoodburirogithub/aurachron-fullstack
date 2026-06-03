@@ -285,9 +285,9 @@
   width: 60px;
   height: 60px;
   border: 3px solid rgba(99, 102, 241, 0.2);
-  border-top-color: gold;
-  border-right-color: gold;
-  border-bottom-color: goldenrod;
+  border-top-color: white;
+  border-right-color: white;
+  border-bottom-color: white;
   border-radius: 50%;
   animation: rotate-slow 1s linear infinite;
 }

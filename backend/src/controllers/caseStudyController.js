@@ -1,57 +1,6 @@
 // backend/src/controllers/caseStudyController.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const fs = require('fs');
-const path = require('path');
-
-// Ensure upload directory exists
-const ensureUploadDir = () => {
-  const uploadDir = path.join(__dirname, '../../uploads/case-studies');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-  return uploadDir;
-};
-
-// Save base64 image to file
-const saveImage = (base64String, id) => {
-  try {
-    if (!base64String || !base64String.startsWith('data:image')) {
-      return base64String;
-    }
-    
-    // Extract image type and data
-    const matches = base64String.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      console.error('Invalid base64 format');
-      return null;
-    }
-    
-    const imageType = matches[1];
-    const imageData = matches[2];
-    const buffer = Buffer.from(imageData, 'base64');
-    
-    // Check file size (max 5MB)
-    if (buffer.length > 5 * 1024 * 1024) {
-      console.error('Image too large:', buffer.length);
-      return null;
-    }
-    
-    // Create filename and save path
-    const filename = `${id}_${Date.now()}.${imageType}`;
-    const uploadDir = ensureUploadDir();
-    const filepath = path.join(uploadDir, filename);
-    
-    fs.writeFileSync(filepath, buffer);
-    console.log('Image saved:', filepath);
-    
-    // Return the URL path (without domain)
-    return `/uploads/case-studies/${filename}`;
-  } catch (error) {
-    console.error('Error saving image:', error);
-    return null;
-  }
-};
 
 // Get all case studies
 const getCaseStudies = async (req, res) => {
@@ -91,12 +40,10 @@ const getCaseStudyById = async (req, res) => {
   }
 };
 
-// Create case study
+// Create case study - Store base64 image directly in database (PERMANENT)
 const createCaseStudy = async (req, res) => {
   try {
     const { title, subtitle, industry, technology, challenge, solution, result, imageUrl, displayOrder } = req.body;
-    
-    console.log('Creating case study with image:', imageUrl ? 'Has image' : 'No image');
     
     // Validate required fields
     if (!title || !industry || !technology || !challenge || !solution || !result) {
@@ -106,13 +53,10 @@ const createCaseStudy = async (req, res) => {
       });
     }
     
+    // Store image as base64 directly in database - PERMANENT storage
     let savedImageUrl = null;
-    
-    // Handle image upload
     if (imageUrl && imageUrl.startsWith('data:image')) {
-      const tempId = Date.now().toString();
-      savedImageUrl = saveImage(imageUrl, tempId);
-      console.log('Saved image URL:', savedImageUrl);
+      savedImageUrl = imageUrl;  // Base64 stored in Neon database - never disappears
     } else if (imageUrl && imageUrl.startsWith('http')) {
       savedImageUrl = imageUrl;
     } else if (imageUrl) {
@@ -145,13 +89,11 @@ const createCaseStudy = async (req, res) => {
   }
 };
 
-// Update case study
+// Update case study - Store base64 image directly in database (PERMANENT)
 const updateCaseStudy = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, subtitle, industry, technology, challenge, solution, result, imageUrl, displayOrder, isActive } = req.body;
-    
-    console.log('Updating case study:', id, 'Image URL:', imageUrl ? 'Has image' : 'No image');
     
     // Get existing case study
     const existingCaseStudy = await prisma.caseStudy.findUnique({ where: { id } });
@@ -161,10 +103,9 @@ const updateCaseStudy = async (req, res) => {
     
     let savedImageUrl = existingCaseStudy.imageUrl;
     
-    // Handle new image upload
+    // Handle new image - store base64 directly in database (PERMANENT)
     if (imageUrl && imageUrl.startsWith('data:image')) {
-      savedImageUrl = saveImage(imageUrl, id);
-      console.log('New image saved URL:', savedImageUrl);
+      savedImageUrl = imageUrl;  // Base64 stored in Neon database - never disappears
     } else if (imageUrl === '') {
       savedImageUrl = null;
     } else if (imageUrl && imageUrl.startsWith('http')) {
@@ -204,18 +145,6 @@ const updateCaseStudy = async (req, res) => {
 const deleteCaseStudy = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Get case study to delete its image
-    const caseStudy = await prisma.caseStudy.findUnique({ where: { id } });
-    
-    // Delete image file if it exists locally
-    if (caseStudy?.imageUrl && caseStudy.imageUrl.startsWith('/uploads/')) {
-      const imagePath = path.join(__dirname, '../../', caseStudy.imageUrl);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-        console.log('Deleted image:', imagePath);
-      }
-    }
     
     await prisma.caseStudy.delete({ where: { id } });
     

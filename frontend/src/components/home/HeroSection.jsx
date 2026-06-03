@@ -1,4 +1,4 @@
-// src/components/home/HeroSection.jsx - Clean Simple Version
+// src/components/home/HeroSection.jsx - Fixed Version (No Skeleton)
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -6,7 +6,7 @@ import { ArrowRight, Play, TrendingUp, Clock, Award, Sparkles } from 'lucide-rea
 import { heroAPI } from '../../services/api';
 
 // ✅ Use env var with localhost fallback for dev
-const MEDIA_BASE_URL = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
+const MEDIA_BASE_URL = import.meta.env.VITE_IMAGE_URL || 'https://aurachron-api.onrender.com';
 
 const HeroSection = () => {
   const videoRef = useRef(null);
@@ -24,7 +24,6 @@ const HeroSection = () => {
       { value: "100%", label: "Client Satisfaction", icon: "Award" }
     ]
   });
-  const [loading, setLoading] = useState(true);
   const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
@@ -33,24 +32,25 @@ const HeroSection = () => {
 
   const fetchHeroSettings = async () => {
     try {
-      setLoading(true);
       const response = await heroAPI.getSettings();
       if (response.data?.success && response.data.data) {
         setHeroSettings(response.data.data);
       }
     } catch (error) {
       console.error('Error fetching hero settings:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   // ✅ Helper to build a fully-qualified media URL from any input
   const buildMediaUrl = (url) => {
-    if (!url) return null;
-    if (url.startsWith('http')) return url;
-    return `${MEDIA_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-  };
+  if (!url) return null;
+  // Handle base64 video (permanent storage)
+  if (url.startsWith('data:video')) {
+    return url;
+  }
+  if (url.startsWith('http')) return url;
+  return `${MEDIA_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+};
 
   useEffect(() => {
     if (!heroSettings.videoUrl || videoError) return;
@@ -77,10 +77,6 @@ const HeroSection = () => {
       default: return TrendingUp;
     }
   };
-
-  if (loading) {
-    return null;
-  }
 
   const hasVideo = heroSettings.videoUrl && !videoError;
   const videoSource = buildMediaUrl(heroSettings.videoUrl);

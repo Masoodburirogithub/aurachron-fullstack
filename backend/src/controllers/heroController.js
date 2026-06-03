@@ -1,8 +1,6 @@
 // backend/src/controllers/heroController.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const fs = require('fs');
-const path = require('path');
 
 // Get hero settings (Public)
 const getHeroSettings = async (req, res) => {
@@ -79,18 +77,25 @@ const updateHeroSettings = async (req, res) => {
   }
 };
 
-// Upload video file (Admin)
+// Upload video - Store as base64 in database (PERMANENT)
 const uploadVideo = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No video file uploaded' });
     }
     
-    // Create the full URL for the video
-    const videoUrl = `/uploads/hero/${req.file.filename}`;
-    // console.log('Video uploaded successfully:', videoUrl);
+    // Read video file and convert to base64 for permanent storage
+    const fs = require('fs');
+    const videoBuffer = fs.readFileSync(req.file.path);
+    const base64Video = videoBuffer.toString('base64');
+    const mimeType = req.file.mimetype;
+    const dataUrl = `data:${mimeType};base64,${base64Video}`;
     
-    res.json({ success: true, data: { videoUrl }, message: 'Video uploaded successfully' });
+    // Clean up temp file
+    fs.unlinkSync(req.file.path);
+    
+    // Return the data URL to be stored in database
+    res.json({ success: true, data: { videoUrl: dataUrl }, message: 'Video uploaded successfully' });
   } catch (error) {
     console.error('Upload video error:', error);
     res.status(500).json({ success: false, error: error.message });

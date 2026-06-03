@@ -31,7 +31,7 @@ const RagChatbot = () => {
   const lastMessageCountRef = useRef(0);
 
   useEffect(() => {
-const newSocket = io(import.meta.env.VITE_WS_URL || 'http://localhost:5000');
+const newSocket = io(import.meta.env.VITE_WS_URL || 'https://aurachron-api.onrender.com');
 
     setSocket(newSocket);
     

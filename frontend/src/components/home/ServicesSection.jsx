@@ -72,7 +72,7 @@ const ServicesSection = () => {
   }
 
   return (
-    <div ref={ref} className="py-8 md:py-20 bg-gray-50 dark:bg-gray-900 overflow-hidden relative">
+    <div ref={ref} className="py-8 md:py-12 bg-gray-50 dark:bg-gray-900 overflow-hidden relative">
       <div className="container-custom relative z-10">
         {/* HEADER SECTION - Matching CaseStudiesSection text sizes */}
         <motion.div
@@ -80,7 +80,7 @@ const ServicesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true, amount: 0.3 }}
-          className="text-center mb-6 md:mb-12"
+          className="text-center mb-1 md:mb-1"
         >
           <div className="inline-flex items-center gap-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-full px-3 md:px-6 py-1.5 md:py-2 mb-4 md:mb-4">
             <Sparkles size={16} className="md:w-[18px] md:h-[18px] text-indigo-600 dark:text-indigo-400" />
@@ -97,7 +97,7 @@ const ServicesSection = () => {
         </motion.div>
 
         {/* Carousel */}
-        <div className="relative px-2 md:px-4 lg:px-16 py-4 md:py-12">
+        <div className="relative px-2 md:px-4 lg:px-16 py-4 md:py-8">
           <Swiper
             grabCursor={true}
             centeredSlides={true}
@@ -160,8 +160,8 @@ const ServicesSection = () => {
           </button>
         </div>
 
-        {/* Slide Indicators - Changed to Gold */}
-        <div className="flex justify-center gap-2 md:gap-3 mt-4 md:mt-8">
+        {/* Slide Indicators - Reduced top margin only */}
+        <div className="flex justify-center gap-2 md:gap-3 mt-0 md:mt-0">
           {displayServices.map((_, idx) => (
             <button
               key={idx}
